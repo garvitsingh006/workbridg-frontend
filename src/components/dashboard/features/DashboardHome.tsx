@@ -11,7 +11,7 @@ import {
   Clock,
   CheckCircle
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+ 
 
 type DashboardHomeProps = {
   onViewAllProjects: () => void;
@@ -21,13 +21,13 @@ export default function DashboardHome({ onViewAllProjects }: DashboardHomeProps)
   const { user } = useUser();
   const { projects } = useProject();
   const { chats } = useChat();
-  const navigate = useNavigate();
+  
 
   // Calculate stats from context data
   const completedProjects = projects.filter(p => p.status === 'completed').length;
   const activeProjects = projects.filter(p => p.status === 'in-progress').length;
   const unreadMessages = chats.reduce((total, chat) => {
-    return total + (user ? chat.messages.filter(msg => !msg.read && msg.sender.id !== user.id).length : 0);
+    return total + (user ? chat.messages.filter(msg => !msg.read && msg.sender._id !== user.id).length : 0);
   }, 0);
 
   const stats = [
@@ -80,15 +80,22 @@ export default function DashboardHome({ onViewAllProjects }: DashboardHomeProps)
   }));
 
   // Get recent messages from context
-  const recentMessages = chats.flatMap(chat => 
-    chat.messages.slice(-1).map(msg => ({
-      id: msg.id,
-      sender: msg.sender.fullName,
-      message: msg.content,
-      time: new Date(msg.timestamp).toLocaleString(),
-      unread: !msg.read && user ? msg.sender.id !== user.id : false,
-    }))
-  ).slice(0, 3);
+  const recentMessages = chats
+    .map(chat => {
+      const latest = [...chat.messages].reverse().find(m => !m.read && m.sender?._id !== (user?.id || ''));
+      if (!latest) return null;
+      const titleRaw = chat.type === 'project' && chat.project ? chat.project.title : (latest.sender?.username || 'User');
+      const title = (titleRaw?.toLowerCase?.() === 'admin') ? 'Admin' : titleRaw;
+      return {
+        id: `${chat._id}-${latest.timestamp?.toString?.() || Date.now()}`,
+        sender: title,
+        message: latest.content || '',
+        time: new Date(latest.timestamp).toLocaleString(),
+        unread: true,
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 3) as Array<{id: string; sender: string; message: string; time: string; unread: boolean}>;
 
   return (
     <div className="p-6 space-y-6">
@@ -178,7 +185,7 @@ export default function DashboardHome({ onViewAllProjects }: DashboardHomeProps)
               <div key={message.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                 <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-white text-sm font-medium">
-                    {message.sender.charAt(0)}
+                    {(message.sender || 'U').charAt(0)}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">

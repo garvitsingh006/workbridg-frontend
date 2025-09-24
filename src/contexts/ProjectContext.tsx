@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { User } from "./UserContext";
 import axios from "axios";
+import { useUser } from "./UserContext";
 
 // Types for Project Context
 export interface Remark {
@@ -36,6 +37,13 @@ export interface Project {
     updatedAt: Date;
 }
 
+export interface ProjectApplication {
+    fullName: string;
+    deadline: string;
+    expectedPayment: number;
+    appliedAt: string;
+}
+
 // Project methods interface
 export interface ProjectMethods {
     updateStatus: (
@@ -55,6 +63,8 @@ interface ProjectContextType {
     loading: boolean;
     error: string | null;
     fetchProjects: () => Promise<void>;
+    applyToProject: (projectId: string, payload: { deadline: string; expectedPayment: number }) => Promise<void>;
+    getProjectApplications: (projectId: string) => Promise<ProjectApplication[]>;
     fetchProjectById: (projectId: string) => Promise<Project | null>;
     createProject: (projectData: Partial<Project>) => Promise<Project>;
     updateProject: (
@@ -95,16 +105,18 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { user } = useUser();
 
     const fetchProjects = async () => {
         try {
             setLoading(true);
             setError(null);
 
-            const response = await axios.get(
-                `${import.meta.env.VITE_SERVER}/projects/all`,
-                { withCredentials: true }
-            );
+            const endpoint = (user?.userType === "admin" || user?.userType === "freelancer")
+                ? `${import.meta.env.VITE_SERVER}/projects/users/all`
+                : `${import.meta.env.VITE_SERVER}/projects/all`;
+
+            const response = await axios.get(endpoint, { withCredentials: true });
             const projectsData = response.data.data;
             setProjects(projectsData);
         } catch (err) {
@@ -113,6 +125,45 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
             );
         } finally {
             setLoading(false);
+        }
+    };
+
+    const applyToProject = async (
+        projectId: string,
+        payload: { deadline: string; expectedPayment: number }
+      ): Promise<void> => {
+        try {
+          setError(null);
+          await axios.post(
+            `${import.meta.env.VITE_SERVER}/projects/${projectId}/apply`,
+            payload,
+            { withCredentials: true }
+          );
+        } catch (err: any) {
+          const message = err?.response?.data?.message || err?.message || "Failed to apply to project";
+          setError(message);
+          // Throw a clean Error with backend message so UI can show it
+          throw new Error(message);
+        }
+      };
+      
+    const getProjectApplications = async (
+        projectId: string
+    ): Promise<ProjectApplication[]> => {
+        try {
+            setError(null);
+            const res = await axios.get(
+                `${import.meta.env.VITE_SERVER}/projects/${projectId}/applications`,
+                { withCredentials: true }
+            );
+            return res.data?.data || [];
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to fetch project applications"
+            );
+            return [];
         }
     };
 
@@ -254,6 +305,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         loading,
         error,
         fetchProjects,
+        applyToProject,
+        getProjectApplications,
         fetchProjectById,
         createProject,
         updateProject,

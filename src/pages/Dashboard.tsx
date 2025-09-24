@@ -9,9 +9,10 @@ import MessagesFeature from "../components/dashboard/features/MessageFeature";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
-export default function FreelancerDashboard() {
-    
+export default function Dashboard() {
+
     const navigate = useNavigate()
+    const {fetchUser} = useUser()
     useEffect(() => {
         const func = async () => {
             const freshUser = await fetchUser(); // Assume fetchUser returns user object or null
@@ -19,14 +20,18 @@ export default function FreelancerDashboard() {
             if (!freshUser) {
                 navigate("/login");
                 console.log("No user found, that's why login");
+            } else {
+                const role = freshUser.userType;
+                if (role === 'freelancer') navigate('/dashboard/freelancer');
+                else if (role === 'client') navigate('/dashboard/client');
+                else if (role === 'admin') navigate('/dashboard/admin');
             }
         }
         func()
     }, [])
-    
+
     const [activeFeature, setActiveFeature] = useState("home");
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const {fetchUser} = useUser()
 
     
 

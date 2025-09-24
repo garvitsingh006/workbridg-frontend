@@ -31,8 +31,11 @@ const LoginPage: React.FC = () => {
             navigate("/set-details");
             console.log("No user found, that's why set details");
         } else {
-            navigate("/dashboard");
-            console.log("User found, that's why dashboard");
+            const role = freshUser.userType;
+            if (role === "freelancer") navigate("/dashboard/freelancer");
+            else if (role === "client") navigate("/dashboard/client");
+            else if (role === "admin") navigate("/dashboard/admin");
+            else navigate("/dashboard");
         }
     };
 

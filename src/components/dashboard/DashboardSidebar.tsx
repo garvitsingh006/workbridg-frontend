@@ -28,10 +28,24 @@ export default function DashboardSidebar({
     isMobileOpen,
     onCloseMobile,
 }: DashboardSidebarProps) {
-    const menuItems = [
+    const isAdmin = useUser().user?.userType === "admin";
+    const isFreelancer = useUser().user?.userType === "freelancer";
+    const baseItems = [
         { id: "home", label: "Dashboard", icon: Home },
-        { id: "projects", label: "My Projects", icon: FolderOpen },
+        { id: "projects", label: isAdmin ? "Project Review" : isFreelancer ? "Projects" : "Projects", icon: FolderOpen },
         { id: "messages", label: "Messages", icon: MessageCircle },
+    ];
+    const adminExtras = [
+        { id: "applications", label: "Applications", icon: FolderOpen },
+        { id: "users", label: "User Profiles", icon: User },
+        { id: "escrow", label: "Escrow & Payments", icon: DollarSign },
+        { id: "agreements", label: "Agreements", icon: FolderOpen },
+        { id: "disputes", label: "Disputes", icon: Bell },
+        { id: "analytics", label: "Analytics & Reports", icon: BarChart3 },
+        { id: "announcements", label: "Announcements", icon: Bell },
+        { id: "settings", label: "Settings & Permissions", icon: Settings },
+    ];
+    const nonAdminExtras = [
         { id: "earnings", label: "Earnings", icon: DollarSign },
         { id: "analytics", label: "Analytics", icon: BarChart3 },
         { id: "calendar", label: "Calendar", icon: Calendar },
@@ -39,6 +53,7 @@ export default function DashboardSidebar({
         { id: "profile", label: "Profile", icon: User },
         { id: "settings", label: "Settings", icon: Settings },
     ];
+    const menuItems = isAdmin ? [...baseItems, ...adminExtras] : [...baseItems, ...nonAdminExtras];
 
     const navigate = useNavigate()
 
@@ -73,9 +88,37 @@ export default function DashboardSidebar({
             }`}
         >
             <item.icon className="w-5 h-5" />
-            <span className="font-medium">{item.label}</span>
+            <span className="font-medium relative">
+                {item.label}
+                {item.id === "messages" && (
+                    <UnreadBadge />
+                )}
+            </span>
         </button>
     );
+
+    const UnreadBadge = () => {
+        try {
+            const { chats } = useChatSafe();
+            const { user } = useUser();
+            const count = chats.reduce((acc, c) => acc + c.messages.filter(m => !m.read && m.sender._id !== (user?.id || "")).length, 0);
+            if (count <= 0) return null;
+            return (
+                <span className="absolute -top-2 -right-4 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px]">
+                    {count}
+                </span>
+            );
+        } catch {
+            return null;
+        }
+    };
+
+    function useChatSafe() {
+        // Lazy import to avoid circular deps in some bundlers
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { useChat } = require("../../contexts/ChatContext");
+        return useChat();
+    }
 
     return (
         <>

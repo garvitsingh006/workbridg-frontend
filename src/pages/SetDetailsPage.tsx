@@ -59,7 +59,7 @@ export default function SetDetailsPage() {
         username: string;
         fullName: string;
         email: string;
-        role: "freelancer" | "client";
+        role: "freelancer" | "client" | "admin";
     }
     
 
@@ -72,6 +72,10 @@ export default function SetDetailsPage() {
             const res = await fetchLoginDetails();
             if (!res) {
                 console.error("Cannot access login details!");
+                return;
+            }
+            if (res.role === "admin") {
+                navigate("/dashboard/admin");
                 return;
             }
             setUserType(res.role === "client" ? "client" : "freelancer");

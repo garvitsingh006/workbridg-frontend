@@ -9,8 +9,12 @@ import LoginPage from "./pages/LoginPage";
 import Register from "./pages/Register";
 import AboutPage from "./pages/AboutPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
-import FreelancerDashboard from "./pages/FreelancerDashboard";
+import Dashboard from "./pages/Dashboard";
+import DashboardClient from "./pages/DashboardClient";
+import DashboardFreelancer from "./pages/DashboardFreelancer";
+import DashboardAdmin from "./pages/DashboardAdmin";
 import SetDetailsPage from "./pages/SetDetailsPage";
+import PublicProfilePage from "./pages/PublicProfilePage";
 
 function App() {
     return (
@@ -21,11 +25,12 @@ function App() {
                         <div className="min-h-screen flex flex-col">
                             <Routes>
                                 {/* Dashboard routes (without header/footer) */}
-                                <Route
-                                    path="/dashboard"
-                                    element={<FreelancerDashboard />}
-                                />
+                                <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/dashboard/client" element={<DashboardClient />} />
+                                <Route path="/dashboard/freelancer" element={<DashboardFreelancer />} />
+                                <Route path="/dashboard/admin" element={<DashboardAdmin />} />
                                 <Route path="/login" element={<LoginPage />} />
+                                <Route path="/profile/:username" element={<PublicProfilePage />} />
                                 <Route
                                     path="/register"
                                     element={<Register />}

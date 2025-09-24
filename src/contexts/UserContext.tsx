@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 // Types for User Context
 export interface WorkExperience {
@@ -41,7 +40,7 @@ export interface User {
     username: string;
     email: string;
     fullName: string;
-    userType: "freelancer" | "client";
+    userType: "freelancer" | "client" | "admin";
     freelancerDetails?: FreelancerDetails;
     clientDetails?: ClientDetails;
     createdAt: Date;
@@ -54,6 +53,7 @@ interface UserContextType {
     error: string | null;
     fetchUser: () => Promise<User | null>;
     fetchLoginDetails: () => Promise<{
+        id: string;
         username: string;
         fullName: string;
         email: string;
@@ -92,6 +92,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             );
             const data = response.data.data;
             return {
+                id: data._id || data.id || "",
                 username: data.username,
                 fullName: data.fullName,
                 email: data.email,
@@ -120,7 +121,22 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 setLoading(false);
                 return null;
             }
-            const { username } = loginDetails;
+            const { username, role, id, fullName, email } = loginDetails;
+
+            // Admins don't have a profile in the same way; short-circuit to avoid profile fetch
+            if (role === "admin") {
+                const adminUser: User = {
+                    id: id || username,
+                    username,
+                    email: email || "",
+                    fullName,
+                    userType: "admin",
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                };
+                setUser(adminUser);
+                return adminUser;
+            }
 
             const response = await axios.get(
                 `${import.meta.env.VITE_SERVER}/profiles/${username}`,
@@ -133,7 +149,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 username: backendData.user.username,
                 email: backendData.user.email || "",
                 fullName: backendData.user.fullName,
-                userType: backendData.user.role, // "freelancer" or "client"
+                userType: backendData.user.role, // "freelancer" | "client" | "admin"
                 ...(backendData.user.role === "freelancer" && {
                     freelancerDetails: {
                         location: backendData.location || "",

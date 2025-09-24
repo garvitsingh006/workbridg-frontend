@@ -1,21 +1,28 @@
 import React from "react";
 import { FolderOpen, Plus, Filter, Search } from "lucide-react";
 import { useProject } from "../../../contexts/ProjectContext";
+import { useUser } from "../../../contexts/UserContext";
 import CreateProjectModal from "../../modals/CreateProjectModal";
 import ProjectDetailsModal from "../../modals/ProjectDetailsModal";
 import EditProjectModal from "../../modals/EditProjectModal";
 import StatusUpdateModal from "../../modals/StatusUpdateModal";
+import ApplyProjectModal from "../../modals/ApplyProjectModal";
 import type { Project } from "../../../contexts/ProjectContext";
 
 export default function Projects() {
     const [searchTerm, setSearchTerm] = React.useState("");
-    const { projects } = useProject();
+    const { projects, applyToProject, fetchProjects } = useProject();
+    React.useEffect(() => {
+        fetchProjects();
+    }, []);
+    const { user } = useUser();
     const [createModalOpen, setCreateModalOpen] = React.useState(false);
     const [detailsModalOpen, setDetailsModalOpen] = React.useState(false);
     const [editModalOpen, setEditModalOpen] = React.useState(false);
     const [statusModalOpen, setStatusModalOpen] = React.useState(false);
     const [selectedProject, setSelectedProject] =
         React.useState<Project | null>(null);
+    const [applyOpen, setApplyOpen] = React.useState(false);
 
     // Transform projects for display
     const displayProjects = projects
@@ -80,7 +87,7 @@ export default function Projects() {
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            {user?.userType === 'client' && <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">
                         My Projects
@@ -89,14 +96,16 @@ export default function Projects() {
                         Manage and track all your freelance projects
                     </p>
                 </div>
-                <button
-                    onClick={() => setCreateModalOpen(true)}
-                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                    <Plus className="w-4 h-4" />
-                    <span>New Project</span>
-                </button>
-            </div>
+                {user?.userType === 'client' && (
+                    <button
+                        onClick={() => setCreateModalOpen(true)}
+                        className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span>New Project</span>
+                    </button>
+                )}
+            </div>}
 
             {/* Filters and Search */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -234,6 +243,18 @@ export default function Projects() {
                                 >
                                     Update
                                 </button>
+                                {user?.userType === 'freelancer' && (
+                                    <button
+                                        onClick={() => {
+                                            const originalProject = projects.find((p) => p.id === project.id) || null;
+                                            setSelectedProject(originalProject);
+                                            setApplyOpen(true);
+                                        }}
+                                        className="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                    >
+                                        Apply
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -241,7 +262,7 @@ export default function Projects() {
             </div>
 
             {/* Empty State (if no projects) */}
-            {displayProjects.length === 0 && (
+            {displayProjects.length === 0 && user?.userType === 'client' && (
                 <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
                     <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -296,6 +317,14 @@ export default function Projects() {
                     setSelectedProject(null);
                 }}
                 project={selectedProject}
+            />
+            <ApplyProjectModal
+                isOpen={applyOpen}
+                onClose={() => setApplyOpen(false)}
+                onSubmit={async ({ deadline, expectedPayment }) => {
+                    if (!selectedProject) return;
+                    await applyToProject(selectedProject.id, { deadline, expectedPayment });
+                }}
             />
         </div>
     );

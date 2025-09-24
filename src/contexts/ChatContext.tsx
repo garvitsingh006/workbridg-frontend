@@ -79,31 +79,62 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchChats = async () => {
+  const normalizeMessage = (msg: any): Message => {
+    return {
+      sender: {
+        _id: msg.sender?._id || msg.senderId || msg.userId || msg.sender || '',
+        username: msg.sender?.username || msg.sender?.fullName || msg.senderName || msg.username || 'User',
+      },
+      content: msg.content || msg.text || msg.message || '',
+      timestamp: new Date(msg.timestamp || msg.createdAt || Date.now()),
+      read: Boolean(msg.read ?? msg.isRead ?? false),
+    };
+  };
+
+  const normalizeChat = (chat: any): Chat => {
+    return {
+      _id: chat._id || chat.id,
+      type: chat.type === 'project' || chat.project ? 'project' : 'individual',
+      participants: (chat.participants || chat.users || []).map((p: any) => ({
+        _id: p._id || p.id,
+        username: p.username || p.fullName || p.name || 'User',
+      })),
+      project: chat.project
+        ? {
+            _id: chat.project._id || chat.project.id,
+            title: chat.project.title || chat.project.name || 'Project',
+          }
+        : undefined,
+      messages: Array.isArray(chat.messages) ? chat.messages.map(normalizeMessage) : [],
+      status: (chat.status as any) || 'approved',
+      adminAdded: Boolean(chat.adminAdded ?? (chat.status === 'with_admin')),
+      createdAt: new Date(chat.createdAt || Date.now()),
+      updatedAt: new Date(chat.updatedAt || chat.createdAt || Date.now()),
+    } as Chat;
+  };
+
+  const fetchChats = async (silent: boolean = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
       
       const response = await axios.get('/chats/user');
-      const chatsData = response.data.data;
-      
-      // Transform dates from strings to Date objects
-      const transformedChats = chatsData.map((chat: any) => ({
-        ...chat,
-        createdAt: new Date(chat.createdAt),
-        updatedAt: new Date(chat.updatedAt),
-        messages: chat.messages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }))
-      }));
-      
-      setChats(transformedChats);
+      const chatsData = response.data?.data || response.data || [];
+      const transformedChats = (Array.isArray(chatsData) ? chatsData : []).map(normalizeChat);
+      // Only update state if something meaningful changed to avoid UI flicker
+      const prev = chats;
+      const prevKey = prev.map(c => `${c._id}:${c.updatedAt?.toString?.()}`).join('|');
+      const nextKey = transformedChats.map(c => `${c._id}:${c.updatedAt?.toString?.()}`).join('|');
+      if (prevKey !== nextKey) {
+        setChats(transformedChats);
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch chats');
-      console.error('Error fetching chats:', err);
+      if (!silent) {
+        setError(err.response?.data?.message || 'Failed to fetch chats');
+        console.error('Error fetching chats:', err);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -116,18 +147,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         content
       });
       
-      const updatedChat = response.data.data;
-      
-      // Transform dates
-      const transformedChat = {
-        ...updatedChat,
-        createdAt: new Date(updatedChat.createdAt),
-        updatedAt: new Date(updatedChat.updatedAt),
-        messages: updatedChat.messages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }))
-      };
+      const updatedChat = response.data?.data || response.data;
+      const transformedChat = normalizeChat(updatedChat);
       
       setChats(prev => prev.map(chat => 
         chat._id === chatId ? transformedChat : chat
@@ -186,18 +207,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       setError(null);
       
       const response = await axios.patch(`/chats/${chatId}/add-admin`);
-      const updatedChat = response.data.data;
-      
-      // Transform dates
-      const transformedChat = {
-        ...updatedChat,
-        createdAt: new Date(updatedChat.createdAt),
-        updatedAt: new Date(updatedChat.updatedAt),
-        messages: updatedChat.messages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }))
-      };
+      const updatedChat = response.data?.data || response.data;
+      const transformedChat = normalizeChat(updatedChat);
       
       setChats(prev => prev.map(chat => 
         chat._id === chatId ? transformedChat : chat
@@ -213,18 +224,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       setError(null);
       
       const response = await axios.patch(`/chats/${chatId}/approve`);
-      const updatedChat = response.data.data;
-      
-      // Transform dates
-      const transformedChat = {
-        ...updatedChat,
-        createdAt: new Date(updatedChat.createdAt),
-        updatedAt: new Date(updatedChat.updatedAt),
-        messages: updatedChat.messages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }))
-      };
+      const updatedChat = response.data?.data || response.data;
+      const transformedChat = normalizeChat(updatedChat);
       
       setChats(prev => prev.map(chat => 
         chat._id === chatId ? transformedChat : chat
@@ -246,18 +247,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         project: projectId
       });
       
-      const newChat = response.data.data;
-      
-      // Transform dates
-      const transformedChat = {
-        ...newChat,
-        createdAt: new Date(newChat.createdAt),
-        updatedAt: new Date(newChat.updatedAt),
-        messages: newChat.messages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }))
-      };
+      const newChat = response.data?.data || response.data;
+      const transformedChat = normalizeChat(newChat);
       
       setChats(prev => [...prev, transformedChat]);
       return transformedChat;
@@ -280,6 +271,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   useEffect(() => {
     fetchChats();
+    // Lightweight polling for near real-time updates (silent, no flicker)
+    const intervalId = setInterval(() => {
+      fetchChats(true).catch(() => {});
+    }, 5000);
+    return () => clearInterval(intervalId);
   }, []);
 
   const value: ChatContextType = {
