@@ -118,7 +118,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         try {
             // This will be called after a freelancer is approved for a project
             const response = await axios.post(
-                `${import.meta.env.VITE_SERVER}/chats/project-group`,
+                `${import.meta.env.VITE_SERVER}/chats/group`,
                 {
                     projectId,
                     clientId,
