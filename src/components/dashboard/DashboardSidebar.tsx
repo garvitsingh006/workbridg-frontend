@@ -11,6 +11,7 @@ import {
     LogOut,
 } from "lucide-react";
 import { useEffect } from "react";
+import { useChat } from "../../contexts/ChatContext";
 
 import { useUser } from "../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -101,7 +102,7 @@ export default function DashboardSidebar({
         try {
             const { chats } = useChatSafe();
             const { user } = useUser();
-            const count = chats.reduce((acc, c) => acc + c.messages.filter(m => !m.read && m.sender._id !== (user?.id || "")).length, 0);
+            const count = chats.reduce((acc: number, c: any) => acc + c.messages.filter((m: any) => !m.read && m.sender._id !== (user?.id || "")).length, 0);
             if (count <= 0) return null;
             return (
                 <span className="absolute -top-2 -right-4 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px]">
@@ -113,10 +114,9 @@ export default function DashboardSidebar({
         }
     };
 
+
+    
     function useChatSafe() {
-        // Lazy import to avoid circular deps in some bundlers
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { useChat } = require("../../contexts/ChatContext");
         return useChat();
     }
 

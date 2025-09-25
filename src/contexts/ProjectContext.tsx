@@ -120,9 +120,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
             const response = await axios.post(
                 `${import.meta.env.VITE_SERVER}/chats/group`,
                 {
-                    projectId,
-                    clientId,
-                    freelancerId
+                    project: projectId,
+                    participantIds: [clientId, freelancerId]
                 },
                 { withCredentials: true }
             );
@@ -221,9 +220,13 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
                 { projectId }, 
                 { withCredentials: true }
             );
+
+            console.log(projectId)
             
             // Get project and client details to create group chat
             const project = projects.find(p => p.id === projectId);
+            console.log(project?.createdBy.id)
+            console.log(userId)
             if (project && project.createdBy) {
                 try {
                     // Create group chat automatically
