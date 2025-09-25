@@ -54,10 +54,10 @@ export default function Projects() {
                 project.status === "completed"
                     ? 100
                     : project.status === "in-progress"
-                      ? 75
+                      ? 25 // TODO
                       : project.status === "pending"
-                        ? 90
-                        : 10,
+                        ? 0
+                        : 0,
         }));
 
     const getStatusColor = (status: string) => {

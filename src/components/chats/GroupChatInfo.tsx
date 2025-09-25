@@ -24,7 +24,6 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
   const [loading, setLoading] = useState(false);
 
   const isAdmin = user?.userType === 'admin';
-  const isGroupAdmin = chat.createdBy === user?.id || isAdmin;
 
   const handleAddParticipant = async () => {
     if (!newParticipantId.trim()) return;
@@ -96,6 +95,23 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
     }
   };
 
+  const handleExitGroup = async () => {
+        if (!confirm('Are you sure you want to exit the group?')) return;
+
+        try {
+            setLoading(true);
+            if (!user) throw new Error("User not found");
+            await removeParticipantFromChat(chat._id, user.id);
+            onParticipantAdded(); // Refresh the list if needed
+            onClose(); // Close group info after exit
+        } catch (error) {
+            console.error('Failed to exit group:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-hidden">
@@ -123,7 +139,7 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
               <h3 className="font-medium text-gray-900">
                 Participants ({participants.length})
               </h3>
-              {isGroupAdmin && (
+              
                 <button
                   onClick={() => setIsAddingParticipant(true)}
                   className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
@@ -131,7 +147,6 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
                   <UserPlus className="w-4 h-4" />
                   Add
                 </button>
-              )}
             </div>
 
             {participants.map((participant) => (
@@ -158,7 +173,7 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
                   </div>
                 </div>
                 
-                {isGroupAdmin && participant._id !== user?.id && (
+                {user?.id === "admin" && (
                   <button
                     onClick={() => handleRemoveParticipant(participant._id)}
                     className="text-red-600 hover:text-red-700 p-1"
@@ -172,7 +187,7 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
           </div>
 
           {/* Add Admin Button */}
-          {isAdmin && !participants.some(p => p.role?.toLowerCase() === 'admin') && (
+        
             <div className="mt-4 pt-4 border-t">
               <button
                 onClick={handleAddAdmin}
@@ -183,11 +198,21 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
                 Add Admin to Chat
               </button>
             </div>
-          )}
+            <div className="mt-4 pt-4 border-t">
+                <button
+                    onClick={handleExitGroup}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    disabled={loading}
+                >
+                    Exit Group
+                </button>
+            </div>
+
         </div>
+        
 
         {/* Add Participant Modal */}
-        {isAddingParticipant && (
+        {/* {isAddingParticipant && (
           <div className="absolute inset-0 bg-white">
             <div className="px-4 py-3 border-b flex items-center justify-between">
               <div className="font-medium">Add Participant</div>
@@ -230,7 +255,7 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

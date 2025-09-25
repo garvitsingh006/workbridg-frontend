@@ -291,6 +291,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
                 projectData,
                 { withCredentials: true }
             );
+            console.log(projectData)
             const newProject = response.data.data;
             setProjects((prev) => [...prev, newProject]);
             return newProject;

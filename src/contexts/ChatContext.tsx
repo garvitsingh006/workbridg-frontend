@@ -287,8 +287,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const addAdminToChat = async (chatId: string) => {
         try {
             setError(null);
-
-            const response = await axios.patch(`/chats/${chatId}/add-admin`);
+            const adminId = import.meta.env.VITE_ADMIN_ID
+            const response = await axios.patch(`/chats/${chatId}/add-admin`, {adminId: adminId});
             const updatedChat = response.data?.data || response.data;
             const transformedChat = normalizeChat(updatedChat);
 
