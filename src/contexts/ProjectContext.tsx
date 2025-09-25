@@ -111,6 +111,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const [error, setError] = useState<string | null>(null);
     const { user } = useUser();
     
+    
+    
     // We'll use this to create group chats when projects are approved
     const createGroupChatForProject = async (projectId: string, clientId: string, freelancerId: string) => {
         try {

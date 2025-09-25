@@ -332,7 +332,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     try {
       setError(null);
       
-      const response = await axios.post('/chats/project-group', {
+      const response = await axios.post('/chats/group', {
         projectId,
         clientId,
         freelancerId
