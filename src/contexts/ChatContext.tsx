@@ -10,14 +10,16 @@ export interface Message {
   content: string;
   timestamp: Date;
   read: boolean;
+  type?: 'user' | 'system'; // Add message type for system messages
 }
 
 export interface Chat {
   _id: string;
-  type: 'individual' | 'project';
+  type: 'individual' | 'project' | 'group';
   participants: Array<{
     _id: string;
     username: string;
+    role?: string; // Add role to identify admin, client, freelancer
   }>;
   project?: {
     _id: string;
@@ -28,6 +30,7 @@ export interface Chat {
   adminAdded: boolean;
   createdAt: Date;
   updatedAt: Date;
+  createdBy?: string; // Track who created the chat
 }
 
 // Chat methods interface
@@ -37,11 +40,15 @@ export interface ChatMethods {
   getUnreadMessages: (chatId: string) => Message[];
   addAdminToChat: (chatId: string) => Promise<void>;
   approveChat: (chatId: string) => Promise<void>;
+  addParticipantToChat: (chatId: string, userId: string) => Promise<void>;
+  removeParticipantFromChat: (chatId: string, userId: string) => Promise<void>;
+  getChatParticipants: (chatId: string) => Promise<any[]>;
 }
 
 // Static methods interface
 export interface ChatStatics {
-  initiateChat: (type: 'individual' | 'project', otherUserId?: string, projectId?: string) => Promise<Chat>;
+  initiateChat: (type: 'individual' | 'project' | 'group', otherUserId?: string, projectId?: string, participantIds?: string[]) => Promise<Chat>;
+  createProjectGroupChat: (projectId: string, clientId: string, freelancerId: string) => Promise<Chat>;
   findChatsByUser: () => Promise<Chat[]>;
 }
 
@@ -88,16 +95,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       content: msg.content || msg.text || msg.message || '',
       timestamp: new Date(msg.timestamp || msg.createdAt || Date.now()),
       read: Boolean(msg.read ?? msg.isRead ?? false),
+      type: msg.type || 'user',
     };
   };
 
   const normalizeChat = (chat: any): Chat => {
     return {
       _id: chat._id || chat.id,
-      type: chat.type === 'project' || chat.project ? 'project' : 'individual',
+      type: chat.type || (chat.project ? 'project' : 'individual'),
       participants: (chat.participants || chat.users || []).map((p: any) => ({
         _id: p._id || p.id,
         username: p.username || p.fullName || p.name || 'User',
+        role: p.role || p.userType,
       })),
       project: chat.project
         ? {
@@ -110,6 +119,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       adminAdded: Boolean(chat.adminAdded ?? (chat.status === 'with_admin')),
       createdAt: new Date(chat.createdAt || Date.now()),
       updatedAt: new Date(chat.updatedAt || chat.createdAt || Date.now()),
+      createdBy: chat.createdBy,
     } as Chat;
   };
 
@@ -213,9 +223,63 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       setChats(prev => prev.map(chat => 
         chat._id === chatId ? transformedChat : chat
       ));
+      
+      // Update active chat if it's the same
+      if (activeChat?._id === chatId) {
+        setActiveChat(transformedChat);
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to add admin to chat');
       throw err;
+    }
+  };
+
+  const addParticipantToChat = async (chatId: string, userId: string) => {
+    try {
+      setError(null);
+      
+      const response = await axios.post(`/chats/${chatId}/participants`, {
+        userId
+      });
+      const updatedChat = response.data?.data || response.data;
+      const transformedChat = normalizeChat(updatedChat);
+      
+      setChats(prev => prev.map(chat => 
+        chat._id === chatId ? transformedChat : chat
+      ));
+      
+      if (activeChat?._id === chatId) {
+        setActiveChat(transformedChat);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to add participant to chat');
+      throw err;
+    }
+  };
+
+  const removeParticipantFromChat = async (chatId: string, userId: string) => {
+    try {
+      setError(null);
+      
+      await axios.delete(`/chats/${chatId}/participants/${userId}`);
+      
+      // Refresh chat data
+      await fetchChats();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to remove participant from chat');
+      throw err;
+    }
+  };
+
+  const getChatParticipants = async (chatId: string): Promise<any[]> => {
+    try {
+      setError(null);
+      
+      const response = await axios.get(`/chats/${chatId}/participants`);
+      return response.data?.data || response.data || [];
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to get chat participants');
+      return [];
     }
   };
 
@@ -237,14 +301,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
   // Static methods
-  const initiateChat = async (type: 'individual' | 'project', otherUserId?: string, projectId?: string): Promise<Chat> => {
+  const initiateChat = async (
+    type: 'individual' | 'project' | 'group', 
+    otherUserId?: string, 
+    projectId?: string, 
+    participantIds?: string[]
+  ): Promise<Chat> => {
     try {
       setError(null);
       
       const response = await axios.post('/chats/new', {
         type,
         otherUserId,
-        project: projectId
+        project: projectId,
+        participants: participantIds
       });
       
       const newChat = response.data?.data || response.data;
@@ -254,6 +324,27 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       return transformedChat;
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to initiate chat');
+      throw err;
+    }
+  };
+
+  const createProjectGroupChat = async (projectId: string, clientId: string, freelancerId: string): Promise<Chat> => {
+    try {
+      setError(null);
+      
+      const response = await axios.post('/chats/project-group', {
+        projectId,
+        clientId,
+        freelancerId
+      });
+      
+      const newChat = response.data?.data || response.data;
+      const transformedChat = normalizeChat(newChat);
+      
+      setChats(prev => [...prev, transformedChat]);
+      return transformedChat;
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to create project group chat');
       throw err;
     }
   };
@@ -290,7 +381,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     getUnreadMessages,
     addAdminToChat,
     approveChat,
+    addParticipantToChat,
+    removeParticipantFromChat,
+    getChatParticipants,
     initiateChat,
+    createProjectGroupChat,
     findChatsByUser
   };
 

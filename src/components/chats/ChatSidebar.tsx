@@ -82,13 +82,28 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
         {orderedChats.map((chat) => {
           const isActive = chat._id === activeChatId;
           const otherParticipants = chat.participants.filter(p => p._id !== (user?.id || ''));
-          const titleRaw = chat.type === 'project' && chat.project ? chat.project.title : (otherParticipants[0]?.username || 'Chat');
+          let titleRaw;
+          if (chat.type === 'project' && chat.project) {
+            titleRaw = chat.project.title;
+          } else if (chat.type === 'group') {
+            titleRaw = chat.project?.title || `Group (${chat.participants.length})`;
+          } else {
+            titleRaw = otherParticipants[0]?.username || 'Chat';
+          }
           const title = titleRaw.toLowerCase() === 'admin' || otherParticipants[0]?.username?.toLowerCase?.() === 'admin' ? 'Admin' : titleRaw;
           const lastMessage = chat.messages[chat.messages.length - 1];
           const unreadCount = chat.messages.filter(m => !m.read && m.sender._id !== (user?.id || '')).length;
           const lastSenderName = lastMessage
             ? (lastMessage.sender._id === (user?.id || '') ? 'You' : (lastMessage.sender.username?.toLowerCase?.() === 'admin' ? 'Admin' : lastMessage.sender.username))
             : '';
+          
+          // Show participant count for group chats
+          const subtitle = chat.type === 'group' 
+            ? `${chat.participants.length} members`
+            : chat.type === 'project' 
+            ? 'Project chat'
+            : '';
+            
           return (
             <li key={chat._id}>
               <button
@@ -102,8 +117,13 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                     <span className="ml-auto inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px]">{unreadCount}</span>
                   )}
                 </div>
+                {subtitle && (
+                  <div className="text-xs text-gray-400 truncate">{subtitle}</div>
+                )}
                 {lastMessage && (
-                  <div className="text-xs text-gray-500 truncate">{lastSenderName}: {lastMessage.content}</div>
+                  <div className="text-xs text-gray-500 truncate">
+                    {lastMessage.type === 'system' ? lastMessage.content : `${lastSenderName}: ${lastMessage.content}`}
+                  </div>
                 )}
               </button>
             </li>

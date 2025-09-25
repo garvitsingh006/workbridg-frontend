@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { User } from "./UserContext";
 import axios from "axios";
 import { useUser } from "./UserContext";
+import { useChat } from "./ChatContext";
 
 // Types for Project Context
 export interface Remark {
@@ -109,6 +110,26 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { user } = useUser();
+    
+    // We'll use this to create group chats when projects are approved
+    const createGroupChatForProject = async (projectId: string, clientId: string, freelancerId: string) => {
+        try {
+            // This will be called after a freelancer is approved for a project
+            const response = await axios.post(
+                `${import.meta.env.VITE_SERVER}/chats/project-group`,
+                {
+                    projectId,
+                    clientId,
+                    freelancerId
+                },
+                { withCredentials: true }
+            );
+            return response.data?.data || response.data;
+        } catch (error) {
+            console.error('Failed to create project group chat:', error);
+            throw error;
+        }
+    };
 
     const fetchProjects = async () => {
         try {
@@ -193,7 +214,23 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const approveProjectForUser = async (userId: string, projectId: string): Promise<void> => {
         try {
             setError(null);
-            await axios.post(`${import.meta.env.VITE_SERVER}/users/${userId}/projects/approve`, { projectId }, { withCredentials: true });
+            const response = await axios.post(
+                `${import.meta.env.VITE_SERVER}/users/${userId}/projects/approve`, 
+                { projectId }, 
+                { withCredentials: true }
+            );
+            
+            // Get project and client details to create group chat
+            const project = projects.find(p => p.id === projectId);
+            if (project && project.createdBy) {
+                try {
+                    // Create group chat automatically
+                    await createGroupChatForProject(projectId, project.createdBy.id, userId);
+                } catch (chatError) {
+                    console.error('Failed to create group chat, but project was approved:', chatError);
+                    // Don't throw here - project approval succeeded
+                }
+            }
         } catch (err: any) {
             const message = err?.response?.data?.message || err?.message || 'Failed to approve project';
             setError(message);
