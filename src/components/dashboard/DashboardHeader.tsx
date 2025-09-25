@@ -27,9 +27,9 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
           title: `${prefix}: ${snippet}`,
           time: new Date(latestUnread.timestamp).toLocaleTimeString(),
           onClick: () => {
-            // Set hash to identify chat; MessageFeature can read it and select
+            // Set hash and fire event so pages can switch to Messages
             window.location.hash = `#messages:${c._id}`;
-            // If we're not in dashboard messages, we still navigate
+            window.dispatchEvent(new CustomEvent('open-messages-feature'));
             if (!window.location.pathname.includes('/dashboard')) {
               window.location.href = '/dashboard';
             }
@@ -125,6 +125,7 @@ function UserSearchBox() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Array<{ _id: string; username: string; fullName?: string }>>([]);
+  const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
     if (!q) { setResults([]); return; }
@@ -141,6 +142,7 @@ function UserSearchBox() {
           .map((u: any) => ({ _id: u._id || u.id, username: u.username, fullName: u.fullName }));
         setResults(filtered);
         setOpen(true);
+        setActiveIdx(0);
       } catch (_) {
         // ignore
       } finally {
@@ -157,6 +159,25 @@ function UserSearchBox() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onFocus={() => q && setOpen(true)}
+        onKeyDown={(e) => {
+          if (!open) return;
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveIdx((i) => Math.min(i + 1, Math.max(0, results.length - 1)));
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveIdx((i) => Math.max(i - 1, 0));
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            const r = results[activeIdx];
+            if (r) {
+              window.location.href = `/profile/${r.username}`;
+              setOpen(false);
+            }
+          } else if (e.key === 'Escape') {
+            setOpen(false);
+          }
+        }}
         placeholder="Search users..."
         className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all w-64"
       />
@@ -164,10 +185,10 @@ function UserSearchBox() {
         <div className="absolute top-full mt-1 left-0 w-full bg-white border rounded-md shadow z-20">
           <ul>
             {loading && <li className="px-3 py-2 text-sm text-gray-500">Searching…</li>}
-            {!loading && results.map(r => (
+            {!loading && results.map((r, idx) => (
               <li key={r._id}>
                 <button
-                  className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                  className={`w-full text-left px-3 py-2 text-sm ${idx === activeIdx ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
                   onClick={() => {
                     window.location.href = `/profile/${r.username}`;
                     setOpen(false);

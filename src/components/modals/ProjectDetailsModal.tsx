@@ -9,8 +9,11 @@ interface ProjectDetailsModalProps {
   onEdit: (project: Project) => void;
 }
 
+import { useUser } from '../../contexts/UserContext';
+
 export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit }: ProjectDetailsModalProps) {
   const [activeTab, setActiveTab] = useState<'details' | 'remarks'>('details');
+  const { user } = useUser();
 
   if (!isOpen || !project) return null;
 
@@ -57,13 +60,15 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit }
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => onEdit(project)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Edit3 className="w-4 h-4" />
-              <span>Edit</span>
-            </button>
+            {user?.userType === 'client' && (
+              <button
+                onClick={() => onEdit(project)}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Edit3 className="w-4 h-4" />
+                <span>Edit</span>
+              </button>
+            )}
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"

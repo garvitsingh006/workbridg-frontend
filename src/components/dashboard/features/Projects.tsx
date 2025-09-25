@@ -43,16 +43,7 @@ export default function Projects() {
             id: project.id,
             name: project.title,
             client: project.createdBy.fullName,
-            status:
-                project.status === "in-progress"
-                    ? "In Progress"
-                    : project.status === "pending"
-                      ? "Review"
-                      : project.status === "unassigned"
-                        ? "Starting Soon"
-                        : project.status === "completed"
-                          ? "Completed"
-                          : "Cancelled",
+            status: project.createdAt ? new Date(project.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) : '-',
             deadline: project.deadline
                 ? new Date(project.deadline).toLocaleDateString()
                 : "No deadline",
@@ -154,9 +145,7 @@ export default function Projects() {
                                     <h3 className="font-semibold text-gray-900">
                                         {project.name}
                                     </h3>
-                                    <p className="text-sm text-gray-600">
-                                        {project.client}
-                                    </p>
+                                    <p className="text-sm text-gray-600">{project.client}</p>
                                 </div>
                             </div>
                             <span
@@ -215,6 +204,7 @@ export default function Projects() {
                                 View Details
                             </button>
                             <div className="flex items-center space-x-2">
+                                {user?.userType !== 'admin' && (
                                 <button
                                     onClick={() => {
                                         const originalProject = projects.find(
@@ -229,6 +219,8 @@ export default function Projects() {
                                 >
                                     Edit
                                 </button>
+                                )}
+                                {user?.userType !== 'client' && (
                                 <button
                                     onClick={() => {
                                         const originalProject = projects.find(
@@ -243,6 +235,7 @@ export default function Projects() {
                                 >
                                     Update
                                 </button>
+                                )}
                                 {user?.userType === 'freelancer' && (
                                     <button
                                         onClick={() => {

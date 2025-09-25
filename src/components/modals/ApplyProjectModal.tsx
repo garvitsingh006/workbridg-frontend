@@ -12,6 +12,15 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (!isOpen) {
+      // Reset fields and error when modal closes
+      setDeadline('');
+      setExpectedPayment('');
+      setError(null);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +47,7 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="px-5 py-4 border-b flex items-center justify-between">
           <div className="font-medium">Apply to Project</div>
-          <button onClick={onClose} className="text-sm text-gray-500 hover:text-gray-700">Close</button>
+          <button onClick={() => { setError(null); onClose(); }} className="text-sm text-gray-500 hover:text-gray-700">Close</button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>

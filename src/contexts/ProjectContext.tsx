@@ -65,6 +65,9 @@ interface ProjectContextType {
     fetchProjects: () => Promise<void>;
     applyToProject: (projectId: string, payload: { deadline: string; expectedPayment: number }) => Promise<void>;
     getProjectApplications: (projectId: string) => Promise<ProjectApplication[]>;
+    approveProjectForUser: (userId: string, projectId: string) => Promise<void>;
+    rejectProjectForUser: (userId: string, projectId: string) => Promise<void>;
+    deleteProjectApplication: (projectId: string, userId: string) => Promise<void>;
     fetchProjectById: (projectId: string) => Promise<Project | null>;
     createProject: (projectData: Partial<Project>) => Promise<Project>;
     updateProject: (
@@ -117,7 +120,19 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
                 : `${import.meta.env.VITE_SERVER}/projects/all`;
 
             const response = await axios.get(endpoint, { withCredentials: true });
-            const projectsData = response.data.data;
+            let projectsData: Project[] = response.data.data;
+
+            // If freelancer, remove rejected projects so they can't see or re-apply
+            if (user?.userType === 'freelancer' && user?.id) {
+                try {
+                    const rejRes = await axios.get(`${import.meta.env.VITE_SERVER}/users/${user.id}/projects/rejected`, { withCredentials: true });
+                    const rejected: any[] = rejRes.data?.data || [];
+                    const rejectedIds = new Set(rejected.map((p: any) => p.id || p._id));
+                    projectsData = projectsData.filter((p: any) => !rejectedIds.has(p.id || p._id));
+                } catch (_) {
+                    // ignore filtering issues
+                }
+            }
             setProjects(projectsData);
         } catch (err) {
             setError(
@@ -149,14 +164,22 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
       
     const getProjectApplications = async (
         projectId: string
-    ): Promise<ProjectApplication[]> => {
+    ): Promise<(ProjectApplication & { applicantId?: string })[]> => {
         try {
             setError(null);
             const res = await axios.get(
                 `${import.meta.env.VITE_SERVER}/projects/${projectId}/applications`,
                 { withCredentials: true }
             );
-            return res.data?.data || [];
+            const raw = res.data?.data || [];
+            // Normalize and include applicantId from populated applicant
+            return (Array.isArray(raw) ? raw : []).map((app: any) => ({
+                fullName: app.fullName || app.applicant?.fullName,
+                deadline: app.deadline,
+                expectedPayment: app.expectedPayment,
+                appliedAt: app.appliedAt,
+                applicantId: app.applicant?._id || app.applicantId || app.userId || undefined,
+            }));
         } catch (err) {
             setError(
                 err instanceof Error
@@ -164,6 +187,39 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
                     : "Failed to fetch project applications"
             );
             return [];
+        }
+    };
+
+    const approveProjectForUser = async (userId: string, projectId: string): Promise<void> => {
+        try {
+            setError(null);
+            await axios.post(`${import.meta.env.VITE_SERVER}/users/${userId}/projects/approve`, { projectId }, { withCredentials: true });
+        } catch (err: any) {
+            const message = err?.response?.data?.message || err?.message || 'Failed to approve project';
+            setError(message);
+            throw new Error(message);
+        }
+    };
+
+    const rejectProjectForUser = async (userId: string, projectId: string): Promise<void> => {
+        try {
+            setError(null);
+            await axios.post(`${import.meta.env.VITE_SERVER}/users/${userId}/projects/reject`, { projectId }, { withCredentials: true });
+        } catch (err: any) {
+            const message = err?.response?.data?.message || err?.message || 'Failed to reject project';
+            setError(message);
+            throw new Error(message);
+        }
+    };
+
+    const deleteProjectApplication = async (projectId: string, userId: string): Promise<void> => {
+        try {
+            setError(null);
+            await axios.delete(`${import.meta.env.VITE_SERVER}/projects/${projectId}/applications/${userId}`, { withCredentials: true });
+        } catch (err: any) {
+            const message = err?.response?.data?.message || err?.message || 'Failed to delete application';
+            setError(message);
+            throw new Error(message);
         }
     };
 
@@ -307,6 +363,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         fetchProjects,
         applyToProject,
         getProjectApplications,
+        approveProjectForUser,
+        rejectProjectForUser,
+        deleteProjectApplication,
         fetchProjectById,
         createProject,
         updateProject,

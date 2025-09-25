@@ -35,6 +35,12 @@ export default function Dashboard() {
 
     
 
+    useEffect(() => {
+        const handler = () => setActiveFeature('messages');
+        window.addEventListener('open-messages-feature', handler as any);
+        return () => window.removeEventListener('open-messages-feature', handler as any);
+    }, []);
+
     const renderFeature = () => {
         switch (activeFeature) {
             case "home":

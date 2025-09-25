@@ -21,6 +21,8 @@ const ChatLayout: React.FC = () => {
         const id = hash.replace('#messages:', '');
         const found = chats.find(c => c._id === id);
         if (found) setActiveChat(found);
+        // Switch to Messages feature if host page supports it by dispatching a custom event
+        window.dispatchEvent(new CustomEvent('open-messages-feature'));
       }
     };
     applyHash();

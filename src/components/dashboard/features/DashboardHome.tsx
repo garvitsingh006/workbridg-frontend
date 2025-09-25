@@ -70,9 +70,7 @@ export default function DashboardHome({ onViewAllProjects }: DashboardHomeProps)
     id: project.id,
     name: project.title,
     client: project.createdBy.fullName,
-    status: project.status === 'in-progress' ? 'In Progress' : 
-            project.status === 'pending' ? 'Review' :
-            project.status === 'unassigned' ? 'Starting Soon' : 'Completed',
+    status: project.createdAt ? new Date(project.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) : '-',
     deadline: project.deadline ? new Date(project.deadline).toLocaleDateString() : "No deadline",
     progress: project.status === 'completed' ? 100 :
              project.status === 'in-progress' ? 75 :
