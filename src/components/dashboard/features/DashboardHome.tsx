@@ -92,88 +92,88 @@ export default function DashboardHome({ onViewAllProjects }: DashboardHomeProps)
     .slice(0, 3) as Array<{id: string; sender: string; message: string; time: string; unread: boolean}>;
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-4 space-y-4">
       {/* Welcome Section */}
-      <div className={`bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 text-white relative overflow-hidden transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+      <div className={`bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-4 text-white relative overflow-hidden transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
+        <div className="absolute bottom-0 left-0 w-12 h-12 bg-white/5 rounded-full translate-y-6 -translate-x-6"></div>
         <div className="relative z-10">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, {user?.fullName?.split(' ')[0] || 'User'}! 👋</h2>
-          <p className="text-gray-300 text-lg">
+          <h2 className="text-xl font-bold mb-2">Welcome back, {user?.fullName?.split(' ')[0] || 'User'}! 👋</h2>
+          <p className="text-gray-300 text-sm">
             You have {unreadMessages} new messages and {activeProjects} active projects.
           </p>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((stat, index) => (
           <div 
             key={index} 
-            className={`bg-white rounded-2xl p-6 border-2 ${stat.borderColor} hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 card-hover animate-fadeInUp`}
+            className={`bg-white rounded-lg p-3 border ${stat.borderColor} hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 animate-fadeInUp`}
             style={{ animationDelay: `${index * 0.1}s` }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-2xl ${stat.bgColor}`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+            <div className="flex items-center justify-between mb-2">
+              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
               </div>
-              <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                 {stat.change}
               </span>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
-            <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">{stat.value}</h3>
+            <p className="text-gray-600 text-xs font-medium">{stat.title}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent Projects */}
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
-          <div className="p-6 border-b border-gray-200 bg-gray-50">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
+          <div className="p-3 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                <FolderOpen className="w-5 h-5 mr-2 text-blue-600" />
+              <h3 className="text-base font-semibold text-gray-900 flex items-center">
+                <FolderOpen className="w-4 h-4 mr-1 text-blue-600" />
                 Recent Projects
               </h3>
               <button 
-                className="text-blue-600 hover:text-blue-700 text-sm font-semibold flex items-center group transition-all duration-300" 
+                className="text-blue-600 hover:text-blue-700 text-xs font-medium flex items-center group transition-all duration-300" 
                 onClick={onViewAllProjects}
               >
                 View All
-                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+                <ArrowRight className="w-3 h-3 ml-0.5 group-hover:translate-x-1 transition-transform duration-300" />
               </button>
             </div>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-3 space-y-2">
             {recentProjects.map((project, index) => (
               <div 
                 key={project.id} 
-                className="border border-gray-100 rounded-xl p-4 hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
+                className="border border-gray-100 rounded-lg p-2 hover:bg-gray-50 transition-all duration-300"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-1">
                   <div>
-                    <h4 className="font-semibold text-gray-900">{project.name}</h4>
-                    <p className="text-sm text-gray-600">{project.client}</p>
+                    <h4 className="font-medium text-xs text-gray-900">{project.name}</h4>
+                    <p className="text-xs text-gray-600">{project.client}</p>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-medium bg-blue-100 text-blue-800">
                     {project.status}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <Calendar className="w-4 h-4" />
+                  <div className="flex items-center space-x-1 text-xs text-gray-600">
+                    <Calendar className="w-3 h-3" />
                     <span>{project.deadline}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-12 bg-gray-200 rounded-full h-1">
                       <div 
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-1 rounded-full transition-all duration-500"
                         style={{ width: `${project.progress}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-medium text-gray-600">{project.progress}%</span>
+                    <span className="text-xs font-medium text-gray-600">{project.progress}%</span>
                   </div>
                 </div>
               </div>
@@ -182,42 +182,42 @@ export default function DashboardHome({ onViewAllProjects }: DashboardHomeProps)
         </div>
 
         {/* Recent Messages */}
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
-          <div className="p-6 border-b border-gray-200 bg-gray-50">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
+          <div className="p-3 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center">
-                <MessageCircle className="w-5 h-5 mr-2 text-green-600" />
+              <h3 className="text-base font-semibold text-gray-900 flex items-center">
+                <MessageCircle className="w-4 h-4 mr-1 text-green-600" />
                 Recent Messages
               </h3>
-              <button className="text-green-600 hover:text-green-700 text-sm font-semibold flex items-center group transition-all duration-300">
+              <button className="text-green-600 hover:text-green-700 text-xs font-medium flex items-center group transition-all duration-300">
                 View All
-                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+                <ArrowRight className="w-3 h-3 ml-0.5 group-hover:translate-x-1 transition-transform duration-300" />
               </button>
             </div>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-3 space-y-2">
             {recentMessages.map((message, index) => (
               <div 
                 key={message.id} 
-                className="flex items-start space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
+                className="flex items-start space-x-2 p-2 rounded-lg hover:bg-gray-50 transition-all duration-300"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <span className="text-white text-sm font-bold">
+                <div className="w-7 h-7 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs font-bold">
                     {(message.sender || 'U').charAt(0)}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-gray-900">{message.sender}</p>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-500">{message.time}</span>
+                    <p className="text-xs font-medium text-gray-900">{message.sender}</p>
+                    <div className="flex items-center space-x-1">
+                      <span className="text-[9px] text-gray-500">{message.time}</span>
                       {message.unread && (
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></div>
                       )}
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 truncate">{message.message}</p>
+                  <p className="text-xs text-gray-600 truncate">{message.message}</p>
                 </div>
               </div>
             ))}

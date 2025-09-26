@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, CheckCircle, Users, Shield, Award, Briefcase, MessageSquare, Zap, Heart, Target, Clock } from 'lucide-react';
+import { ArrowRight, Star, CircleCheck as CheckCircle, Users, Shield, Award, Briefcase, MessageSquare, Zap, Heart, Target, Clock } from 'lucide-react';
 
 const LandingPage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -81,11 +81,11 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       {/* Floating Brand Icons */}
-      <div className="fixed inset-0 pointer-events-none z-0">
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-10">
         {brandLogos.map((brand, index) => (
           <div
             key={brand.name}
-            className={`absolute w-12 h-12 ${brand.color} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-float`}
+            className={`absolute w-12 h-12 ${brand.color} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-float opacity-30`}
             style={{
               left: `${10 + (index * 8) % 80}%`,
               top: `${15 + (index * 12) % 70}%`,

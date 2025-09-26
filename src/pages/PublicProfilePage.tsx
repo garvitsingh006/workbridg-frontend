@@ -96,46 +96,46 @@ export default function PublicProfilePage() {
 
         {/* Profile Header */}
         <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-32 relative">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-24 relative">
             <div className="absolute inset-0 bg-black/20"></div>
           </div>
           
-          <div className="px-8 pb-8">
-            <div className="flex flex-col md:flex-row items-start md:items-end space-y-4 md:space-y-0 md:space-x-6 -mt-16 relative z-10">
-              <div className="w-32 h-32 bg-white rounded-3xl shadow-xl flex items-center justify-center border-4 border-white">
-                <span className="text-4xl font-bold text-gray-700">
+          <div className="px-6 pb-6">
+            <div className="flex flex-col md:flex-row items-start md:items-end space-y-4 md:space-y-0 md:space-x-4 -mt-12 relative z-10">
+              <div className="w-24 h-24 bg-white rounded-2xl shadow-xl flex items-center justify-center border-4 border-white">
+                <span className="text-2xl font-bold text-gray-700">
                   {String(name || '?').charAt(0).toUpperCase()}
                 </span>
               </div>
               
-              <div className="flex-1 md:mt-16">
+              <div className="flex-1 md:mt-12">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{name}</h1>
-                    <div className="flex items-center space-x-4 text-gray-600 mb-4">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{name}</h1>
+                    <div className="flex items-center space-x-3 text-gray-600 mb-3">
                       <div className="flex items-center space-x-2">
                         {isFreelancer && <Briefcase className="w-4 h-4" />}
                         {isClient && <Building2 className="w-4 h-4" />}
-                        <span className="capitalize font-medium">{role}</span>
+                        <span className="capitalize font-medium text-sm">{role}</span>
                       </div>
                       {data.location && (
                         <div className="flex items-center space-x-2">
                           <MapPin className="w-4 h-4" />
-                          <span>{data.location}</span>
+                          <span className="text-sm">{data.location}</span>
                         </div>
                       )}
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
                     {data.linkedIn && (
                       <a 
                         href={data.linkedIn} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-200 transition-colors"
+                        className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-200 transition-colors"
                       >
-                        <Linkedin className="w-5 h-5" />
+                        <Linkedin className="w-4 h-4" />
                       </a>
                     )}
                     {data.github && (
@@ -143,9 +143,9 @@ export default function PublicProfilePage() {
                         href={data.github} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+                        className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
                       >
-                        <Github className="w-5 h-5" />
+                        <Github className="w-4 h-4" />
                       </a>
                     )}
                     {data.website && (
@@ -153,9 +153,9 @@ export default function PublicProfilePage() {
                         href={data.website} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 hover:bg-green-200 transition-colors"
+                        className="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center text-green-600 hover:bg-green-200 transition-colors"
                       >
-                        <Globe className="w-5 h-5" />
+                        <Globe className="w-4 h-4" />
                       </a>
                     )}
                   </div>
@@ -167,15 +167,15 @@ export default function PublicProfilePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6">
             {/* About Section */}
-            <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <User className="w-6 h-6 mr-3 text-blue-600" />
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <User className="w-5 h-5 mr-2 text-blue-600" />
                 About
               </h2>
               <div className="prose prose-gray max-w-none">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                   {data.companyDescription || data.bio || 'No description available.'}
                 </p>
               </div>
@@ -183,16 +183,16 @@ export default function PublicProfilePage() {
 
             {/* Skills/Services Section */}
             {isFreelancer && data.skills && data.skills.length > 0 && (
-              <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                  <Award className="w-6 h-6 mr-3 text-blue-600" />
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                  <Award className="w-5 h-5 mr-2 text-blue-600" />
                   Skills
                 </h2>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {data.skills.map((skill: string, index: number) => (
                     <span
                       key={index}
-                      className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-200"
+                      className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-200"
                     >
                       {skill}
                     </span>
@@ -203,16 +203,16 @@ export default function PublicProfilePage() {
 
             {/* Project Types for Clients */}
             {isClient && data.projectTypes && data.projectTypes.length > 0 && (
-              <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                  <Briefcase className="w-6 h-6 mr-3 text-blue-600" />
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                  <Briefcase className="w-5 h-5 mr-2 text-blue-600" />
                   Project Types
                 </h2>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {data.projectTypes.map((type: string, index: number) => (
                     <span
                       key={index}
-                      className="px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-200"
+                      className="px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200"
                     >
                       {type}
                     </span>
@@ -223,21 +223,21 @@ export default function PublicProfilePage() {
 
             {/* Work Experience for Freelancers */}
             {isFreelancer && data.workExperience && data.workExperience.length > 0 && (
-              <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                  <Briefcase className="w-6 h-6 mr-3 text-blue-600" />
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                  <Briefcase className="w-5 h-5 mr-2 text-blue-600" />
                   Work Experience
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {data.workExperience.map((exp: any, index: number) => (
-                    <div key={index} className="border-l-4 border-blue-200 pl-6 pb-6">
-                      <h3 className="text-lg font-semibold text-gray-900">{exp.title}</h3>
+                    <div key={index} className="border-l-4 border-blue-200 pl-4 pb-4">
+                      <h3 className="text-base font-semibold text-gray-900">{exp.title}</h3>
                       {exp.company && (
-                        <p className="text-blue-600 font-medium mb-2">{exp.company}</p>
+                        <p className="text-sm text-blue-600 font-medium mb-1">{exp.company}</p>
                       )}
-                      <p className="text-sm text-gray-600 mb-3">{exp.years} years</p>
+                      <p className="text-xs text-gray-600 mb-2">{exp.years} years</p>
                       {exp.description && (
-                        <p className="text-gray-700">{exp.description}</p>
+                        <p className="text-sm text-gray-700">{exp.description}</p>
                       )}
                     </div>
                   ))}
@@ -247,25 +247,25 @@ export default function PublicProfilePage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Contact Info */}
-            <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Contact Information</h3>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <Mail className="w-5 h-5 text-gray-400" />
-                  <span className="text-gray-700">{user.email || '—'}</span>
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Contact Information</h3>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-700">{user.email || '—'}</span>
                 </div>
                 {data.location && (
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-700">{data.location}</span>
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-700">{data.location}</span>
                   </div>
                 )}
                 {user.createdAt && (
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-700">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-700">
                       Member since {new Date(user.createdAt).toLocaleDateString()}
                     </span>
                   </div>
@@ -275,25 +275,25 @@ export default function PublicProfilePage() {
 
             {/* Additional Info for Clients */}
             {isClient && (
-              <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Company Details</h3>
-                <div className="space-y-4">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Company Details</h3>
+                <div className="space-y-3">
                   {data.industry && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Industry</span>
-                      <p className="text-gray-900 capitalize">{data.industry}</p>
+                      <span className="text-xs font-medium text-gray-500">Industry</span>
+                      <p className="text-sm text-gray-900 capitalize">{data.industry}</p>
                     </div>
                   )}
                   {data.companySize && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Company Size</span>
-                      <p className="text-gray-900">{data.companySize} employees</p>
+                      <span className="text-xs font-medium text-gray-500">Company Size</span>
+                      <p className="text-sm text-gray-900">{data.companySize} employees</p>
                     </div>
                   )}
                   {data.budgetRange && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Typical Budget</span>
-                      <p className="text-gray-900">{formatBudgetRange(data.budgetRange)}</p>
+                      <span className="text-xs font-medium text-gray-500">Typical Budget</span>
+                      <p className="text-sm text-gray-900">{formatBudgetRange(data.budgetRange)}</p>
                     </div>
                   )}
                 </div>
@@ -302,19 +302,19 @@ export default function PublicProfilePage() {
 
             {/* Additional Info for Freelancers */}
             {isFreelancer && (
-              <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Professional Info</h3>
-                <div className="space-y-4">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Professional Info</h3>
+                <div className="space-y-3">
                   {data.workField && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Work Field</span>
-                      <p className="text-gray-900 capitalize">{data.workField.replace('-', ' ')}</p>
+                      <span className="text-xs font-medium text-gray-500">Work Field</span>
+                      <p className="text-sm text-gray-900 capitalize">{data.workField.replace('-', ' ')}</p>
                     </div>
                   )}
                   {data.preferredRole && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Preferred Role</span>
-                      <p className="text-gray-900">{data.preferredRole}</p>
+                      <span className="text-xs font-medium text-gray-500">Preferred Role</span>
+                      <p className="text-sm text-gray-900">{data.preferredRole}</p>
                     </div>
                   )}
                 </div>
@@ -322,16 +322,16 @@ export default function PublicProfilePage() {
             )}
 
             {/* Stats */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 border border-blue-100">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Profile Stats</h3>
-              <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Profile Stats</h3>
+              <div className="grid grid-cols-2 gap-3">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">4.9</div>
-                  <div className="text-sm text-gray-600">Rating</div>
+                  <div className="text-xl font-bold text-blue-600">4.9</div>
+                  <div className="text-xs text-gray-600">Rating</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">98%</div>
-                  <div className="text-sm text-gray-600">Success Rate</div>
+                  <div className="text-xl font-bold text-green-600">98%</div>
+                  <div className="text-xs text-gray-600">Success Rate</div>
                 </div>
               </div>
             </div>

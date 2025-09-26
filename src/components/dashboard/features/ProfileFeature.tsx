@@ -104,33 +104,33 @@ export default function ProfileFeature() {
     };
 
     return (
-        <div className="p-6">
-            <div className="bg-white rounded-xl shadow border border-gray-200">
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="p-4">
+            <div className="bg-white rounded-lg shadow border border-gray-200">
+                <div className="flex items-center justify-between p-4 border-b border-gray-200">
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Your Profile</h2>
-                        <p className="text-gray-500">{user.fullName} • @{user.username} • {user.email}</p>
+                        <h2 className="text-lg font-semibold text-gray-900">Your Profile</h2>
+                        <p className="text-sm text-gray-500">{user.fullName} • @{user.username} • {user.email}</p>
                     </div>
                     <div className="flex items-center gap-2">
                         {isEditing ? (
                             <>
-                                <button onClick={onCancel} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
-                                    <X className="w-4 h-4" /> Cancel
+                                <button onClick={onCancel} className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs">
+                                    <X className="w-3 h-3" /> Cancel
                                 </button>
-                                <button onClick={onSave} disabled={saving} className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${saving ? "bg-gray-300" : "bg-blue-600 hover:bg-blue-700"} text-white`}>
-                                    <Check className="w-4 h-4" /> {saving ? "Saving…" : "Save"}
+                                <button onClick={onSave} disabled={saving} className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-lg ${saving ? "bg-gray-300" : "bg-blue-600 hover:bg-blue-700"} text-white text-xs`}>
+                                    <Check className="w-3 h-3" /> {saving ? "Saving…" : "Save"}
                                 </button>
                             </>
                         ) : (
-                            <button onClick={() => setIsEditing(true)} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
-                                <Pencil className="w-4 h-4" /> Edit
+                            <button onClick={() => setIsEditing(true)} className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs">
+                                <Pencil className="w-3 h-3" /> Edit
                             </button>
                         )}
                     </div>
                 </div>
 
-                <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 space-y-6">
+                <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div className="lg:col-span-2 space-y-4">
                         {isFreelancer ? (
                             <>
                                 <Section title="Basics" description="General information about you">
@@ -268,11 +268,11 @@ export default function ProfileFeature() {
                         )}
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="p-4 rounded-lg border border-gray-200">
-                            <h3 className="font-semibold text-gray-900 mb-2">Account</h3>
-                            <div className="text-sm text-gray-600">Member since {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}</div>
-                            <div className="text-sm text-gray-600">Role: {user.userType}</div>
+                    <div className="space-y-3">
+                        <div className="p-3 rounded-lg border border-gray-200">
+                            <h3 className="font-medium text-gray-900 mb-2 text-sm">Account</h3>
+                            <div className="text-xs text-gray-600">Member since {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}</div>
+                            <div className="text-xs text-gray-600">Role: {user.userType}</div>
                         </div>
                     </div>
                 </div>
@@ -283,12 +283,12 @@ export default function ProfileFeature() {
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
     return (
-        <div className="p-5 rounded-lg border border-gray-200">
-            <div className="mb-4">
-                <h3 className="text-base font-semibold text-gray-900">{title}</h3>
-                {description ? <p className="text-sm text-gray-500">{description}</p> : null}
+        <div className="p-4 rounded-lg border border-gray-200">
+            <div className="mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+                {description ? <p className="text-xs text-gray-500">{description}</p> : null}
             </div>
-            <div className="space-y-4">{children}</div>
+            <div className="space-y-3">{children}</div>
         </div>
     );
 }
@@ -296,20 +296,20 @@ function Section({ title, description, children }: { title: string; description?
 function Field({ label, value, onChange, editing, placeholder, icon }: { label: string; value: string; onChange: (v: string) => void; editing: boolean; placeholder?: string; icon?: React.ReactNode }) {
     return (
         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
             {editing ? (
                 <div className="relative">
-                    {icon ? <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div> : null}
+                    {icon ? <div className="absolute left-2 top-1/2 -translate-y-1/2">{icon}</div> : null}
                     <input
                         type="text"
                         value={value}
                         onChange={e => onChange(e.target.value)}
                         placeholder={placeholder}
-                        className={`w-full ${icon ? "pl-10" : "pl-3"} pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all`}
+                        className={`w-full ${icon ? "pl-8" : "pl-2"} pr-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-xs`}
                     />
                 </div>
             ) : (
-                <div className="flex items-center gap-2 text-gray-800">
+                <div className="flex items-center gap-2 text-gray-800 text-xs">
                     {icon}
                     <span>{value || "—"}</span>
                 </div>
@@ -321,14 +321,14 @@ function Field({ label, value, onChange, editing, placeholder, icon }: { label: 
 function SelectField({ label, value, onChange, editing, options, icon }: { label: string; value: string; onChange: (v: string) => void; editing: boolean; options: Array<{ value: string; label: string }>; icon?: React.ReactNode }) {
     return (
         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
             {editing ? (
                 <div className="relative">
-                    {icon ? <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div> : null}
+                    {icon ? <div className="absolute left-2 top-1/2 -translate-y-1/2">{icon}</div> : null}
                     <select
                         value={value}
                         onChange={e => onChange(e.target.value)}
-                        className={`w-full ${icon ? "pl-10" : "pl-3"} pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all`}
+                        className={`w-full ${icon ? "pl-8" : "pl-2"} pr-6 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-xs`}
                     >
                         {options.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -336,7 +336,7 @@ function SelectField({ label, value, onChange, editing, options, icon }: { label
                     </select>
                 </div>
             ) : (
-                <div className="flex items-center gap-2 text-gray-800">
+                <div className="flex items-center gap-2 text-gray-800 text-xs">
                     {icon}
                     <span>{(options.find(o => o.value === value)?.label) || value || "—"}</span>
                 </div>
@@ -348,16 +348,16 @@ function SelectField({ label, value, onChange, editing, options, icon }: { label
 function Textarea({ label, value, onChange, editing }: { label: string; value: string; onChange: (v: string) => void; editing: boolean; }) {
     return (
         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
             {editing ? (
                 <textarea
                     value={value}
                     onChange={e => onChange(e.target.value)}
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                    rows={3}
+                    className="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none text-xs"
                 />
             ) : (
-                <p className="text-gray-800 whitespace-pre-wrap">{value || "—"}</p>
+                <p className="text-gray-800 whitespace-pre-wrap text-xs">{value || "—"}</p>
             )}
         </div>
     );
@@ -368,25 +368,25 @@ function Chips({ items, editing, onAdd, onRemove, placeholder }: { items: string
     return (
         <div>
             {editing ? (
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-1">
                     <input
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); onAdd(input); setInput(""); } }}
                         placeholder={placeholder}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="flex-1 px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-xs"
                     />
-                    <button onClick={() => { onAdd(input); setInput(""); }} className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white">Add</button>
+                    <button onClick={() => { onAdd(input); setInput(""); }} className="px-2 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs">Add</button>
                 </div>
             ) : null}
-            <div className="flex flex-wrap gap-2">
-                {items.length === 0 ? <span className="text-gray-500 text-sm">No items</span> : null}
+            <div className="flex flex-wrap gap-1">
+                {items.length === 0 ? <span className="text-gray-500 text-xs">No items</span> : null}
                 {items.map((s) => (
-                    <span key={s} className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                    <span key={s} className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
                         <span>{s}</span>
                         {editing ? (
                             <button onClick={() => onRemove(s)} className="text-blue-700 hover:text-blue-900">
-                                <X className="w-3 h-3" />
+                                <X className="w-2.5 h-2.5" />
                             </button>
                         ) : null}
                     </span>

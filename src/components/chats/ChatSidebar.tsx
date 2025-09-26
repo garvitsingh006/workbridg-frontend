@@ -87,47 +87,47 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
   return (
     <aside className="w-80 border-r border-gray-200 h-[70vh] sm:h-[80vh] overflow-hidden bg-white flex flex-col">
       {/* Header */}
-      <div className="px-6 py-6 border-b border-gray-100">
+      <div className="px-4 py-4 border-b border-gray-100">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Messages</h2>
-          <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-all duration-300 transform hover:scale-110">
-            <Plus className="w-5 h-5 text-white" />
+          <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
+          <button className="w-8 h-8 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-all duration-300">
+            <Plus className="w-4 h-4 text-white" />
           </button>
         </div>
         
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-black focus:bg-white transition-all duration-300 text-sm"
+            className="w-full pl-10 pr-3 py-2 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-black focus:bg-white transition-all duration-300 text-sm"
           />
         </div>
       </div>
 
       {/* Tabs */}
       {user?.userType === 'admin' && (
-        <div className="px-6 py-3 border-b border-gray-100">
+        <div className="px-4 py-3 border-b border-gray-100">
           <div className="flex bg-gray-100 rounded-2xl p-1">
             <button
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-300 ${
                 tab === 'chats' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
               }`}
               onClick={() => setTab('chats')}
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-3 h-3" />
               Chats
             </button>
             <button
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-300 ${
                 tab === 'users' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
               }`}
               onClick={() => setTab('users')}
             >
-              <UsersIcon className="w-4 h-4" />
+              <UsersIcon className="w-3 h-3" />
               Users
             </button>
           </div>
@@ -137,7 +137,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {tab === 'chats' && (
-          <div className="p-3">
+          <div className="p-2">
             {filteredChats.map((chat) => {
               const isActive = chat._id === activeChatId;
               const otherParticipants = chat.participants.filter(p => p._id !== (user?.id || ''));
@@ -168,38 +168,38 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                   key={chat._id}
                   type="button"
                   onClick={() => onSelectChat(chat)}
-                  className={`w-full text-left p-4 rounded-2xl mb-2 transition-all duration-300 transform hover:scale-[1.02] ${
+                  className={`w-full text-left p-3 rounded-xl mb-1 transition-all duration-300 ${
                     isActive 
-                      ? 'bg-black text-white shadow-lg' 
-                      : 'hover:bg-gray-50 border border-gray-100'
+                      ? 'bg-black text-white shadow-md' 
+                      : 'hover:bg-gray-50'
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  <div className="flex items-start gap-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       isActive ? 'bg-white/20' : 'bg-gray-100'
                     }`}>
-                      <span className={`text-sm font-bold ${isActive ? 'text-white' : 'text-gray-700'}`}>
+                      <span className={`text-xs font-bold ${isActive ? 'text-white' : 'text-gray-700'}`}>
                         {title.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className={`font-semibold text-sm truncate ${isActive ? 'text-white' : 'text-gray-900'}`}>
+                        <h3 className={`font-medium text-sm truncate ${isActive ? 'text-white' : 'text-gray-900'}`}>
                           {title}
                         </h3>
                         {unreadCount > 0 && (
-                          <span className="inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px] font-medium">
+                          <span className="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-blue-600 text-white text-[9px] font-medium">
                             {unreadCount}
                           </span>
                         )}
                       </div>
                       {subtitle && (
-                        <div className={`text-xs mb-1 ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
+                        <div className={`text-[10px] mb-1 ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
                           {subtitle}
                         </div>
                       )}
                       {lastMessage && (
-                        <div className={`text-xs truncate ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
+                        <div className={`text-[10px] truncate ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
                           {lastMessage.type === 'system' ? lastMessage.content : `${lastSenderName}: ${lastMessage.content}`}
                         </div>
                       )}
@@ -210,8 +210,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
             })}
             {filteredChats.length === 0 && (
               <div className="text-center py-12">
-                <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-sm text-gray-500">
+                <MessageCircle className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                <p className="text-xs text-gray-500">
                   {searchQuery ? 'No conversations found' : 'No conversations yet'}
                 </p>
               </div>
@@ -220,7 +220,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
         )}
         
         {tab === 'users' && (
-          <div className="p-3">
+          <div className="p-2">
             {filteredUsers.map((u) => (
               <button
                 key={u._id}
@@ -234,19 +234,19 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                   const newChat = await initiateChat('individual', u._id);
                   onSelectChat(newChat);
                 }}
-                className="w-full text-left p-4 rounded-2xl mb-2 hover:bg-gray-50 border border-gray-100 transition-all duration-300 transform hover:scale-[1.02]"
+                className="w-full text-left p-3 rounded-xl mb-1 hover:bg-gray-50 transition-all duration-300"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold text-gray-700">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-bold text-gray-700">
                       {((u.username?.toLowerCase?.() === 'admin') ? 'Admin' : (u.fullName || u.username)).charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-sm text-gray-900">
+                    <h3 className="font-medium text-sm text-gray-900">
                       {(u.username?.toLowerCase?.() === 'admin') ? 'Admin' : (u.fullName || u.username)}
                     </h3>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-[10px] text-gray-500">
                       {(u.username?.toLowerCase?.() === 'admin') ? 'Admin' : (u.role || '')}
                     </p>
                   </div>
@@ -255,8 +255,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
             ))}
             {filteredUsers.length === 0 && (
               <div className="text-center py-12">
-                <UsersIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-sm text-gray-500">
+                <UsersIcon className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                <p className="text-xs text-gray-500">
                   {searchQuery ? 'No users found' : 'No users available'}
                 </p>
               </div>

@@ -69,6 +69,82 @@ const Register: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-white flex relative overflow-hidden">
+            {/* Left Side - Decorative */}
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
+                {/* Floating Elements */}
+                {floatingElements.map((element, index) => (
+                    <div
+                        key={index}
+                        className={`absolute ${element.size} ${element.color} rounded-3xl flex items-center justify-center text-white shadow-2xl animate-float opacity-20`}
+                        style={{
+                            left: `${10 + (index * 15) % 70}%`,
+                            top: `${15 + (index * 20) % 70}%`,
+                            animationDelay: element.delay,
+                            animationDuration: `${4 + (index % 3)}s`
+                        }}
+                    >
+                        <element.icon className="w-1/2 h-1/2" />
+                    </div>
+                ))}
+
+                {/* Content */}
+                <div className="relative z-10 flex flex-col justify-center px-12 text-white">
+                    <div className="mb-8">
+                        <h1 className="text-5xl font-bold mb-6 leading-tight">
+                            Join the future of
+                            <br />
+                            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                                freelance work.
+                            </span>
+                        </h1>
+                        <p className="text-xl text-gray-300 leading-relaxed">
+                            Experience dispute-free collaboration with our admin-mediated platform trusted by thousands.
+                        </p>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-8 mb-12">
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white mb-2">5,000+</div>
+                            <div className="text-sm text-gray-400">Active professionals</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white mb-2">98%</div>
+                            <div className="text-sm text-gray-400">Success rate</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-white mb-2">4.9/5</div>
+                            <div className="text-sm text-gray-400">Average rating</div>
+                        </div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-sm">✓</span>
+                            </div>
+                            <span className="text-gray-300">Zero disputes guaranteed</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-sm">✓</span>
+                            </div>
+                            <span className="text-gray-300">Admin-mediated process</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-sm">✓</span>
+                            </div>
+                            <span className="text-gray-300">Secure payments</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
+            </div>
+
             {/* Right Side - Form */}
             <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
                 <div className={`w-full max-w-md transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
@@ -300,75 +376,6 @@ const Register: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Left Side - Decorative */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
-                {/* Floating Elements */}
-                {floatingElements.map((element, index) => (
-                    <div
-                        key={index}
-                        className={`absolute ${element.size} ${element.color} rounded-3xl flex items-center justify-center text-white shadow-2xl animate-float opacity-30`}
-                        style={{
-                            left: `${10 + (index * 15) % 70}%`,
-                            top: `${15 + (index * 20) % 70}%`,
-                            animationDelay: element.delay,
-                            animationDuration: `${4 + (index % 3)}s`
-                        }}
-                    >
-                        <element.icon className="w-1/2 h-1/2" />
-                    </div>
-                ))}
-
-                {/* Content */}
-                <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-                    <div className="mb-8">
-                        <h1 className="text-5xl font-bold mb-6 leading-tight">
-                            Join the future of
-                            <br />
-                            <span className="text-yellow-300">
-                                freelance work.
-                            </span>
-                        </h1>
-                        <p className="text-xl text-white/80 leading-relaxed">
-                            Experience dispute-free collaboration with our admin-mediated platform trusted by thousands.
-                        </p>
-                    </div>
-
-                    {/* Benefits */}
-                    <div className="space-y-6">
-                        <div className="flex items-start space-x-4">
-                            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                                <Check className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-lg mb-2">Zero Disputes</h3>
-                                <p className="text-white/70">Our admin team mediates all communication to prevent misunderstandings.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start space-x-4">
-                            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                                <Check className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-lg mb-2">Secure Payments</h3>
-                                <p className="text-white/70">Payments are held securely until project completion.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start space-x-4">
-                            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                                <Check className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-lg mb-2">Quality Assured</h3>
-                                <p className="text-white/70">Every freelancer is vetted and every project is monitored.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-l from-black/20 to-transparent"></div>
             </div>
         </div>
     );

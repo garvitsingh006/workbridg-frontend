@@ -33,15 +33,15 @@ const [rejectedAppIds, setRejectedAppIds] = useState<Set<string>>(new Set());
   const projectOptions = useMemo(() => projects.map(p => ({ id: p.id, title: p.title })), [projects]);
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 space-y-3">
       <div>
-        <h2 className="text-2xl font-bold">Freelancer Applications</h2>
-        <p className="text-gray-600">Select a project to view incoming applications</p>
+        <h2 className="text-xl font-bold">Freelancer Applications</h2>
+        <p className="text-sm text-gray-600">Select a project to view incoming applications</p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <select
-          className="border rounded-md px-3 py-2"
+          className="border rounded-md px-2 py-1.5 text-sm"
           value={selectedProjectId || ''}
           onChange={(e) => setSelectedProjectId(e.target.value || null)}
         >
@@ -52,31 +52,31 @@ const [rejectedAppIds, setRejectedAppIds] = useState<Set<string>>(new Set());
         </select>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6 min-h-[200px]">
+      <div className="bg-white rounded-lg border border-gray-200 p-4 min-h-[150px]">
         {!selectedProjectId && (
-          <div className="text-sm text-gray-600">Choose a project to load applications.</div>
+          <div className="text-xs text-gray-600">Choose a project to load applications.</div>
         )}
         {selectedProjectId && loading && (
-          <div className="text-sm text-gray-600">Loading applications…</div>
+          <div className="text-xs text-gray-600">Loading applications…</div>
         )}
         {selectedProjectId && !loading && applications.length === 0 && (
-          <div className="text-sm text-gray-600">No applications yet for this project.</div>
+          <div className="text-xs text-gray-600">No applications yet for this project.</div>
         )}
         {selectedProjectId && !loading && applications.length > 0 && (
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             {applications.map((a, idx) => {
                 const uid = a.applicantId || a.userId;
               const isApproved = approvedAppIds.has(uid);
               const isRejected = rejectedAppIds.has(uid);
-              return (<li key={idx} className="border rounded p-3">
+              return (<li key={idx} className="border rounded p-2">
                 <div className="flex items-center justify-between">
-                  <div className="font-medium">{a.fullName}</div>
+                  <div className="font-medium text-sm">{a.fullName}</div>
                   <div className="text-xs text-gray-500">Applied: {new Date(a.appliedAt).toLocaleString()}</div>
                 </div>
-                <div className="text-sm text-gray-700 mt-1">Deadline: {new Date(a.deadline).toLocaleDateString()}</div>
-                <div className="text-sm text-gray-700">Expected Payment: ${a.expectedPayment.toLocaleString()}</div>
-                <div className="mt-2 flex items-center gap-2">
-                  {!isApproved && !isRejected && (<><button className="px-2 py-1 text-xs rounded border hover:bg-gray-50" onClick={async () => {
+                <div className="text-xs text-gray-700 mt-1">Deadline: {new Date(a.deadline).toLocaleDateString()}</div>
+                <div className="text-xs text-gray-700">Expected Payment: ${a.expectedPayment.toLocaleString()}</div>
+                <div className="mt-1 flex items-center gap-1">
+                  {!isApproved && !isRejected && (<><button className="px-2 py-0.5 text-xs rounded border hover:bg-gray-50" onClick={async () => {
                     if (!uid) { setActionMsg('No applicant id'); return; }
                     try {
                         await approveProjectForUser(uid, selectedProjectId!);
@@ -87,7 +87,7 @@ const [rejectedAppIds, setRejectedAppIds] = useState<Set<string>>(new Set());
                         setActionMsg(e?.message || 'Failed');
                     }
                   }}>Approve</button>
-                  <button className="px-2 py-1 text-xs rounded border hover:bg-gray-50" onClick={async () => {
+                  <button className="px-2 py-0.5 text-xs rounded border hover:bg-gray-50" onClick={async () => {
                     if (!uid) { setActionMsg('No applicant id'); return; }
                     try {
                         await rejectProjectForUser(uid, selectedProjectId!);
@@ -98,7 +98,7 @@ const [rejectedAppIds, setRejectedAppIds] = useState<Set<string>>(new Set());
                         setActionMsg(e?.message || 'Failed');
                     }
                   }}>Reject</button> </>)}
-                  <button className="px-2 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700" onClick={() => {
+                  <button className="px-2 py-0.5 text-xs rounded bg-blue-600 text-white hover:bg-blue-700" onClick={() => {
                     // Navigate to messages; chat creation handled after selection
                     window.location.hash = `#messages:`;
                     window.dispatchEvent(new CustomEvent('open-messages-feature'));
@@ -106,7 +106,7 @@ const [rejectedAppIds, setRejectedAppIds] = useState<Set<string>>(new Set());
                       window.location.href = '/dashboard';
                     }
                   }}>Message</button>
-                  <button title="Delete application" className="px-2 py-1 text-xs rounded border hover:bg-gray-50 inline-flex items-center gap-1" onClick={async () => {
+                  <button title="Delete application" className="px-2 py-0.5 text-xs rounded border hover:bg-gray-50 inline-flex items-center gap-1" onClick={async () => {
                     const uid = a.applicantId || a.userId;
                     if (!uid) { setActionMsg('No applicant id'); return; }
                     try {
@@ -115,14 +115,14 @@ const [rejectedAppIds, setRejectedAppIds] = useState<Set<string>>(new Set());
                       setActionMsg('Application deleted');
                     } catch (e: any) { setActionMsg(e?.message || 'Failed'); }
                   }}>
-                    <Trash2 className="w-3 h-3" /> Delete
+                    <Trash2 className="w-2.5 h-2.5" /> Delete
                   </button>
                 </div>
               </li>)
             })}
           </ul>
         )}
-        {actionMsg && <div className="text-xs text-gray-500 mt-3">{actionMsg}</div>}
+        {actionMsg && <div className="text-xs text-gray-500 mt-2">{actionMsg}</div>}
       </div>
     </div>
   );
