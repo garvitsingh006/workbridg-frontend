@@ -1,4 +1,4 @@
-import { Menu, Bell, Search, User } from 'lucide-react';
+import { Menu, Bell, Search, User, Settings } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext';
 import { useEffect, useMemo, useState } from 'react';
 import { useChat } from '../../contexts/ChatContext';
@@ -12,10 +12,16 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
   const { user, fetchUser } = useUser();
   const { chats } = useChat();
   const [open, setOpen] = useState(false);
-  useMemo(() => chats.reduce((acc, c) => acc + c.messages.filter(m => !m.read && m.sender._id !== (user?.id || "")).length, 0), [chats, user?.id]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    fetchUser();
+    setIsVisible(true);
+  }, []);
+
   const notifications = useMemo(() => {
     const items: Array<{ id: string; title: string; time: string; onClick?: () => void }> = [];
-    // Build notifications from latest unread messages per chat
     chats.forEach(c => {
       const latestUnread = [...c.messages].reverse().find(m => !m.read && m.sender._id !== (user?.id || ''));
       if (latestUnread) {
@@ -27,7 +33,6 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
           title: `${prefix}: ${snippet}`,
           time: new Date(latestUnread.timestamp).toLocaleTimeString(),
           onClick: () => {
-            // Set hash and fire event so pages can switch to Messages
             window.location.hash = `#messages:${c._id}`;
             window.dispatchEvent(new CustomEvent('open-messages-feature'));
             if (!window.location.pathname.includes('/dashboard')) {
@@ -39,10 +44,7 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
     });
     return items;
   }, [chats, user?.id]);
-    useEffect(() => {
-        fetchUser()
-    }, [])
-    
+
   const getFeatureTitle = () => {
     const titles: { [key: string]: string } = {
       home: 'Dashboard',
@@ -60,152 +62,99 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4">
+    <header className={`bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 lg:px-6 py-4 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
       <div className="flex items-center justify-between">
         {/* Left side - Mobile menu button and title */}
         <div className="flex items-center space-x-4">
           <button
             onClick={onMobileMenuToggle}
-            className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 transform hover:scale-110"
           >
             <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
-            {getFeatureTitle()}
-          </h1>
+          <div>
+            <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
+              {getFeatureTitle()}
+            </h1>
+            <p className="text-sm text-gray-500 hidden sm:block">
+              Welcome back, {user?.fullName?.split(' ')[0] || 'User'}
+            </p>
+          </div>
         </div>
 
         {/* Right side - Search, notifications, profile */}
         <div className="flex items-center space-x-4">
           {/* Search */}
-          <UserSearchBox />
+          <div className="hidden md:flex relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search..."
+              className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-300 w-64 hover:border-gray-300"
+            />
+          </div>
 
           {/* Notifications */}
           <div className="relative">
-            <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" onClick={() => setOpen(v => !v)}>
+            <button 
+              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 transform hover:scale-110" 
+              onClick={() => setOpen(v => !v)}
+            >
               <Bell className="w-5 h-5" />
               {notifications.length > 0 && (
-                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-blue-600 text-white text-[10px]">{notifications.length}</span>
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[10px] animate-pulse">
+                  {notifications.length}
+                </span>
               )}
             </button>
+            
             {open && (
-              <div className="absolute right-0 mt-2 w-64 bg-white border rounded-md shadow-lg z-10">
-                <div className="p-2 text-xs text-gray-500">Notifications</div>
-                <ul className="max-h-80 overflow-auto">
-                  {notifications.map(n => (
-                    <li key={n.id}>
-                      <button className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm" onClick={n.onClick}>
-                        {n.title}
-                        <div className="text-xs text-gray-500">{n.time}</div>
-                      </button>
-                    </li>
-                  ))}
-                  {notifications.length === 0 && (
-                    <li className="px-3 py-2 text-sm text-gray-500">No notifications</li>
+              <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-10 animate-scaleIn">
+                <div className="p-4 border-b border-gray-200">
+                  <h3 className="font-semibold text-gray-900">Notifications</h3>
+                </div>
+                <div className="max-h-80 overflow-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-6 text-center text-gray-500">
+                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>No new notifications</p>
+                    </div>
+                  ) : (
+                    <ul>
+                      {notifications.map(n => (
+                        <li key={n.id}>
+                          <button 
+                            className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors duration-300 border-b border-gray-100 last:border-b-0" 
+                            onClick={n.onClick}
+                          >
+                            <div className="font-medium text-sm text-gray-900">{n.title}</div>
+                            <div className="text-xs text-gray-500 mt-1">{n.time}</div>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   )}
-                </ul>
+                </div>
               </div>
             )}
           </div>
 
           {/* Profile */}
-          <button className="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-white" />
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center transform hover:scale-110 transition-all duration-300 shadow-lg">
+              <span className="text-white font-bold text-sm">
+                {user?.fullName?.charAt(0) || 'U'}
+              </span>
             </div>
-            <span className="hidden md:block font-medium">{user?.fullName || 'User'}</span>
-          </button>
+            <div className="hidden md:block">
+              <div className="font-medium text-gray-900 text-sm">{user?.fullName || 'User'}</div>
+              <div className="text-xs text-gray-500">{user?.userType || 'Member'}</div>
+            </div>
+          </div>
         </div>
       </div>
     </header>
-  );
-}
-
-function UserSearchBox() {
-  const [q, setQ] = useState('');
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<Array<{ _id: string; username: string; fullName?: string }>>([]);
-  const [activeIdx, setActiveIdx] = useState(0);
-
-  useEffect(() => {
-    if (!q) { setResults([]); return; }
-    const ctrl = new AbortController();
-    const t = setTimeout(async () => {
-      try {
-        setLoading(true);
-        const res = await (await import('../../api')).default.get(`/users/all`, { signal: ctrl.signal as any });
-        const data = res.data;
-        const arr = data?.users || data?.data || [];
-        const filtered = (Array.isArray(arr) ? arr : [])
-          .filter((u: any) => (u.username || '').toLowerCase().includes(q.toLowerCase()) || (u.fullName || '').toLowerCase().includes(q.toLowerCase()))
-          .slice(0, 5)
-          .map((u: any) => ({ _id: u._id || u.id, username: u.username, fullName: u.fullName }));
-        setResults(filtered);
-        setOpen(true);
-        setActiveIdx(0);
-      } catch (_) {
-        // ignore
-      } finally {
-        setLoading(false);
-      }
-    }, 200);
-    return () => { clearTimeout(t); ctrl.abort(); };
-  }, [q]);
-
-  return (
-    <div className="hidden md:flex relative">
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        onFocus={() => q && setOpen(true)}
-        onKeyDown={(e) => {
-          if (!open) return;
-          if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            setActiveIdx((i) => Math.min(i + 1, Math.max(0, results.length - 1)));
-          } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            setActiveIdx((i) => Math.max(i - 1, 0));
-          } else if (e.key === 'Enter') {
-            e.preventDefault();
-            const r = results[activeIdx];
-            if (r) {
-              window.location.href = `/profile/${r.username}`;
-              setOpen(false);
-            }
-          } else if (e.key === 'Escape') {
-            setOpen(false);
-          }
-        }}
-        placeholder="Search users..."
-        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all w-64"
-      />
-      {open && (q.length > 0) && (
-        <div className="absolute top-full mt-1 left-0 w-full bg-white border rounded-md shadow z-20">
-          <ul>
-            {loading && <li className="px-3 py-2 text-sm text-gray-500">Searching…</li>}
-            {!loading && results.map((r, idx) => (
-              <li key={r._id}>
-                <button
-                  className={`w-full text-left px-3 py-2 text-sm ${idx === activeIdx ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
-                  onClick={() => {
-                    window.location.href = `/profile/${r.username}`;
-                    setOpen(false);
-                  }}
-                >
-                  <div className="font-medium">{r.fullName || r.username}</div>
-                  <div className="text-xs text-gray-500">{r.username}</div>
-                </button>
-              </li>
-            ))}
-            {!loading && results.length === 0 && (
-              <li className="px-3 py-2 text-sm text-gray-500">No matches</li>
-            )}
-          </ul>
-        </div>
-      )}
-    </div>
   );
 }

@@ -1,174 +1,253 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Users, Clock, Award, ArrowRight, CheckCircle, Star, Briefcase } from 'lucide-react';
+import { ArrowRight, Star, CheckCircle, Users, Shield, Award, Briefcase, MessageSquare, Zap, Heart, Target, Clock } from 'lucide-react';
 
 const LandingPage: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  useEffect(() => {
+    setIsVisible(true);
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const brandLogos = [
+    { name: 'Uber', color: 'bg-black', icon: '🚗' },
+    { name: 'Nike', color: 'bg-gray-900', icon: '✓' },
+    { name: 'Pinterest', color: 'bg-red-500', icon: 'P' },
+    { name: 'Coinbase', color: 'bg-blue-600', icon: 'C' },
+    { name: 'Wise', color: 'bg-green-500', icon: 'W' },
+    { name: 'Headspace', color: 'bg-orange-500', icon: '●' },
+    { name: 'Airbnb', color: 'bg-pink-500', icon: 'A' },
+    { name: 'Spotify', color: 'bg-green-600', icon: '♪' },
+    { name: 'Shopify', color: 'bg-green-400', icon: 'S' },
+    { name: 'Dropbox', color: 'bg-blue-500', icon: '□' },
+  ];
+
+  const testimonials = [
+    {
+      name: 'Sarah Chen',
+      role: 'Product Designer',
+      company: 'TechCorp',
+      content: 'Workbridg transformed how we work with freelancers. The admin-mediated process eliminated all our previous disputes.',
+      avatar: '👩‍💼'
+    },
+    {
+      name: 'Marcus Johnson',
+      role: 'Freelance Developer',
+      company: 'Independent',
+      content: 'Finally, a platform where I can focus on great work without worrying about payment issues or miscommunication.',
+      avatar: '👨‍💻'
+    },
+    {
+      name: 'Elena Rodriguez',
+      role: 'Marketing Director',
+      company: 'StartupXYZ',
+      content: 'The quality of freelancers and the smooth process makes Workbridg our go-to platform for all projects.',
+      avatar: '👩‍🎨'
+    }
+  ];
+
+  const stats = [
+    { number: '5,000+', label: 'Active professionals', icon: Users },
+    { number: '98%', label: 'Project success rate', icon: CheckCircle },
+    { number: '4.9/5', label: 'Average rating', icon: Star },
+  ];
+
+  const features = [
+    {
+      icon: Shield,
+      title: 'Dispute-free collaboration',
+      description: 'All communication flows through our admin team, preventing misunderstandings and ensuring professionalism.',
+      color: 'bg-blue-50 text-blue-600'
+    },
+    {
+      icon: Award,
+      title: 'Curated professionals',
+      description: 'Every freelancer is verified and vetted by our team to ensure quality and reliability.',
+      color: 'bg-green-50 text-green-600'
+    },
+    {
+      icon: Clock,
+      title: 'Secure payments',
+      description: 'Payments are held securely until project completion, protecting both clients and freelancers.',
+      color: 'bg-purple-50 text-purple-600'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-hidden">
+      {/* Floating Brand Icons */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {brandLogos.map((brand, index) => (
+          <div
+            key={brand.name}
+            className={`absolute w-12 h-12 ${brand.color} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-float`}
+            style={{
+              left: `${10 + (index * 8) % 80}%`,
+              top: `${15 + (index * 12) % 70}%`,
+              animationDelay: `${index * 0.5}s`,
+              animationDuration: `${4 + (index % 3)}s`
+            }}
+          >
+            {brand.icon}
+          </div>
+        ))}
+      </div>
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-              Professional freelance work,{' '}
-              <span className="text-blue-600">without the disputes</span>
+      <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto text-center z-10">
+          <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-8">
+              Never run out of
+              <br />
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                talent again.
+              </span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
-              Workbridg is a curated platform that connects clients and freelancers through admin-mediated processes, 
-              ensuring quality, trust, and smooth project delivery.
+            
+            <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Use Workbridg for free as long as you like or get full access with any of our paid plans.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
               <Link 
                 to="/register" 
-                className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center group"
+                className="group bg-black text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center"
               >
-                Get started for free
+                Join for free
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link 
                 to="/how-it-works" 
-                className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                className="group text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all duration-300 flex items-center"
               >
-                How it works
+                See our plans
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
+            </div>
+
+            {/* Trusted by logos strip */}
+            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
+              {brandLogos.slice(0, 6).map((brand, index) => (
+                <div
+                  key={brand.name}
+                  className={`w-10 h-10 ${brand.color} rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md hover:scale-110 transition-transform duration-300`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  {brand.icon}
+                </div>
+              ))}
             </div>
           </div>
         </div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-100 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute top-1/3 right-1/4 w-48 h-48 bg-indigo-100 rounded-full opacity-20 blur-3xl"></div>
       </section>
 
-      {/* Trust Indicators */}
-      <section className="py-16 bg-gray-50">
+      {/* Stats Section */}
+      <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Trust with confidence</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Join thousands of professionals who trust Workbridg for their freelance projects
-            </p>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+              A growing library of
+            </h2>
+            <div className="space-y-4">
+              <div className="text-6xl sm:text-7xl font-bold text-gray-900">5,000+ professionals</div>
+              <div className="text-6xl sm:text-7xl font-bold text-gray-900">98% success rate</div>
+              <div className="text-6xl sm:text-7xl font-bold text-gray-900">Zero disputes</div>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4">
-                  <Users className="h-8 w-8 text-blue-600" />
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+              What our users are saying.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                className={`bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 ${
+                  index === currentTestimonial ? 'ring-2 ring-blue-500' : ''
+                }`}
+              >
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-2xl mr-4">
+                    {testimonial.avatar}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                    <div className="text-sm text-gray-600">{testimonial.role}</div>
+                    <div className="text-sm text-gray-500">{testimonial.company}</div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">5,000+</h3>
-                <p className="text-gray-600">Active professionals</p>
+                <p className="text-gray-700 leading-relaxed">{testimonial.content}</p>
               </div>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-4">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">98%</h3>
-                <p className="text-gray-600">Project success rate</p>
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4">
-                  <Star className="h-8 w-8 text-yellow-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">4.9/5</h3>
-                <p className="text-gray-600">Average rating</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20">
+      <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why choose Workbridg?</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Experience the difference of admin-mediated freelance collaboration
-            </p>
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+              From inspiration to creation.
+            </h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-blue-600" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group"
+              >
+                <div className={`w-16 h-16 ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon className="w-8 h-8" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Dispute-free collaboration</h3>
-                  <p className="text-gray-600">
-                    All communication flows through our admin team, preventing misunderstandings and ensuring professionalism.
-                  </p>
-                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
               </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Award className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Curated professionals</h3>
-                  <p className="text-gray-600">
-                    Every freelancer is verified and vetted by our team to ensure quality and reliability.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Secure payments</h3>
-                  <p className="text-gray-600">
-                    Payments are held securely until project completion, protecting both clients and freelancers.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 h-96 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Briefcase className="h-12 w-12 text-blue-600" />
-                  </div>
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">Professional workspace</h4>
-                  <p className="text-gray-600">Dedicated dashboards for seamless project management</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600">
+      <section className="py-24">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to start your next project?
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+            Find design patterns
+            <br />
+            in seconds.
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join Workbridg today and experience professional freelance collaboration.
+          <p className="text-xl text-gray-600 mb-12">
+            Join thousands of professionals who trust Workbridg for their freelance projects.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link 
               to="/register" 
-              className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              className="group bg-black text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center"
             >
-              Start as a client
+              Join for free
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link 
-              to="/register" 
-              className="border border-blue-400 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              to="/how-it-works" 
+              className="group text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all duration-300 flex items-center justify-center border border-gray-200"
             >
-              Join as a freelancer
+              See our plans
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
