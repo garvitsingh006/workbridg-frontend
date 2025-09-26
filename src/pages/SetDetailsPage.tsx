@@ -16,6 +16,8 @@ import {
     DollarSign,
     Users,
     Globe,
+    Sparkles,
+    Target,
 } from "lucide-react";
 import { useUser } from "../contexts/UserContext";
 
@@ -55,6 +57,8 @@ export default function SetDetailsPage() {
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    
     interface LoginDetails {
         username: string;
         fullName: string;
@@ -62,12 +66,11 @@ export default function SetDetailsPage() {
         role: "freelancer" | "client" | "admin";
     }
     
-
-    // TODO: Get user type from backend authentication
     const [userType, setUserType] = useState<"freelancer" | "client">("freelancer");
     const {fetchLoginDetails} = useUser()
 
-     useEffect(() => {
+    useEffect(() => {
+        setIsVisible(true);
         const fetchDetails = async () => {
             const res = await fetchLoginDetails();
             if (!res) {
@@ -83,7 +86,6 @@ export default function SetDetailsPage() {
 
         fetchDetails();
     }, [fetchLoginDetails]);
-
 
     const [freelancerFormData, setFreelancerFormData] =
         useState<FreelancerFormData>({
@@ -306,7 +308,6 @@ export default function SetDetailsPage() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        // add auth headers if needed
                     },
                     credentials: "include",
                     body: JSON.stringify(data),
@@ -315,38 +316,35 @@ export default function SetDetailsPage() {
 
             const dataFromBackend = await res.json();
             if (res.ok) {
-                // same as res.status >= 200 && res.status < 300
                 console.log("Profile updated:", dataFromBackend);
                 navigate("/dashboard");
             } else {
                 console.error("Error updating profile:", dataFromBackend);
-                //TODO Optionally show a toast or UI error
             }
         } catch (error) {
             console.error("Error submitting form:", error);
-            // Handle error (show toast, etc.)
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const renderFreelancerStep1 = () => (
-        <div className="space-y-6">
-            <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-8 h-8 text-blue-600" />
+        <div className="space-y-8">
+            <div className="text-center mb-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <MapPin className="w-10 w-10 text-blue-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Basic Information
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-lg">
                     Let's start with your location and work field
                 </p>
             </div>
 
-            <div className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="space-y-8">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Location *
                     </label>
                     <input
@@ -359,12 +357,12 @@ export default function SetDetailsPage() {
                             )
                         }
                         placeholder="e.g., New York, NY or Remote"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     />
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Work Field *
                     </label>
                     <select
@@ -375,7 +373,7 @@ export default function SetDetailsPage() {
                                 e.target.value
                             )
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     >
                         <option value="">Select your work field</option>
                         <option value="web-development">Web Development</option>
@@ -398,44 +396,44 @@ export default function SetDetailsPage() {
     );
 
     const renderFreelancerStep2 = () => (
-        <div className="space-y-6">
-            <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Briefcase className="w-8 h-8 text-blue-600" />
+        <div className="space-y-8">
+            <div className="text-center mb-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Briefcase className="w-10 w-10 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Experience & Skills
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-lg">
                     Tell us about your work experience and skills
                 </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
                 {/* Work Experience */}
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                        <label className="block text-sm font-medium text-gray-700">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div className="flex items-center justify-between mb-6">
+                        <label className="block text-sm font-semibold text-gray-700">
                             Work Experience *
                         </label>
                         <button
                             type="button"
                             onClick={addWorkExperience}
-                            className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                            className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 text-sm font-semibold bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-all"
                         >
                             <Plus className="w-4 h-4" />
                             <span>Add Experience</span>
                         </button>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {freelancerFormData.workExperience.map((exp, index) => (
                             <div
                                 key={index}
-                                className="border border-gray-200 rounded-lg p-4 space-y-4"
+                                className="border border-gray-200 rounded-xl p-6 space-y-4 hover:shadow-md transition-all"
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-700">
+                                    <span className="text-sm font-semibold text-gray-700">
                                         Experience {index + 1}
                                     </span>
                                     {freelancerFormData.workExperience.length >
@@ -445,7 +443,7 @@ export default function SetDetailsPage() {
                                             onClick={() =>
                                                 removeWorkExperience(index)
                                             }
-                                            className="text-red-600 hover:text-red-700"
+                                            className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-all"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -464,7 +462,7 @@ export default function SetDetailsPage() {
                                             )
                                         }
                                         placeholder="Job Title *"
-                                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                                     />
                                     <input
                                         type="text"
@@ -477,26 +475,24 @@ export default function SetDetailsPage() {
                                             )
                                         }
                                         placeholder="Company"
-                                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input
-                                        type="number"
-                                        value={exp.years}
-                                        onChange={(e) =>
-                                            handleWorkExperienceChange(
-                                                index,
-                                                "years",
-                                                parseInt(e.target.value) || 0
-                                            )
-                                        }
-                                        placeholder="Years of Experience *"
-                                        min="0"
-                                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
+                                <input
+                                    type="number"
+                                    value={exp.years}
+                                    onChange={(e) =>
+                                        handleWorkExperienceChange(
+                                            index,
+                                            "years",
+                                            parseInt(e.target.value) || 0
+                                        )
+                                    }
+                                    placeholder="Years of Experience *"
+                                    min="0"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
+                                />
 
                                 <textarea
                                     value={exp.description}
@@ -509,7 +505,7 @@ export default function SetDetailsPage() {
                                     }
                                     placeholder="Brief description of your role and achievements"
                                     rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none hover:border-gray-300"
                                 />
                             </div>
                         ))}
@@ -517,40 +513,40 @@ export default function SetDetailsPage() {
                 </div>
 
                 {/* Skills */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-4">
                         Skills *
                     </label>
-                    <div className="flex items-center space-x-2 mb-3">
+                    <div className="flex items-center space-x-3 mb-4">
                         <input
                             type="text"
                             value={currentSkill}
                             onChange={(e) => setCurrentSkill(e.target.value)}
                             onKeyPress={handleKeyPress}
                             placeholder="Add a skill and press Enter"
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                         />
                         <button
                             type="button"
                             onClick={addSkill}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold"
                         >
                             Add
                         </button>
                     </div>
 
                     {freelancerFormData.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-3">
                             {freelancerFormData.skills.map((skill, index) => (
                                 <span
                                     key={index}
-                                    className="inline-flex items-center space-x-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                                    className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-200"
                                 >
                                     <span>{skill}</span>
                                     <button
                                         type="button"
                                         onClick={() => removeSkill(skill)}
-                                        className="text-blue-600 hover:text-blue-800"
+                                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-full p-1 transition-all"
                                     >
                                         <Trash2 className="w-3 h-3" />
                                     </button>
@@ -564,22 +560,22 @@ export default function SetDetailsPage() {
     );
 
     const renderFreelancerStep3 = () => (
-        <div className="space-y-6">
-            <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User className="w-8 h-8 text-blue-600" />
+        <div className="space-y-8">
+            <div className="text-center mb-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <User className="w-10 w-10 text-purple-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Profile & Links
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-lg">
                     Complete your profile with additional information
                 </p>
             </div>
 
-            <div className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="space-y-8">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Preferred Role *
                     </label>
                     <input
@@ -592,12 +588,12 @@ export default function SetDetailsPage() {
                             )
                         }
                         placeholder="e.g., Senior Frontend Developer, UI/UX Designer"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     />
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Bio *
                     </label>
                     <textarea
@@ -608,20 +604,20 @@ export default function SetDetailsPage() {
                         placeholder="Tell us about yourself, your passion, and what makes you unique (max 500 characters)"
                         rows={4}
                         maxLength={500}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none hover:border-gray-300"
                     />
-                    <div className="text-right text-sm text-gray-500 mt-1">
+                    <div className="text-right text-sm text-gray-500 mt-2">
                         {freelancerFormData.bio.length}/500
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
                             LinkedIn Profile
                         </label>
                         <div className="relative">
-                            <Linkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Linkedin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="url"
                                 value={freelancerFormData.linkedIn}
@@ -632,17 +628,17 @@ export default function SetDetailsPage() {
                                     )
                                 }
                                 placeholder="https://linkedin.com/in/yourprofile"
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                             />
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
                             GitHub Profile
                         </label>
                         <div className="relative">
-                            <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Github className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="url"
                                 value={freelancerFormData.github}
@@ -653,19 +649,19 @@ export default function SetDetailsPage() {
                                     )
                                 }
                                 placeholder="https://github.com/yourusername"
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                             />
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-4">
                         Resume
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600 mb-2">
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-all hover:bg-blue-50/50">
+                        <Upload className="w-10 h-10 text-gray-400 mx-auto mb-4" />
+                        <p className="text-sm text-gray-600 mb-2 font-medium">
                             Click to upload your resume or drag and drop
                         </p>
                         <p className="text-xs text-gray-500">
@@ -676,7 +672,6 @@ export default function SetDetailsPage() {
                             accept=".pdf,.doc,.docx"
                             className="hidden"
                             onChange={(e) => {
-                                // TODO: Handle file upload to cloudinary
                                 console.log(
                                     "File selected:",
                                     e.target.files?.[0]
@@ -690,22 +685,22 @@ export default function SetDetailsPage() {
     );
 
     const renderClientStep1 = () => (
-        <div className="space-y-6">
-            <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Building2 className="w-8 h-8 text-blue-600" />
+        <div className="space-y-8">
+            <div className="text-center mb-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Building2 className="w-10 w-10 text-blue-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Company Information
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-lg">
                     Tell us about your company and industry
                 </p>
             </div>
 
-            <div className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="space-y-8">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Company Name *
                     </label>
                     <input
@@ -718,12 +713,12 @@ export default function SetDetailsPage() {
                             )
                         }
                         placeholder="e.g., Tech Solutions Inc."
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     />
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Industry *
                     </label>
                     <select
@@ -731,7 +726,7 @@ export default function SetDetailsPage() {
                         onChange={(e) =>
                             handleClientInputChange("industry", e.target.value)
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     >
                         <option value="">Select your industry</option>
                         <option value="technology">Technology</option>
@@ -748,8 +743,8 @@ export default function SetDetailsPage() {
                     </select>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Company Size
                     </label>
                     <select
@@ -760,7 +755,7 @@ export default function SetDetailsPage() {
                                 e.target.value
                             )
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     >
                         <option value="">Select company size</option>
                         <option value="1-10">1-10 employees</option>
@@ -772,8 +767,8 @@ export default function SetDetailsPage() {
                     </select>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Location *
                     </label>
                     <input
@@ -783,7 +778,7 @@ export default function SetDetailsPage() {
                             handleClientInputChange("location", e.target.value)
                         }
                         placeholder="e.g., New York, NY or Global"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     />
                 </div>
             </div>
@@ -791,26 +786,26 @@ export default function SetDetailsPage() {
     );
 
     const renderClientStep2 = () => (
-        <div className="space-y-6">
-            <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <DollarSign className="w-8 h-8 text-blue-600" />
+        <div className="space-y-8">
+            <div className="text-center mb-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <DollarSign className="w-10 w-10 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Project Preferences
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-lg">
                     What type of projects do you typically need help with?
                 </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
                 {/* Project Types */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-4">
                         Project Types *
                     </label>
-                    <div className="flex items-center space-x-2 mb-3">
+                    <div className="flex items-center space-x-3 mb-4">
                         <input
                             type="text"
                             value={currentProjectType}
@@ -819,29 +814,29 @@ export default function SetDetailsPage() {
                             }
                             onKeyPress={handleProjectTypeKeyPress}
                             placeholder="Add a project type and press Enter"
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                         />
                         <button
                             type="button"
                             onClick={addProjectType}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold"
                         >
                             Add
                         </button>
                     </div>
 
                     {clientFormData.projectTypes.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-3 mb-4">
                             {clientFormData.projectTypes.map((type, index) => (
                                 <span
                                     key={index}
-                                    className="inline-flex items-center space-x-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                                    className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-200"
                                 >
                                     <span>{type}</span>
                                     <button
                                         type="button"
                                         onClick={() => removeProjectType(type)}
-                                        className="text-blue-600 hover:text-blue-800"
+                                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-full p-1 transition-all"
                                     >
                                         <Trash2 className="w-3 h-3" />
                                     </button>
@@ -849,14 +844,14 @@ export default function SetDetailsPage() {
                             ))}
                         </div>
                     )}
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-500">
                         Examples: Web Development, Mobile Apps, UI/UX Design,
                         Content Writing, Digital Marketing
                     </p>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Typical Budget Range *
                     </label>
                     <select
@@ -867,7 +862,7 @@ export default function SetDetailsPage() {
                                 e.target.value
                             )
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     >
                         <option value="">Select budget range</option>
                         <option value="under-1000">Under $1,000</option>
@@ -879,12 +874,12 @@ export default function SetDetailsPage() {
                     </select>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Website
                     </label>
                     <div className="relative">
-                        <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Globe className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
                             type="url"
                             value={clientFormData.website}
@@ -895,7 +890,7 @@ export default function SetDetailsPage() {
                                 )
                             }
                             placeholder="https://yourcompany.com"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                         />
                     </div>
                 </div>
@@ -904,22 +899,22 @@ export default function SetDetailsPage() {
     );
 
     const renderClientStep3 = () => (
-        <div className="space-y-6">
-            <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-8 h-8 text-blue-600" />
+        <div className="space-y-8">
+            <div className="text-center mb-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Users className="w-10 w-10 text-purple-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Communication & Profile
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-lg">
                     How do you prefer to work with freelancers?
                 </p>
             </div>
 
-            <div className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="space-y-8">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Preferred Communication Style *
                     </label>
                     <select
@@ -930,7 +925,7 @@ export default function SetDetailsPage() {
                                 e.target.value
                             )
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     >
                         <option value="">
                             Select communication preference
@@ -951,8 +946,8 @@ export default function SetDetailsPage() {
                     </select>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Company Description *
                     </label>
                     <textarea
@@ -966,19 +961,19 @@ export default function SetDetailsPage() {
                         placeholder="Tell us about your company, what you do, and what kind of freelancers would be a good fit (max 500 characters)"
                         rows={4}
                         maxLength={500}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none hover:border-gray-300"
                     />
-                    <div className="text-right text-sm text-gray-500 mt-1">
+                    <div className="text-right text-sm text-gray-500 mt-2">
                         {clientFormData.companyDescription.length}/500
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                         LinkedIn Company Page
                     </label>
                     <div className="relative">
-                        <Linkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Linkedin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
                             type="url"
                             value={clientFormData.linkedIn}
@@ -989,7 +984,7 @@ export default function SetDetailsPage() {
                                 )
                             }
                             placeholder="https://linkedin.com/company/yourcompany"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                         />
                     </div>
                 </div>
@@ -1024,42 +1019,64 @@ export default function SetDetailsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <div className="max-w-2xl mx-auto px-4">
+        <div className="min-h-screen bg-gray-50 py-12 relative overflow-hidden">
+            {/* Floating background elements */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-20 left-10 w-16 h-16 bg-blue-500 rounded-2xl opacity-10 animate-float"></div>
+                <div className="absolute top-40 right-20 w-12 h-12 bg-purple-500 rounded-full opacity-10 animate-float" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute bottom-40 left-20 w-20 h-20 bg-green-500 rounded-2xl opacity-10 animate-float" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute bottom-20 right-10 w-14 h-14 bg-orange-500 rounded-full opacity-10 animate-float" style={{ animationDelay: '0.5s' }}></div>
+            </div>
+
+            <div className={`max-w-4xl mx-auto px-4 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                {/* Header */}
+                <div className="text-center mb-12">
+                    <div className="inline-flex items-center space-x-2 bg-white rounded-full px-6 py-3 mb-8 shadow-lg">
+                        <Sparkles className="w-5 h-5 text-blue-600" />
+                        <span className="text-sm font-medium text-gray-700">Setup Profile</span>
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                        Complete your profile
+                    </h1>
+                    <p className="text-xl text-gray-600">
+                        Setting up as: <span className="font-semibold text-blue-600">{userType === "freelancer" ? "Freelancer" : "Client"}</span>
+                    </p>
+                </div>
+
                 {/* Progress Bar */}
-                <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm font-medium text-gray-600">
+                <div className="mb-12">
+                    <div className="flex items-center justify-between mb-6">
+                        <span className="text-sm font-semibold text-gray-600">
                             Step {currentStep} of 3
                         </span>
-                        <span className="text-sm font-medium text-gray-600">
+                        <span className="text-sm font-semibold text-gray-600">
                             {Math.round((currentStep / 3) * 100)}% Complete
                         </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
                         <div
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 shadow-lg"
                             style={{ width: `${(currentStep / 3) * 100}%` }}
                         ></div>
                     </div>
                 </div>
 
                 {/* Main Card */}
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+                <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 lg:p-12 mb-8">
                     {renderCurrentStep()}
 
                     {/* Navigation Buttons */}
-                    <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+                    <div className="flex items-center justify-between mt-12 pt-8 border-t border-gray-200">
                         <button
                             onClick={handlePrevious}
                             disabled={currentStep === 1}
-                            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                            className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all ${
                                 currentStep === 1
                                     ? "text-gray-400 cursor-not-allowed"
-                                    : "text-gray-700 hover:bg-gray-100"
+                                    : "text-gray-700 hover:bg-gray-100 hover:scale-105"
                             }`}
                         >
-                            <ChevronLeft className="w-4 h-4" />
+                            <ChevronLeft className="w-5 h-5" />
                             <span>Previous</span>
                         </button>
 
@@ -1067,33 +1084,33 @@ export default function SetDetailsPage() {
                             <button
                                 onClick={handleNext}
                                 disabled={!canProceedToNext()}
-                                className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                                className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${
                                     canProceedToNext()
-                                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 shadow-lg"
                                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 }`}
                             >
                                 <span>Next</span>
-                                <ChevronRight className="w-4 h-4" />
+                                <ChevronRight className="w-5 h-5" />
                             </button>
                         ) : (
                             <button
                                 onClick={handleSubmit}
                                 disabled={!canProceedToNext() || isSubmitting}
-                                className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                                className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${
                                     canProceedToNext() && !isSubmitting
-                                        ? "bg-green-600 text-white hover:bg-green-700"
+                                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 hover:scale-105 shadow-lg"
                                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 }`}
                             >
                                 {isSubmitting ? (
                                     <>
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                         <span>Submitting...</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Check className="w-4 h-4" />
+                                        <Check className="w-5 h-5" />
                                         <span>Complete Setup</span>
                                     </>
                                 )}
@@ -1103,20 +1120,12 @@ export default function SetDetailsPage() {
                 </div>
 
                 {/* Help Text */}
-                <div className="text-center mt-6">
-                    <p className="text-sm text-gray-600">
-                        Setting up as:{" "}
-                        <span className="font-medium text-blue-600">
-                            {userType === "freelancer"
-                                ? "Freelancer"
-                                : "Client"}
-                        </span>
-                    </p>
-                    <p className="text-sm text-gray-600 mt-2">
+                <div className="text-center">
+                    <p className="text-sm text-gray-600 mb-2">
                         Need help?{" "}
                         <a
                             href="#"
-                            className="text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
                         >
                             Contact Support
                         </a>
