@@ -1,4 +1,4 @@
-import { Hop as Home, MessageCircle, FolderOpen, User, ChartBar as BarChart3, DollarSign, Bell, LogOut, Settings } from "lucide-react";
+import { Hop as Home, MessageCircle, FolderOpen, User, ChartBar as BarChart3, DollarSign, Bell, LogOut, Settings, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChat } from "../../contexts/ChatContext";
 import { useUser } from "../../contexts/UserContext";
@@ -68,16 +68,22 @@ export default function DashboardSidebar({
                 onFeatureSelect(item.id);
                 onCloseMobile();
             }}
-            className={`w-full flex items-center space-x-3 px-4 py-3 text-left rounded-2xl transition-all duration-300 transform hover:scale-105 ${
+            className={`w-full flex items-center space-x-4 px-6 py-4 text-left rounded-3xl transition-all duration-300 transform hover:scale-105 group ${
                 activeFeature === item.id
-                    ? "bg-black text-white shadow-lg"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    ? "bg-black text-white shadow-2xl"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
             }`}
             style={{
                 animationDelay: `${index * 0.1}s`
             }}
         >
-            <item.icon className="w-5 h-5" />
+            <div className={`p-2 rounded-2xl transition-all duration-300 ${
+                activeFeature === item.id 
+                    ? "bg-white/20" 
+                    : "bg-gray-100 group-hover:bg-gray-200"
+            }`}>
+                <item.icon className="w-5 h-5" />
+            </div>
             <span className="font-medium relative">
                 {item.label}
                 {item.id === "messages" && <UnreadBadge />}
@@ -120,29 +126,33 @@ export default function DashboardSidebar({
             <div
                 className={`
                     fixed lg:relative inset-y-0 left-0 z-50 lg:z-0
-                    w-72 bg-white/95 backdrop-blur-md border-r border-gray-200 flex flex-col
+                    w-80 bg-white/95 backdrop-blur-md border-r border-gray-200 flex flex-col
                     transform lg:transform-none transition-all duration-300 ease-in-out
                     ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
                     ${isVisible ? 'opacity-100' : 'opacity-0'}
+                    shadow-2xl lg:shadow-none
                 `}
             >
                 {/* Sidebar Header */}
-                <div className="px-6 py-8 border-b border-gray-200">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
-                            <span className="text-white font-bold text-lg">W</span>
+                <div className="px-8 py-8 border-b border-gray-200">
+                    <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-black to-gray-800 rounded-3xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300 shadow-lg">
+                            <span className="text-white font-bold text-xl">W</span>
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900">Workbridg</h1>
-                            <p className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full inline-block">
-                                {role}
-                            </p>
+                            <h1 className="text-2xl font-bold text-gray-900">Workbridg</h1>
+                            <div className="flex items-center gap-2">
+                                <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                    <Sparkles className="w-3 h-3" />
+                                    {role}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Navigation Menu */}
-                <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                <nav className="flex-1 px-6 py-8 space-y-3 overflow-y-auto">
                     {menuItems.map((item, index) => (
                         <div
                             key={item.id}
@@ -155,12 +165,14 @@ export default function DashboardSidebar({
                 </nav>
 
                 {/* Logout Button */}
-                <div className="px-4 py-6 border-t border-gray-200">
+                <div className="px-6 py-8 border-t border-gray-200">
                     <button 
-                        className="w-full flex items-center space-x-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 rounded-2xl transition-all duration-300 transform hover:scale-105 group"
+                        className="w-full flex items-center space-x-4 px-6 py-4 text-left text-red-600 hover:bg-red-50 rounded-3xl transition-all duration-300 transform hover:scale-105 group"
                         onClick={onLogout}
                     >
-                        <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        <div className="p-2 bg-red-100 rounded-2xl group-hover:bg-red-200 transition-colors duration-300">
+                            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        </div>
                         <span className="font-medium">Logout</span>
                     </button>
                 </div>
