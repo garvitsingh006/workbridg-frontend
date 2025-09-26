@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { User } from "./UserContext";
-import axios from "axios";
+import api from "../api";
 import { useUser } from "./UserContext";
 import { useChat } from "./ChatContext";
 
@@ -117,13 +117,12 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const createGroupChatForProject = async (projectId: string, clientId: string, freelancerId: string) => {
         try {
             // This will be called after a freelancer is approved for a project
-            const response = await axios.post(
-                `${import.meta.env.VITE_SERVER}/chats/group`,
+            const response = await api.post(
+                `/chats/group`,
                 {
                     project: projectId,
                     participantIds: [clientId, freelancerId]
-                },
-                { withCredentials: true }
+                }
             );
             return response.data?.data || response.data;
         } catch (error) {
@@ -138,16 +137,16 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
             setError(null);
 
             const endpoint = (user?.userType === "admin" || user?.userType === "freelancer")
-                ? `${import.meta.env.VITE_SERVER}/projects/users/all`
-                : `${import.meta.env.VITE_SERVER}/projects/all`;
+                ? `/projects/users/all`
+                : `/projects/all`;
 
-            const response = await axios.get(endpoint, { withCredentials: true });
+            const response = await api.get(endpoint);
             let projectsData: Project[] = response.data.data;
 
             // If freelancer, remove rejected projects so they can't see or re-apply
             if (user?.userType === 'freelancer' && user?.id) {
                 try {
-                    const rejRes = await axios.get(`${import.meta.env.VITE_SERVER}/users/${user.id}/projects/rejected`, { withCredentials: true });
+                    const rejRes = await api.get(`/users/${user.id}/projects/rejected`);
                     const rejected: any[] = rejRes.data?.data || [];
                     const rejectedIds = new Set(rejected.map((p: any) => p.id || p._id));
                     projectsData = projectsData.filter((p: any) => !rejectedIds.has(p.id || p._id));
@@ -171,10 +170,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
       ): Promise<void> => {
         try {
           setError(null);
-          await axios.post(
-            `${import.meta.env.VITE_SERVER}/projects/${projectId}/apply`,
+          await api.post(
+            `/projects/${projectId}/apply`,
             payload,
-            { withCredentials: true }
           );
         } catch (err: any) {
           const message = err?.response?.data?.message || err?.message || "Failed to apply to project";
@@ -189,9 +187,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     ): Promise<(ProjectApplication & { applicantId?: string })[]> => {
         try {
             setError(null);
-            const res = await axios.get(
-                `${import.meta.env.VITE_SERVER}/projects/${projectId}/applications`,
-                { withCredentials: true }
+            const res = await api.get(
+                `/projects/${projectId}/applications`
             );
             const raw = res.data?.data || [];
             // Normalize and include applicantId from populated applicant
@@ -215,10 +212,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const approveProjectForUser = async (userId: string, projectId: string): Promise<void> => {
         try {
             setError(null);
-            const response = await axios.post(
-                `${import.meta.env.VITE_SERVER}/users/${userId}/projects/approve`, 
-                { projectId }, 
-                { withCredentials: true }
+            const response = await api.post(
+                `/users/${userId}/projects/approve`, 
+                { projectId }
             );
             
             // Get project and client details to create group chat
@@ -242,7 +238,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const rejectProjectForUser = async (userId: string, projectId: string): Promise<void> => {
         try {
             setError(null);
-            await axios.post(`${import.meta.env.VITE_SERVER}/users/${userId}/projects/reject`, { projectId }, { withCredentials: true });
+            await api.post(`/users/${userId}/projects/reject`, { projectId });
         } catch (err: any) {
             const message = err?.response?.data?.message || err?.message || 'Failed to reject project';
             setError(message);
@@ -253,7 +249,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
     const deleteProjectApplication = async (projectId: string, userId: string): Promise<void> => {
         try {
             setError(null);
-            await axios.delete(`${import.meta.env.VITE_SERVER}/projects/${projectId}/applications/${userId}`, { withCredentials: true });
+            await api.delete(`/projects/${projectId}/applications/${userId}`);
         } catch (err: any) {
             const message = err?.response?.data?.message || err?.message || 'Failed to delete application';
             setError(message);
@@ -267,9 +263,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         try {
             setError(null);
 
-            const response = await axios.get(
-                `${import.meta.env.VITE_SERVER}/projects/${projectId}`,
-                { withCredentials: true }
+            const response = await api.get(
+                `/projects/${projectId}`
             );
             return response.data.data; // formatted project object from backend
         } catch (err) {
@@ -286,10 +281,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         try {
             setError(null);
 
-            const response = await axios.post(
-                `${import.meta.env.VITE_SERVER}/projects/new`,
-                projectData,
-                { withCredentials: true }
+            const response = await api.post(
+                `/projects/new`,
+                projectData
             );
             console.log(projectData)
             const newProject = response.data.data;
@@ -310,10 +304,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         try {
             setError(null);
 
-            const response = await axios.patch(
-                `${import.meta.env.VITE_SERVER}/projects/${projectId}`,
-                projectData,
-                { withCredentials: true }
+            const response = await api.patch(
+                `/projects/${projectId}`,
+                projectData
             );
             const updatedProject = response.data.data;
             setProjects((prev) =>
@@ -333,11 +326,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         try {
             setError(null);
 
-            await axios.delete(
-                `${import.meta.env.VITE_SERVER}/projects/${projectId}`,
-                {
-                    withCredentials: true,
-                }
+            await api.delete(
+                `/projects/${projectId}`
             );
 
             setProjects((prev) =>
@@ -371,10 +361,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         try {
             setError(null);
 
-            const response = await axios.post(
-                `${import.meta.env.VITE_SERVER}/projects/${projectId}/remarks`,
-                { userId, text },
-                { withCredentials: true }
+            const response = await api.post(
+                `/projects/${projectId}/remarks`,
+                { userId, text }
             );
 
             const updatedProject = response.data.data; // full updated project

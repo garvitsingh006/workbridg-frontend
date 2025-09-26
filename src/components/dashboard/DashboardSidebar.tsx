@@ -3,10 +3,8 @@ import {
     MessageCircle,
     FolderOpen,
     User,
-    Settings,
     BarChart3,
     DollarSign,
-    Calendar,
     Bell,
     LogOut,
 } from "lucide-react";
@@ -31,6 +29,7 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
     const isAdmin = useUser().user?.userType === "admin";
     const isFreelancer = useUser().user?.userType === "freelancer";
+    const isClient = useUser().user?.userType === "client";
     const baseItems = [
         { id: "home", label: "Dashboard", icon: Home },
         { id: "projects", label: isAdmin ? "Project Review" : isFreelancer ? "Projects" : "Projects", icon: FolderOpen },
@@ -42,17 +41,14 @@ export default function DashboardSidebar({
         { id: "escrow", label: "Escrow & Payments", icon: DollarSign },
         { id: "agreements", label: "Agreements", icon: FolderOpen },
         { id: "disputes", label: "Disputes", icon: Bell },
-        { id: "analytics", label: "Analytics & Reports", icon: BarChart3 },
-        { id: "announcements", label: "Announcements", icon: Bell },
-        { id: "settings", label: "Settings & Permissions", icon: Settings },
+        // Removed: Analytics & Reports, Announcements, Settings & Permissions
     ];
     const nonAdminExtras = [
-        { id: "earnings", label: "Earnings", icon: DollarSign },
+        ...(isFreelancer ? [{ id: "earnings", label: "Earnings", icon: DollarSign }] : []),
+        ...(isClient ? [{ id: "payments", label: "Payments", icon: DollarSign }] : []),
         { id: "analytics", label: "Analytics", icon: BarChart3 },
-        { id: "calendar", label: "Calendar", icon: Calendar },
-        { id: "notifications", label: "Notifications", icon: Bell },
+        // Removed for clients and freelancers: Calendar, Notifications
         { id: "profile", label: "Profile", icon: User },
-        { id: "settings", label: "Settings", icon: Settings },
     ];
     const menuItems = isAdmin ? [...baseItems, ...adminExtras] : [...baseItems, ...nonAdminExtras];
 

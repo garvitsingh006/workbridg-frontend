@@ -43,7 +43,17 @@ export default function Projects() {
             id: project.id,
             name: project.title,
             client: project.createdBy.fullName,
-            status: project.createdAt ? new Date(project.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) : '-',
+            // status: project.createdAt ? new Date(project.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) : '-',
+            status:
+                    project.status === "in-progress"
+                        ? "In Progress"
+                        : project.status === "pending"
+                          ? "Review"
+                          : project.status === "unassigned"
+                            ? "Starting Soon"
+                            : project.status === "completed"
+                              ? "Completed"
+                              : "Cancelled",
             deadline: project.deadline
                 ? new Date(project.deadline).toLocaleDateString()
                 : "No deadline",
@@ -204,7 +214,7 @@ export default function Projects() {
                                 View Details
                             </button>
                             <div className="flex items-center space-x-2">
-                                {user?.userType !== 'admin' && (
+                                {user?.userType !== 'admin' && user?.userType !== "freelancer" && (
                                 <button
                                     onClick={() => {
                                         const originalProject = projects.find(
@@ -220,7 +230,7 @@ export default function Projects() {
                                     Edit
                                 </button>
                                 )}
-                                {user?.userType !== 'client' && (
+                                {user?.userType !== 'client' && user?.userType !== "freelancer" && (
                                 <button
                                     onClick={() => {
                                         const originalProject = projects.find(

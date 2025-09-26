@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Users, Briefcase } from "lucide-react";
-import axios from "axios";
+import api from "../api";
 import { useUser } from "../contexts/UserContext";
 
 const LoginPage: React.FC = () => {
@@ -18,12 +18,9 @@ const LoginPage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await axios.post(
-            `${import.meta.env.VITE_SERVER}/users/login`,
-            formData,
-            {
-                withCredentials: true, // <-- must include this
-            }
+        await api.post(
+            `/users/login`,
+            formData
         );
         const freshUser = await fetchUser(); // Assume fetchUser returns user object or null
 

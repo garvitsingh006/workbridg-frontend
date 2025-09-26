@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import MessagesFeature from "../components/dashboard/features/MessageFeature";
+import ProfileFeature from "../components/dashboard/features/ProfileFeature";
 import Projects from "../components/dashboard/features/Projects";
-import DashboardHome from "../components/dashboard/features/DashboardHome";
+import DashboardHomeClient from "../components/dashboard/features/DashboardHomeClient";
+import AnalyticsClient from "../components/dashboard/features/AnalyticsClient";
+import PaymentsClient from "../components/dashboard/features/PaymentsClient";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -29,13 +32,19 @@ export default function DashboardClient() {
   const renderFeature = () => {
     switch (activeFeature) {
       case "home":
-        return <DashboardHome onViewAllProjects={() => setActiveFeature("projects")} />;
+        return <DashboardHomeClient onViewAllProjects={() => setActiveFeature("projects")} />;
       case "projects":
         return <Projects />;
       case "messages":
         return <MessagesFeature />;
+      case "analytics":
+        return <AnalyticsClient />;
+      case "payments":
+        return <PaymentsClient />;
+      case "profile":
+        return <ProfileFeature />;
       default:
-        return <DashboardHome onViewAllProjects={() => setActiveFeature("projects")} />;
+        return <DashboardHomeClient onViewAllProjects={() => setActiveFeature("projects")} />;
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
-import axios from "axios";
+import api from "../api";
 
 // Types for User Context
 export interface WorkExperience {
@@ -86,10 +86,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         try {
             setLoading(true);
             setError(null);
-            const response = await axios.get(
-                `${import.meta.env.VITE_SERVER}/users/me`,
-                { withCredentials: true }
-            );
+            const response = await api.get(`/users/me`);
             const data = response.data.data;
             return {
                 id: data._id || data.id || "",
@@ -138,10 +135,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 return adminUser;
             }
 
-            const response = await axios.get(
-                `${import.meta.env.VITE_SERVER}/profiles/${username}`,
-                { withCredentials: true }
-            );
+            const response = await api.get(`/profiles/${username}`);
             const backendData = await response.data.data;
 
             const User = {
@@ -153,15 +147,17 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 ...(backendData.user.role === "freelancer" && {
                     freelancerDetails: {
                         location: backendData.location || "",
-                        workField: backendData.industry || "",
-                        workExperience: [], // fill later
-                        skills: [], // fill later
+                        workField: backendData.workField || "", // CORRECTED
+                        workExperience: backendData.workExperience || [], // CORRECTED
+                        skills: backendData.skills || [], // CORRECTED
                         linkedIn: backendData.linkedIn || "",
-                        github: "",
-                        preferredRole: "",
-                        bio: "",
+                        github: backendData.github || "", // CORRECTED
+                        preferredRole: backendData.preferredRole || "", // CORRECTED
+                        bio: backendData.bio || "", // CORRECTED
+                        resume: backendData.resume || "", // CORRECTED
                     },
                 }),
+
                 ...(backendData.user.role === "client" && {
                     clientDetails: {
                         companyName: backendData.companyName || "",
@@ -228,12 +224,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
     const logout = async () => {
         setUser(null);
-        await axios
-            .post(
-                `${import.meta.env.VITE_SERVER}/users/logout`,
-                {},
-                { withCredentials: true }
-            )
+        await api
+            .post(`/users/logout`, {})
             .then(() => {
                 console.log("Logged out successfully!");
             })

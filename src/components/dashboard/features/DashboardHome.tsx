@@ -204,28 +204,7 @@ export default function DashboardHome({ onViewAllProjects }: DashboardHomeProps)
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <FolderOpen className="w-8 h-8 text-blue-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">New Project</span>
-          </button>
-          <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <MessageCircle className="w-8 h-8 text-green-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">Send Message</span>
-          </button>
-          <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <Clock className="w-8 h-8 text-purple-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">Time Tracker</span>
-          </button>
-          <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <TrendingUp className="w-8 h-8 text-orange-600 mb-2" />
-            <span className="text-sm font-medium text-gray-900">View Analytics</span>
-          </button>
-        </div>
-      </div>
+      {/* Quick Actions removed for freelancers as requested */}
     </div>
   );
 }

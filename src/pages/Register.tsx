@@ -10,7 +10,7 @@ import {
     Briefcase,
     IdCard,
 } from "lucide-react";
-import axios from "axios";
+import api from "../api";
 
 const Register: React.FC = () => {
     const navigate = useNavigate();
@@ -39,10 +39,8 @@ const Register: React.FC = () => {
             role: userType,
             username: formData.username,
         };
-        await axios
-            .post(`${import.meta.env.VITE_SERVER}/users/register`, userData, {
-                withCredentials: true, // <-- must include this
-            })
+        await api
+            .post(`/users/register`, userData)
             .then(() => {
                 console.log("User logged in successfully: ", userData);
                 navigate(`/login`);

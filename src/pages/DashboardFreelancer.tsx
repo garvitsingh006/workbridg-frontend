@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import MessagesFeature from "../components/dashboard/features/MessageFeature";
+import ProfileFeature from "../components/dashboard/features/ProfileFeature";
 import Projects from "../components/dashboard/features/Projects";
 import DashboardHome from "../components/dashboard/features/DashboardHome";
+import AnalyticsFreelancer from "../components/dashboard/features/AnalyticsFreelancer";
+import EarningsFreelancer from "../components/dashboard/features/EarningsFreelancer";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -34,6 +37,12 @@ export default function DashboardFreelancer() {
         return <Projects />;
       case "messages":
         return <MessagesFeature />;
+      case "analytics":
+        return <AnalyticsFreelancer />;
+      case "earnings":
+        return <EarningsFreelancer />;
+      case "profile":
+        return <ProfileFeature />;
       default:
         return <DashboardHome onViewAllProjects={() => setActiveFeature("projects")} />;
     }

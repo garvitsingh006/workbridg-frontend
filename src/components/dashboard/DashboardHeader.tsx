@@ -49,6 +49,7 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
       projects: 'My Projects',
       messages: 'Messages',
       earnings: 'Earnings',
+      payments: 'Payments',
       analytics: 'Analytics',
       calendar: 'Calendar',
       notifications: 'Notifications',
@@ -133,8 +134,8 @@ function UserSearchBox() {
     const t = setTimeout(async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${import.meta.env.VITE_SERVER}/users/all`, { credentials: 'include', signal: ctrl.signal as any });
-        const data = await res.json();
+        const res = await (await import('../../api')).default.get(`/users/all`, { signal: ctrl.signal as any });
+        const data = res.data;
         const arr = data?.users || data?.data || [];
         const filtered = (Array.isArray(arr) ? arr : [])
           .filter((u: any) => (u.username || '').toLowerCase().includes(q.toLowerCase()) || (u.fullName || '').toLowerCase().includes(q.toLowerCase()))

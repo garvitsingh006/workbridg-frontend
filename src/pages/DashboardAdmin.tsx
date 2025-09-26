@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function DashboardAdmin() {
   const navigate = useNavigate();
-  const { fetchUser, user } = useUser();
+  const { fetchUser } = useUser();
 
   useEffect(() => {
     const func = async () => {

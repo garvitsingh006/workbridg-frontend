@@ -5,7 +5,7 @@ import React, {
     useEffect,
     type ReactNode,
 } from "react";
-import axios from "axios";
+import api from "../api";
 
 // Types for Chat Context - Updated to match backend
 export interface Message {
@@ -93,11 +93,7 @@ interface ChatProviderProps {
     children: ReactNode;
 }
 
-// Configure axios defaults
-const API_BASE_URL =
-    import.meta.env.VITE_SERVER || "http://localhost:8000/api/v1";
-axios.defaults.baseURL = API_BASE_URL;
-axios.defaults.withCredentials = true;
+// Using centralized api instance
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [chats, setChats] = useState<Chat[]>([]);
@@ -176,7 +172,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             if (!silent) setLoading(true);
             setError(null);
 
-            const response = await axios.get("/chats/user");
+            const response = await api.get("/chats/user");
             const chatsData = response.data?.data || response.data || [];
             const transformedChats = (
                 Array.isArray(chatsData) ? chatsData : []
@@ -209,7 +205,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
 
-            const response = await axios.post(`/chats/${chatId}/message`, {
+            const response = await api.post(`/chats/${chatId}/message`, {
                 content,
             });
 
@@ -236,7 +232,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
 
-            await axios.patch(`/chats/${chatId}/read`);
+            await api.patch(`/chats/${chatId}/read`);
 
             // Update local state to mark messages as read
             setChats((prev) =>
@@ -288,7 +284,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
             const adminId = import.meta.env.VITE_ADMIN_ID
-            const response = await axios.patch(`/chats/${chatId}/add-admin`, {adminId: adminId});
+            const response = await api.patch(`/chats/${chatId}/add-admin`, {adminId: adminId});
             const updatedChat = response.data?.data || response.data;
             const transformedChat = normalizeChat(updatedChat);
 
@@ -314,7 +310,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
 
-            const response = await axios.post(`/chats/${chatId}/participants`, {
+            const response = await api.post(`/chats/${chatId}/participants`, {
                 participantIds: [userId],
             });
             const updatedChat = response.data?.data || response.data;
@@ -345,7 +341,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
 
-            await axios.delete(`/chats/${chatId}/participants/${userId}`);
+            await api.delete(`/chats/${chatId}/participants/${userId}`);
 
             // Refresh chat data
             await fetchChats();
@@ -362,7 +358,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
 
-            const response = await axios.get(`/chats/${chatId}/participants`);
+            const response = await api.get(`/chats/${chatId}/participants`);
             return response.data?.data || response.data || [];
         } catch (err: any) {
             setError(
@@ -376,7 +372,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
 
-            const response = await axios.patch(`/chats/${chatId}/approve`);
+            const response = await api.patch(`/chats/${chatId}/approve`);
             const updatedChat = response.data?.data || response.data;
             const transformedChat = normalizeChat(updatedChat);
 
@@ -402,7 +398,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             setError(null);
 
             if (type === "group") {
-                const response = await axios.post("/chats/group", {
+                const response = await api.post("/chats/group", {
                     type,
                     otherUserId,
                     project: projectId,
@@ -414,7 +410,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 setChats((prev) => [...prev, transformedChat]);
                 return transformedChat;
             } else {
-                const response = await axios.post("/chats/new", {
+                const response = await api.post("/chats/new", {
                     type,
                     otherUserId,
                     project: projectId,
@@ -441,7 +437,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             setError(null);
 
             // Ensure payload matches backend expectations
-            const response = await axios.post("/chats/group", {
+            const response = await api.post("/chats/group", {
                 project: projectId,
                 participantIds: [clientId, freelancerId],
             });
