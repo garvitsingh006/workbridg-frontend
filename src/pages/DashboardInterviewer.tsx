@@ -1,17 +1,12 @@
 import { useEffect, useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
-import MessagesFeature from "../components/dashboard/features/MessageFeature";
-import ProfileFeature from "../components/dashboard/features/ProfileFeature";
-import Projects from "../components/dashboard/features/Projects";
-import DashboardHome from "../components/dashboard/features/DashboardHome";
-import AnalyticsFreelancer from "../components/dashboard/features/AnalyticsFreelancer";
-import EarningsFreelancer from "../components/dashboard/features/EarningsFreelancer";
-import FreelancerInterviews from "../components/dashboard/features/FreelancerInterviews";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
+import InterviewerAssigned from "../components/dashboard/features/InterviewerAssigned";
+import MessagesFeature from "../components/dashboard/features/MessageFeature";
 
-export default function DashboardFreelancer() {
+export default function DashboardInterviewer() {
   const navigate = useNavigate();
   const { fetchUser } = useUser();
 
@@ -20,34 +15,24 @@ export default function DashboardFreelancer() {
       const freshUser = await fetchUser();
       if (!freshUser) {
         navigate("/login");
-      } else if (freshUser.userType !== "freelancer") {
+      } else if (freshUser.userType !== "interviewer") {
         navigate("/dashboard");
       }
     };
     func();
   }, []);
 
-  const [activeFeature, setActiveFeature] = useState("home");
+  const [activeFeature, setActiveFeature] = useState("assigned-interviews");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const renderFeature = () => {
     switch (activeFeature) {
-      case "home":
-        return <DashboardHome onViewAllProjects={() => setActiveFeature("projects")} />;
-      case "projects":
-        return <Projects />;
+      case "assigned-interviews":
+        return <InterviewerAssigned />;
       case "messages":
         return <MessagesFeature />;
-      case "analytics":
-        return <AnalyticsFreelancer />;
-      case "earnings":
-        return <EarningsFreelancer />;
-      case "freelancer-interviews":
-        return <FreelancerInterviews />;
-      case "profile":
-        return <ProfileFeature />;
       default:
-        return <DashboardHome onViewAllProjects={() => setActiveFeature("projects")} />;
+        return <InterviewerAssigned />;
     }
   };
 

@@ -109,9 +109,9 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat }) => {
               <AdminActions chatId={chat._id} status={chat.status} />
             )}
             
-            <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+            {/* <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
               <MoreVertical className="w-4 h-4 text-gray-600" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -206,14 +206,7 @@ const AdminActions: React.FC<{ chatId: string; status: 'pending' | 'approved' | 
           Approve
         </button>
       )}
-      <button
-        type="button"
-        onClick={() => addAdminToChat(chatId)}
-        className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-100 rounded-full text-xs font-medium text-blue-700 hover:bg-blue-200 transition-colors"
-      >
-        <ShieldPlus className="w-4 h-4" />
-        Add Admin
-      </button>
+      
     </div>
   );
 };

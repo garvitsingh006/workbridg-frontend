@@ -40,7 +40,7 @@ export interface User {
     username: string;
     email: string;
     fullName: string;
-    userType: "freelancer" | "client" | "admin";
+    userType: "freelancer" | "client" | "admin" | "interviewer";
     freelancerDetails?: FreelancerDetails;
     clientDetails?: ClientDetails;
     createdAt: Date;
@@ -120,14 +120,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             }
             const { username, role, id, fullName, email } = loginDetails;
 
-            // Admins don't have a profile in the same way; short-circuit to avoid profile fetch
-            if (role === "admin") {
+            // Admins and Interviewers don't have a profile in the same way; short-circuit to avoid profile fetch
+            if (role === "admin" || role === "interviewer") {
                 const adminUser: User = {
                     id: id || username,
                     username,
                     email: email || "",
                     fullName,
-                    userType: "admin",
+                    userType: role as any,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 };
@@ -143,7 +143,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 username: backendData.user.username,
                 email: backendData.user.email || "",
                 fullName: backendData.user.fullName,
-                userType: backendData.user.role, // "freelancer" | "client" | "admin"
+                userType: backendData.user.role, // "freelancer" | "client" | "admin" | "interviewer"
                 ...(backendData.user.role === "freelancer" && {
                     freelancerDetails: {
                         location: backendData.location || "",

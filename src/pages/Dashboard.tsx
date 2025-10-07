@@ -25,6 +25,7 @@ export default function Dashboard() {
                 if (role === 'freelancer') navigate('/dashboard/freelancer');
                 else if (role === 'client') navigate('/dashboard/client');
                 else if (role === 'admin') navigate('/dashboard/admin');
+                else if (role === 'interviewer') navigate('/dashboard/interviewer');
             }
         }
         func()

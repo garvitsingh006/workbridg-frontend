@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { type Chat, useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
-import { Search, Plus, MessageCircle, Users as UsersIcon } from 'lucide-react';
+import { Search, MessageCircle, Users as UsersIcon } from 'lucide-react';
 import axios from 'axios';
 
 interface ChatSidebarProps {
@@ -85,15 +85,15 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
   }, [allUsers, searchQuery]);
 
   return (
-    <aside className="w-80 border-r border-gray-200 h-[70vh] sm:h-[80vh] overflow-hidden bg-white flex flex-col">
+    <aside className="w-80 border-r border-gray-200 h-[70vh] sm:h-[80vh] overflow-visible bg-white flex flex-col relative z-20">
       {/* Header */}
       <div className="px-4 py-4 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-4">
+        {/* <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
           <button className="w-8 h-8 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-all duration-300">
             <Plus className="w-4 h-4 text-white" />
           </button>
-        </div>
+        </div> */}
         
         {/* Search */}
         <div className="relative">

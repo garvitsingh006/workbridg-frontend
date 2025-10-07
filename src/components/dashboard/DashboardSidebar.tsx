@@ -28,6 +28,7 @@ export default function DashboardSidebar({
 
     const isAdmin = user?.userType === "admin";
     const isFreelancer = user?.userType === "freelancer";
+    const isInterviewer = user?.userType === "interviewer";
     const isClient = user?.userType === "client";
 
     const baseItems = [
@@ -42,16 +43,29 @@ export default function DashboardSidebar({
         { id: "escrow", label: "Escrow & Payments", icon: DollarSign },
         { id: "agreements", label: "Agreements", icon: FolderOpen },
         { id: "disputes", label: "Disputes", icon: Bell },
+        { id: "interviews", label: "Interview Management", icon: Settings },
     ];
 
     const nonAdminExtras = [
-        ...(isFreelancer ? [{ id: "earnings", label: "Earnings", icon: DollarSign }] : []),
+        ...(isFreelancer ? [
+            { id: "earnings", label: "Earnings", icon: DollarSign },
+            { id: "freelancer-interviews", label: "Interviews", icon: Settings },
+        ] : []),
+        ...(isInterviewer ? [
+            { id: "assigned-interviews", label: "Assigned Interviews", icon: Settings },
+        ] : []),
         ...(isClient ? [{ id: "payments", label: "Payments", icon: DollarSign }] : []),
         { id: "analytics", label: "Analytics", icon: BarChart3 },
         { id: "profile", label: "Profile", icon: User },
     ];
 
-    const menuItems = isAdmin ? [...baseItems, ...adminExtras] : [...baseItems, ...nonAdminExtras];
+    let menuItems = isAdmin ? [...baseItems, ...adminExtras] : [...baseItems, ...nonAdminExtras];
+    if (isInterviewer) {
+        menuItems = [
+            { id: "assigned-interviews", label: "Assigned Interviews", icon: Settings },
+            { id: "messages", label: "Messages", icon: MessageCircle },
+        ];
+    }
 
     const role = user?.userType
         ? user.userType.charAt(0).toUpperCase() + user.userType.slice(1)

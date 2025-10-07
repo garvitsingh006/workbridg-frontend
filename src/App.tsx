@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./contexts/UserContext";
 import { ProjectProvider } from "./contexts/ProjectContext";
 import { ChatProvider } from "./contexts/ChatContext";
+import { InterviewProvider } from "./contexts/InterviewContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/LandingPage";
@@ -13,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import DashboardClient from "./pages/DashboardClient";
 import DashboardFreelancer from "./pages/DashboardFreelancer";
 import DashboardAdmin from "./pages/DashboardAdmin";
+import DashboardInterviewer from "./pages/DashboardInterviewer";
 import SetDetailsPage from "./pages/SetDetailsPage";
 import PublicProfilePage from "./pages/PublicProfilePage";
 
@@ -21,6 +23,7 @@ function App() {
         <UserProvider>
             <ProjectProvider>
                 <ChatProvider>
+                    <InterviewProvider>
                     <Router>
                         <div className="min-h-screen flex flex-col">
                             <Routes>
@@ -29,6 +32,7 @@ function App() {
                                 <Route path="/dashboard/client" element={<DashboardClient />} />
                                 <Route path="/dashboard/freelancer" element={<DashboardFreelancer />} />
                                 <Route path="/dashboard/admin" element={<DashboardAdmin />} />
+                                <Route path="/dashboard/interviewer" element={<DashboardInterviewer />} />
                                 <Route path="/login" element={<LoginPage />} />
                                 <Route path="/profile/:username" element={<PublicProfilePage />} />
                                 <Route
@@ -71,6 +75,7 @@ function App() {
                             </Routes>
                         </div>
                     </Router>
+                    </InterviewProvider>
                 </ChatProvider>
             </ProjectProvider>
         </UserProvider>

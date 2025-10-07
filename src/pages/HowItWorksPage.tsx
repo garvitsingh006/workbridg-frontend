@@ -210,7 +210,7 @@ const HowItWorksPage: React.FC = () => {
       {/* Client Journey */}
       <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          {/* <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
               A growing library of
             </h2>
@@ -219,7 +219,7 @@ const HowItWorksPage: React.FC = () => {
               <div className="text-6xl sm:text-7xl font-bold text-gray-900">98% success rate</div>
               <div className="text-6xl sm:text-7xl font-bold text-gray-900">Zero disputes</div>
             </div>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[

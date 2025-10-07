@@ -5,6 +5,7 @@ import MessagesFeature from "../components/dashboard/features/MessageFeature";
 import AdminProjectsReview from "../components/dashboard/features/AdminProjectsReview";
 import AdminUsersPanel from "../components/dashboard/features/AdminUsersPanel";
 import AdminApplications from "../components/dashboard/features/AdminApplications";
+import AdminInterviewManagement from "../components/dashboard/features/AdminInterviewManagement";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -35,6 +36,8 @@ export default function DashboardAdmin() {
         return <AdminApplications />;
       case "users":
         return <AdminUsersPanel />;
+      case "interviews":
+        return <AdminInterviewManagement />;
       case "escrow":
         return (
           <div className="p-6">

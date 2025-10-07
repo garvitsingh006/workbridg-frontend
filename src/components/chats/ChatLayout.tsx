@@ -35,7 +35,7 @@ const ChatLayout: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full flex bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden backdrop-blur-sm">
+    <div className="w-full h-full flex bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-visible backdrop-blur-sm relative">
       <ChatSidebar
         chats={chats}
         activeChatId={activeChat?._id || null}
