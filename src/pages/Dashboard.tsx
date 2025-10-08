@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
-import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DashboardHome from "../components/dashboard/features/DashboardHome";
 import Projects from "../components/dashboard/features/Projects";
 import Feature2 from "../components/dashboard/features/Feature2";
 import Feature3 from "../components/dashboard/features/Feature3";
 import MessagesFeature from "../components/dashboard/features/MessageFeature";
+import AccountSettings from "../components/dashboard/features/AccountSettings";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
+import { Menu } from "lucide-react";
 
 export default function Dashboard() {
 
@@ -34,13 +35,27 @@ export default function Dashboard() {
     const [activeFeature, setActiveFeature] = useState("home");
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-    
-
     useEffect(() => {
         const handler = () => setActiveFeature('messages');
         window.addEventListener('open-messages-feature', handler as any);
         return () => window.removeEventListener('open-messages-feature', handler as any);
     }, []);
+
+    const getFeatureTitle = () => {
+        const titles: { [key: string]: string } = {
+            home: 'Dashboard',
+            projects: 'Projects',
+            messages: 'Messages',
+            earnings: 'Earnings',
+            analytics: 'Analytics',
+            calendar: 'Calendar',
+            notifications: 'Notifications',
+            profile: 'Profile',
+            settings: 'Settings',
+            'account-settings': 'Account Settings',
+        };
+        return titles[activeFeature] || 'Dashboard';
+    };
 
     const renderFeature = () => {
         switch (activeFeature) {
@@ -54,6 +69,8 @@ export default function Dashboard() {
                 return <Feature2 />;
             case "analytics":
                 return <Feature3 />;
+            case "account-settings":
+                return <AccountSettings />;
             case "calendar":
                 return (
                     <div className="p-6">
@@ -92,7 +109,6 @@ export default function Dashboard() {
     return (
         <div className="h-screen bg-gray-50">
             <div className="flex h-full lg:h-screen">
-                {/* Dashboard Sidebar */}
                 <DashboardSidebar
                     activeFeature={activeFeature}
                     onFeatureSelect={setActiveFeature}
@@ -100,15 +116,20 @@ export default function Dashboard() {
                     onCloseMobile={() => setIsMobileSidebarOpen(false)}
                 />
 
-                {/* Main Content */}
-                <div className="flex-1 flex flex-col min-w-0">
-                    {/* Dashboard Header */}
-                    <DashboardHeader
-                        onMobileMenuToggle={() => setIsMobileSidebarOpen(true)}
-                        activeFeature={activeFeature}
-                    />
-
-                    {/* Feature Content */}
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                    <div className="h-16 bg-white border-b border-gray-200 px-6 flex items-center flex-shrink-0">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setIsMobileSidebarOpen(true)}
+                                className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                            >
+                                <Menu className="w-5 h-5" />
+                            </button>
+                            <h1 className="text-xl font-semibold text-gray-900">
+                                {getFeatureTitle()}
+                            </h1>
+                        </div>
+                    </div>
                     <div className="flex-1 overflow-y-auto">
                         {renderFeature()}
                     </div>

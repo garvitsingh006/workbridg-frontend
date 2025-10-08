@@ -25,8 +25,13 @@ export default function FreelancerInterviews() {
     try {
       setLoading(true);
       setError(null);
-      const listRaw: InterviewItem[] = await fetchPendingForFreelancer();
-      const list: InterviewItem[] = (listRaw || []).filter((i: any) => i.status === 'scheduled');
+      const listRaw = await fetchPendingForFreelancer();
+      const list: InterviewItem[] = (listRaw || [])
+        .filter((i: any) => i.status === 'scheduled' && i.interviewer)
+        .map((i: any) => ({
+          ...i,
+          interviewer: i.interviewer || { _id: '', fullName: 'Unknown', email: '' }
+        }));
       list.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
       setItems(list);
     } catch (e: any) {

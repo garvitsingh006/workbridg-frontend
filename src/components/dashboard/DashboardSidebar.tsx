@@ -1,8 +1,8 @@
-import { Hop as Home, MessageCircle, FolderOpen, User, ChartBar as BarChart3, DollarSign, LogOut, Settings, HelpCircle } from "lucide-react";
+import { Hop as Home, MessageCircle, FolderOpen, User, ChartBar as BarChart3, DollarSign, Settings, HelpCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChat } from "../../contexts/ChatContext";
 import { useUser } from "../../contexts/UserContext";
-import { useNavigate } from "react-router-dom";
+import ProfileMenu from "./ProfileMenu";
 
 interface DashboardSidebarProps {
     activeFeature: string;
@@ -17,8 +17,7 @@ export default function DashboardSidebar({
     isMobileOpen,
     onCloseMobile,
 }: DashboardSidebarProps) {
-    const { user, fetchUser, logout } = useUser();
-    const navigate = useNavigate();
+    const { user, fetchUser } = useUser();
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -67,10 +66,6 @@ export default function DashboardSidebar({
         ];
     }
 
-    const onLogout = async () => {
-        logout();
-        navigate("/login");
-    };
 
     const MenuItem = ({ item }: { item: (typeof menuItems)[0]; index: number }) => (
         <div className="relative group">
@@ -137,9 +132,9 @@ export default function DashboardSidebar({
                 `}
             >
                 {/* Sidebar Header - Logo */}
-                <div className="p-4 border-b border-gray-200 flex items-center justify-center">
-                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors">
-                        <span className="text-white font-bold text-sm">W</span>
+                <div className="h-16 border-b border-gray-200 flex items-center justify-center flex-shrink-0">
+                    <div className="w-9 h-9 bg-black rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors">
+                        <span className="text-white font-bold text-base">W</span>
                     </div>
                 </div>
 
@@ -163,18 +158,7 @@ export default function DashboardSidebar({
                             Help
                         </div>
                     </div>
-                    <div className="relative group">
-                        <button
-                            className="w-full flex items-center justify-center p-3 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all duration-200"
-                            onClick={onLogout}
-                            title="Logout"
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </button>
-                        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
-                            Logout
-                        </div>
-                    </div>
+                    <ProfileMenu onAccountSettings={() => onFeatureSelect("account-settings")} />
                 </div>
             </div>
         </>
