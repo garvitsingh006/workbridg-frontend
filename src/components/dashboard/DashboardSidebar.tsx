@@ -1,4 +1,4 @@
-import { Hop as Home, MessageCircle, FolderOpen, User, ChartBar as BarChart3, DollarSign, Bell, LogOut, Settings, Sparkles } from "lucide-react";
+import { Hop as Home, MessageCircle, FolderOpen, User, ChartBar as BarChart3, DollarSign, LogOut, Settings, HelpCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChat } from "../../contexts/ChatContext";
 import { useUser } from "../../contexts/UserContext";
@@ -41,8 +41,8 @@ export default function DashboardSidebar({
         { id: "applications", label: "Applications", icon: FolderOpen },
         { id: "users", label: "User Profiles", icon: User },
         { id: "escrow", label: "Escrow & Payments", icon: DollarSign },
-        { id: "agreements", label: "Agreements", icon: FolderOpen },
-        { id: "disputes", label: "Disputes", icon: Bell },
+        // { id: "agreements", label: "Agreements", icon: FolderOpen },
+        // { id: "disputes", label: "Disputes", icon: Bell },
         { id: "interviews", label: "Interview Management", icon: Settings },
     ];
 
@@ -67,42 +67,32 @@ export default function DashboardSidebar({
         ];
     }
 
-    const role = user?.userType
-        ? user.userType.charAt(0).toUpperCase() + user.userType.slice(1)
-        : "";
-
     const onLogout = async () => {
         logout();
         navigate("/login");
     };
 
-    const MenuItem = ({ item, index }: { item: (typeof menuItems)[0]; index: number }) => (
-        <button
-            onClick={() => {
-                onFeatureSelect(item.id);
-                onCloseMobile();
-            }}
-            className={`w-full flex items-center space-x-4 px-6 py-4 text-left rounded-3xl transition-all duration-300 transform hover:scale-105 group ${
-                activeFeature === item.id
-                    ? "bg-black text-white shadow-2xl"
-                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-            }`}
-            style={{
-                animationDelay: `${index * 0.1}s`
-            }}
-        >
-            <div className={`p-2 rounded-2xl transition-all duration-300 ${
-                activeFeature === item.id 
-                    ? "bg-white/20" 
-                    : "bg-gray-100 group-hover:bg-gray-200"
-            }`}>
+    const MenuItem = ({ item }: { item: (typeof menuItems)[0]; index: number }) => (
+        <div className="relative group">
+            <button
+                onClick={() => {
+                    onFeatureSelect(item.id);
+                    onCloseMobile();
+                }}
+                className={`w-full flex items-center justify-center p-3 text-left rounded-xl transition-all duration-200 relative ${
+                    activeFeature === item.id
+                        ? "bg-gray-100 text-gray-900"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+                title={item.label}
+            >
                 <item.icon className="w-5 h-5" />
-            </div>
-            <span className="font-medium relative">
-                {item.label}
                 {item.id === "messages" && <UnreadBadge />}
-            </span>
-        </button>
+            </button>
+            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
+                {item.label}
+            </div>
+        </div>
     );
 
     const UnreadBadge = () => {
@@ -113,8 +103,8 @@ export default function DashboardSidebar({
             );
             if (count <= 0) return null;
             return (
-                <span className="absolute -top-2 -right-4 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] animate-pulse">
-                    {count}
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-medium">
+                    {count > 9 ? '9+' : count}
                 </span>
             );
         } catch {
@@ -140,55 +130,51 @@ export default function DashboardSidebar({
             <div
                 className={`
                     fixed lg:relative inset-y-0 left-0 z-50 lg:z-0
-                    w-80 bg-white/95 backdrop-blur-md border-r border-gray-200 flex flex-col
+                    w-16 bg-white border-r border-gray-200 flex flex-col
                     transform lg:transform-none transition-all duration-300 ease-in-out
                     ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
                     ${isVisible ? 'opacity-100' : 'opacity-0'}
-                    shadow-2xl lg:shadow-none
                 `}
             >
-                {/* Sidebar Header */}
-                <div className="px-8 py-8 border-b border-gray-200">
-                    <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-black to-gray-800 rounded-3xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300 shadow-lg">
-                            <span className="text-white font-bold text-xl">W</span>
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Workbridg</h1>
-                            <div className="flex items-center gap-2">
-                                <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                                    <Sparkles className="w-3 h-3" />
-                                    {role}
-                                </div>
-                            </div>
-                        </div>
+                {/* Sidebar Header - Logo */}
+                <div className="p-4 border-b border-gray-200 flex items-center justify-center">
+                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors">
+                        <span className="text-white font-bold text-sm">W</span>
                     </div>
                 </div>
 
                 {/* Navigation Menu */}
-                <nav className="flex-1 px-6 py-8 space-y-3 overflow-y-auto">
+                <nav className="flex-1 p-3 space-y-1">
                     {menuItems.map((item, index) => (
-                        <div
-                            key={item.id}
-                            className={`animate-fadeInUp ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-                            style={{ animationDelay: `${index * 0.1}s` }}
-                        >
-                            <MenuItem item={item} index={index} />
-                        </div>
+                        <MenuItem key={item.id} item={item} index={index} />
                     ))}
                 </nav>
 
-                {/* Logout Button */}
-                <div className="px-6 py-8 border-t border-gray-200">
-                    <button 
-                        className="w-full flex items-center space-x-4 px-6 py-4 text-left text-red-600 hover:bg-red-50 rounded-3xl transition-all duration-300 transform hover:scale-105 group"
-                        onClick={onLogout}
-                    >
-                        <div className="p-2 bg-red-100 rounded-2xl group-hover:bg-red-200 transition-colors duration-300">
-                            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                {/* Bottom Actions */}
+                <div className="p-3 border-t border-gray-200 space-y-1">
+                    <div className="relative group">
+                        <button
+                            className="w-full flex items-center justify-center p-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-all duration-200"
+                            title="Help"
+                        >
+                            <HelpCircle className="w-5 h-5" />
+                        </button>
+                        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
+                            Help
                         </div>
-                        <span className="font-medium">Logout</span>
-                    </button>
+                    </div>
+                    <div className="relative group">
+                        <button
+                            className="w-full flex items-center justify-center p-3 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all duration-200"
+                            onClick={onLogout}
+                            title="Logout"
+                        >
+                            <LogOut className="w-5 h-5" />
+                        </button>
+                        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-50">
+                            Logout
+                        </div>
+                    </div>
                 </div>
             </div>
         </>

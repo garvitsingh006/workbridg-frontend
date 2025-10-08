@@ -1,4 +1,4 @@
-import { Menu, Bell, Search, User, Settings, Sparkles } from 'lucide-react';
+import { Menu, Bell, Search } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext';
 import { useEffect, useMemo, useState } from 'react';
 import { useChat } from '../../contexts/ChatContext';
@@ -62,88 +62,78 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
   };
 
   return (
-    <header className={`bg-white/95 backdrop-blur-md border-b border-gray-200 px-6 lg:px-8 py-6 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+    <header className={`bg-white border-b border-gray-200 px-6 lg:px-8 py-4 transition-all duration-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
       <div className="flex items-center justify-between">
         {/* Left side - Mobile menu button and title */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4">
           <button
             onClick={onMobileMenuToggle}
-            className="lg:hidden p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-2xl transition-all duration-300 transform hover:scale-110"
+            className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5" />
           </button>
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-                {getFeatureTitle()}
-              </h1>
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                Pro
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 hidden sm:block">
-              Welcome back, {user?.fullName?.split(' ')[0] || 'User'}! Ready to make progress today?
-            </p>
+            <h1 className="text-xl font-semibold text-gray-900">
+              {getFeatureTitle()}
+            </h1>
           </div>
         </div>
 
         {/* Right side - Search, notifications, profile */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           {/* Search */}
           <div className="hidden md:flex relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search anything..."
-              className="pl-11 pr-4 py-3 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-black focus:bg-white transition-all duration-300 w-72 hover:bg-white text-sm"
+              placeholder="Search..."
+              className="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200 w-64 text-sm placeholder:text-gray-400"
             />
           </div>
 
           {/* Notifications */}
           <div className="relative">
-            <button 
-              className="relative p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-2xl transition-all duration-300 transform hover:scale-110" 
+            <button
+              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
               onClick={() => setOpen(v => !v)}
             >
               <Bell className="w-5 h-5" />
               {notifications.length > 0 && (
-                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] animate-pulse font-medium">
-                  {notifications.length}
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-medium">
+                  {notifications.length > 9 ? '9+' : notifications.length}
                 </span>
               )}
             </button>
             
             {open && (
-              <div className="absolute right-0 mt-3 w-96 bg-white/95 backdrop-blur-md border border-gray-200 rounded-3xl shadow-2xl z-10 animate-scaleIn overflow-hidden">
-                <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-                  <h3 className="font-bold text-gray-900 text-lg">Notifications</h3>
-                  <p className="text-sm text-gray-600 mt-1">Stay updated with your latest activity</p>
+              <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                <div className="p-4 border-b border-gray-200">
+                  <h3 className="font-semibold text-gray-900 text-sm">Notifications</h3>
                 </div>
-                <div className="max-h-80 overflow-auto">
+                <div className="max-h-96 overflow-auto">
                   {notifications.length === 0 ? (
                     <div className="p-8 text-center text-gray-500">
-                      <Bell className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p className="font-medium">No new notifications</p>
-                      <p className="text-sm mt-1">You're all caught up!</p>
+                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                      <p className="text-sm font-medium">No notifications</p>
+                      <p className="text-xs mt-1">You're all caught up</p>
                     </div>
                   ) : (
-                    <div className="p-2">
+                    <div>
                       {notifications.map(n => (
-                        <button 
+                        <button
                           key={n.id}
-                          className="w-full text-left p-4 hover:bg-gray-50 transition-colors duration-300 rounded-2xl m-1 border border-transparent hover:border-gray-200" 
+                          className="w-full text-left p-3 hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100 last:border-b-0"
                           onClick={n.onClick}
                         >
                           <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <Bell className="w-4 h-4 text-blue-600" />
+                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <Bell className="w-4 h-4 text-gray-600" />
                             </div>
-                            <div className="flex-1">
-                              <div className="font-medium text-sm text-gray-900">{n.title}</div>
-                              <div className="text-xs text-gray-500 mt-1">{n.time}</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm text-gray-900 truncate">{n.title}</div>
+                              <div className="text-xs text-gray-500 mt-0.5">{n.time}</div>
                             </div>
                           </div>
                         </button>
@@ -156,15 +146,17 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
           </div>
 
           {/* Profile */}
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-gray-900 to-gray-700 rounded-2xl flex items-center justify-center transform hover:scale-110 transition-all duration-300 shadow-lg cursor-pointer">
-              <span className="text-white font-bold text-sm">
+          <div className="flex items-center space-x-3">
+            <div className="hidden md:flex items-center space-x-2">
+              <div className="text-right">
+                <div className="text-sm font-medium text-gray-900">{user?.fullName || 'User'}</div>
+                <div className="text-xs text-gray-500 capitalize">{user?.userType || 'Member'}</div>
+              </div>
+            </div>
+            <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors">
+              <span className="text-white font-medium text-sm">
                 {user?.fullName?.charAt(0) || 'U'}
               </span>
-            </div>
-            <div className="hidden md:block">
-              <div className="font-semibold text-gray-900 text-sm">{user?.fullName || 'User'}</div>
-              <div className="text-xs text-gray-500 capitalize">{user?.userType || 'Member'}</div>
             </div>
           </div>
         </div>
