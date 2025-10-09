@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, Users, Briefcase, IdCard, ArrowRight, Check, Sparkles, Zap, Heart, Star, Globe } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "react-toastify";
 import api from "../api";
 
 const Register: React.FC = () => {
@@ -365,6 +367,49 @@ const Register: React.FC = () => {
                                 )}
                             </button>
                         </form>
+
+                        <div className="mt-6">
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-200"></div>
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-4 bg-white text-gray-500">or</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-6 w-full">
+                                <GoogleLogin
+                                    onSuccess={async (credentialResponse) => {
+                                        try {
+                                            const res = await api.post("/users/auth/google/signup", {
+                                                token: credentialResponse.credential,
+                                            });
+
+                                            const { isNewUser } = res.data;
+
+                                            if (!isNewUser) {
+                                                toast.error("User already registered. Please login.");
+                                                navigate("/login");
+                                                return;
+                                            }
+
+                                            navigate("/set-details");
+                                        } catch (error: any) {
+                                            console.error("Google signup failed:", error);
+                                            toast.error(error.response?.data?.message || "Google signup failed");
+                                        }
+                                    }}
+                                    onError={() => {
+                                        toast.error("Google signup failed");
+                                    }}
+                                    text="signup_with"
+                                    shape="rectangular"
+                                    size="large"
+                                    width="100%"
+                                />
+                            </div>
+                        </div>
 
                         <div className="mt-8 text-center">
                             <p className="text-sm text-gray-600">

@@ -19,6 +19,8 @@ import {
     Sparkles,
     Target,
 } from "lucide-react";
+import { toast } from "react-toastify";
+import api from "../api";
 import { useUser } from "../contexts/UserContext";
 
 interface WorkExperience {
@@ -55,17 +57,10 @@ interface ClientFormData {
 
 export default function SetDetailsPage() {
     const navigate = useNavigate();
-    const [currentStep, setCurrentStep] = useState(1);
+    const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
-    
-    interface LoginDetails {
-        username: string;
-        fullName: string;
-        email: string;
-        role: "freelancer" | "client" | "admin";
-    }
-    
+
     const [userType, setUserType] = useState<"freelancer" | "client">("freelancer");
     const {fetchLoginDetails} = useUser()
 
@@ -81,11 +76,14 @@ export default function SetDetailsPage() {
                 navigate("/dashboard/admin");
                 return;
             }
-            setUserType(res.role === "client" ? "client" : "freelancer");
+            if (res.role === "freelancer" || res.role === "client") {
+                setUserType(res.role);
+                setCurrentStep(1);
+            }
         };
 
         fetchDetails();
-    }, [fetchLoginDetails]);
+    }, [fetchLoginDetails, navigate]);
 
     const [freelancerFormData, setFreelancerFormData] =
         useState<FreelancerFormData>({
@@ -234,6 +232,9 @@ export default function SetDetailsPage() {
     };
 
     const canProceedToNext = () => {
+        if (currentStep === 0) {
+            return true;
+        }
         if (userType === "freelancer") {
             switch (currentStep) {
                 case 1:
@@ -279,14 +280,24 @@ export default function SetDetailsPage() {
         }
     };
 
-    const handleNext = () => {
-        if (canProceedToNext() && currentStep < 3) {
+    const handleNext = async () => {
+        if (!canProceedToNext()) return;
+
+        if (currentStep === 0) {
+            try {
+                await api.post("/users/set-role", { role: userType });
+                setCurrentStep(1);
+            } catch (error: any) {
+                console.error("Error setting role:", error);
+                toast.error(error.response?.data?.message || "Failed to set role");
+            }
+        } else if (currentStep < 3) {
             setCurrentStep((prev) => prev + 1);
         }
     };
 
     const handlePrevious = () => {
-        if (currentStep > 1) {
+        if (currentStep > 0) {
             setCurrentStep((prev) => prev - 1);
         }
     };
@@ -992,7 +1003,86 @@ export default function SetDetailsPage() {
         </div>
     );
 
+    const renderRoleSelection = () => (
+        <div className="space-y-8">
+            <div className="text-center mb-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Target className="w-10 w-10 text-blue-600" />
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                    Choose Your Role
+                </h2>
+                <p className="text-gray-600 text-lg">
+                    Are you looking to work as a freelancer or hire talent as a client?
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button
+                    type="button"
+                    onClick={() => setUserType("freelancer")}
+                    className={`p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
+                        userType === "freelancer"
+                            ? "border-blue-600 bg-blue-50 shadow-lg"
+                            : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
+                >
+                    <div className="flex flex-col items-center space-y-4">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                            userType === "freelancer" ? "bg-blue-600" : "bg-gray-100"
+                        }`}>
+                            <Users className={`w-8 h-8 ${
+                                userType === "freelancer" ? "text-white" : "text-gray-600"
+                            }`} />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900">Freelancer</h3>
+                        <p className="text-sm text-gray-600 text-center">
+                            Find projects and work with clients on your terms
+                        </p>
+                        {userType === "freelancer" && (
+                            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                <Check className="w-4 h-4 text-white" />
+                            </div>
+                        )}
+                    </div>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setUserType("client")}
+                    className={`p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
+                        userType === "client"
+                            ? "border-blue-600 bg-blue-50 shadow-lg"
+                            : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
+                >
+                    <div className="flex flex-col items-center space-y-4">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                            userType === "client" ? "bg-blue-600" : "bg-gray-100"
+                        }`}>
+                            <Briefcase className={`w-8 h-8 ${
+                                userType === "client" ? "text-white" : "text-gray-600"
+                            }`} />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900">Client</h3>
+                        <p className="text-sm text-gray-600 text-center">
+                            Post projects and hire talented freelancers
+                        </p>
+                        {userType === "client" && (
+                            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                <Check className="w-4 h-4 text-white" />
+                            </div>
+                        )}
+                    </div>
+                </button>
+            </div>
+        </div>
+    );
+
     const renderCurrentStep = () => {
+        if (currentStep === 0) {
+            return renderRoleSelection();
+        }
         if (userType === "freelancer") {
             switch (currentStep) {
                 case 1:
@@ -1044,22 +1134,24 @@ export default function SetDetailsPage() {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="mb-12">
-                    <div className="flex items-center justify-between mb-6">
-                        <span className="text-sm font-semibold text-gray-600">
-                            Step {currentStep} of 3
-                        </span>
-                        <span className="text-sm font-semibold text-gray-600">
-                            {Math.round((currentStep / 3) * 100)}% Complete
-                        </span>
+                {currentStep > 0 && (
+                    <div className="mb-12">
+                        <div className="flex items-center justify-between mb-6">
+                            <span className="text-sm font-semibold text-gray-600">
+                                Step {currentStep} of 3
+                            </span>
+                            <span className="text-sm font-semibold text-gray-600">
+                                {Math.round((currentStep / 3) * 100)}% Complete
+                            </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+                            <div
+                                className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 shadow-lg"
+                                style={{ width: `${(currentStep / 3) * 100}%` }}
+                            ></div>
+                        </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
-                        <div
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 shadow-lg"
-                            style={{ width: `${(currentStep / 3) * 100}%` }}
-                        ></div>
-                    </div>
-                </div>
+                )}
 
                 {/* Main Card */}
                 <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 lg:p-12 mb-8">
@@ -1069,9 +1161,9 @@ export default function SetDetailsPage() {
                     <div className="flex items-center justify-between mt-12 pt-8 border-t border-gray-200">
                         <button
                             onClick={handlePrevious}
-                            disabled={currentStep === 1}
+                            disabled={currentStep === 0}
                             className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all ${
-                                currentStep === 1
+                                currentStep === 0
                                     ? "text-gray-400 cursor-not-allowed"
                                     : "text-gray-700 hover:bg-gray-100 hover:scale-105"
                             }`}

@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { UserProvider } from "./contexts/UserContext";
 import { ProjectProvider } from "./contexts/ProjectContext";
 import { ChatProvider } from "./contexts/ChatContext";
@@ -26,6 +28,17 @@ function App() {
                     <InterviewProvider>
                     <Router>
                         <div className="min-h-screen flex flex-col">
+                            <ToastContainer
+                                position="top-right"
+                                autoClose={3000}
+                                hideProgressBar={false}
+                                newestOnTop={false}
+                                closeOnClick
+                                rtl={false}
+                                pauseOnFocusLoss
+                                draggable
+                                pauseOnHover
+                            />
                             <Routes>
                                 {/* Dashboard routes (without header/footer) */}
                                 <Route path="/dashboard" element={<Dashboard />} />
