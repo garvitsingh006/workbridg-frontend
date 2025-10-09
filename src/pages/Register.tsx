@@ -386,13 +386,17 @@ const Register: React.FC = () => {
                                                 token: credentialResponse.credential,
                                             });
 
-                                            const { isNewUser } = res.data;
+                                            const { isNewUser } = res.data.data;
+
+                                            console.log("isNewUser", isNewUser)
 
                                             if (!isNewUser) {
                                                 toast.error("User already registered. Please login.");
                                                 navigate("/login");
                                                 return;
                                             }
+
+                                            toast.success("User logged in successfully!");
 
                                             navigate("/set-details");
                                         } catch (error: any) {

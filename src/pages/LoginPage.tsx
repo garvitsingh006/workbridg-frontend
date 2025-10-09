@@ -256,7 +256,7 @@ const LoginPage: React.FC = () => {
                                                 token: credentialResponse.credential,
                                             });
 
-                                            const { isNewUser } = res.data;
+                                            const { isNewUser } = res.data.data;
 
                                             if (isNewUser) {
                                                 toast.error("User not registered. Please sign up first.");
