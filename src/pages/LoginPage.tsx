@@ -24,10 +24,16 @@ const LoginPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        
+
         try {
             await api.post(`/users/login`, formData);
             const freshUser = await fetchUser();
+
+            if (freshUser && freshUser.isVerified === false) {
+                toast.error("Please verify your email before logging in. Check your inbox for the verification link.");
+                navigate("/verify-email", { state: { email: formData.email } });
+                return;
+            }
 
             if (!freshUser) {
                 navigate("/set-details");
@@ -38,8 +44,17 @@ const LoginPage: React.FC = () => {
                 else if (role === "admin") navigate("/dashboard/admin");
                 else navigate("/dashboard");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Login failed:", error);
+
+            if (error.response?.status === 403 || error.response?.data?.message?.includes("verify") || error.response?.data?.message?.includes("verification")) {
+                toast.error("Please verify your email before logging in. Check your inbox for the verification link.");
+                if (error.response?.data?.email) {
+                    navigate("/verify-email", { state: { email: error.response.data.email } });
+                }
+            } else {
+                toast.error(error.response?.data?.message || "Login failed. Please check your credentials.");
+            }
         } finally {
             setIsLoading(false);
         }

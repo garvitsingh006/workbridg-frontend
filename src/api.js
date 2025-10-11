@@ -11,7 +11,7 @@ api.interceptors.response.use(
     const msg = error.response?.data?.message;
     if (error.response?.status === 401 && msg === "Access token expired") {
       try {
-        const refresh = await axios.post("/users/auth/refresh-token", {}, { withCredentials: true });
+        const refresh = await axios.post(`${import.meta.env.VTTE_SERVER}/users/auth/refresh-token`, {}, { withCredentials: true });
         if (refresh.status === 200) {
           error.config.headers["Authorization"] = `Bearer ${refresh.data.accessToken}`;
           return api(error.config);

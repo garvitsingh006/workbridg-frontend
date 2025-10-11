@@ -60,6 +60,7 @@ export default function SetDetailsPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [isInitializing, setIsInitializing] = useState(true);
 
     const [userType, setUserType] = useState<"freelancer" | "client">("freelancer");
     const {fetchLoginDetails} = useUser()
@@ -67,18 +68,23 @@ export default function SetDetailsPage() {
     useEffect(() => {
         setIsVisible(true);
         const fetchDetails = async () => {
-            const res = await fetchLoginDetails();
-            if (!res) {
-                console.error("Cannot access login details!");
-                return;
-            }
-            if (res.role === "admin") {
-                navigate("/dashboard/admin");
-                return;
-            }
-            if (res.role === "freelancer" || res.role === "client") {
-                setUserType(res.role);
-                setCurrentStep(1);
+            try {
+                const res = await fetchLoginDetails();
+                if (!res) {
+                    console.error("Cannot access login details!");
+                    setIsInitializing(false);
+                    return;
+                }
+                if (res.role === "admin") {
+                    navigate("/dashboard/admin");
+                    return;
+                }
+                if (res.role === "freelancer" || res.role === "client") {
+                    setUserType(res.role);
+                    setCurrentStep(1);
+                }
+            } finally {
+                setIsInitializing(false);
             }
         };
 
@@ -1175,15 +1181,29 @@ export default function SetDetailsPage() {
                         {currentStep < 3 ? (
                             <button
                                 onClick={handleNext}
-                                disabled={!canProceedToNext()}
+                                disabled={!canProceedToNext() || isSubmitting || isInitializing}
                                 className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${
-                                    canProceedToNext()
+                                    canProceedToNext() && !isSubmitting && !isInitializing
                                         ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 shadow-lg"
                                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 }`}
                             >
-                                <span>Next</span>
-                                <ChevronRight className="w-5 h-5" />
+                                {isSubmitting && currentStep === 0 ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Setting up...</span>
+                                    </>
+                                ) : isInitializing ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Loading...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>Next</span>
+                                        <ChevronRight className="w-5 h-5" />
+                                    </>
+                                )}
                             </button>
                         ) : (
                             <button

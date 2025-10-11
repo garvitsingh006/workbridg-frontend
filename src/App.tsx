@@ -19,6 +19,7 @@ import DashboardAdmin from "./pages/DashboardAdmin";
 import DashboardInterviewer from "./pages/DashboardInterviewer";
 import SetDetailsPage from "./pages/SetDetailsPage";
 import PublicProfilePage from "./pages/PublicProfilePage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 function App() {
     return (
@@ -47,6 +48,7 @@ function App() {
                                 <Route path="/dashboard/admin" element={<DashboardAdmin />} />
                                 <Route path="/dashboard/interviewer" element={<DashboardInterviewer />} />
                                 <Route path="/login" element={<LoginPage />} />
+                                <Route path="/verify-email" element={<VerifyEmailPage />} />
                                 <Route path="/profile/:username" element={<PublicProfilePage />} />
                                 <Route
                                     path="/register"

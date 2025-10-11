@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Users, Briefcase, IdCard, ArrowRight, Check, Sparkles, Zap, Heart, Star, Globe } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Users, Briefcase, IdCard, ArrowRight, Sparkles, Zap, Heart, Star, Globe } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 import api from "../api";
@@ -30,8 +30,9 @@ const Register: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        
+
         try {
+            console.log("handleSubmit triggered")
             const userData = {
                 fullName: formData.firstName + " " + formData.lastName,
                 email: formData.email,
@@ -39,11 +40,20 @@ const Register: React.FC = () => {
                 role: userType,
                 username: formData.username,
             };
+
+            console.log("UserData: ", userData)
+
+            const res = await api.post(`/users/register`, userData);
+            console.log("Response:", res);
+
+
+            toast.success("Registration successful! Please verify your email.", { autoClose: 3000 });
+            setTimeout(() => navigate("/verify-email"), 1500);
+
             
-            await api.post(`/users/register`, userData);
-            navigate(`/login`);
         } catch (err: any) {
             console.error(err.response?.data || err.message);
+            toast.error(err.response?.data?.message || "Registration failed. Please try again.");
         } finally {
             setIsLoading(false);
         }

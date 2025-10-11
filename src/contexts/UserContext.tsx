@@ -41,6 +41,7 @@ export interface User {
     email: string;
     fullName: string;
     userType: "freelancer" | "client" | "admin" | "interviewer";
+    isVerified?: boolean;
     freelancerDetails?: FreelancerDetails;
     clientDetails?: ClientDetails;
     createdAt: Date;
@@ -128,6 +129,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                     email: email || "",
                     fullName,
                     userType: role as any,
+                    isVerified: true,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 };
@@ -144,6 +146,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 email: backendData.user.email || "",
                 fullName: backendData.user.fullName,
                 userType: backendData.user.role, // "freelancer" | "client" | "admin" | "interviewer"
+                isVerified: backendData.user.isVerified ?? true,
                 ...(backendData.user.role === "freelancer" && {
                     freelancerDetails: {
                         location: backendData.location || "",
