@@ -7,6 +7,7 @@ import DashboardHomeClient from "../components/dashboard/features/DashboardHomeC
 import AnalyticsClient from "../components/dashboard/features/AnalyticsClient";
 import PaymentsClient from "../components/dashboard/features/PaymentsClient";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
+import ClientApplications from "../components/dashboard/features/ClientApplications";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
@@ -35,6 +36,7 @@ export default function DashboardClient() {
       home: 'Dashboard',
       projects: 'My Projects',
       messages: 'Messages',
+      applications: 'Applications',
       analytics: 'Analytics',
       payments: 'Payments',
       profile: 'Profile',
@@ -51,6 +53,8 @@ export default function DashboardClient() {
         return <Projects />;
       case "messages":
         return <MessagesFeature />;
+      case "applications":
+        return <ClientApplications />;
       case "analytics":
         return <AnalyticsClient />;
       case "payments":

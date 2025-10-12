@@ -53,7 +53,10 @@ export default function DashboardSidebar({
         ...(isInterviewer ? [
             { id: "assigned-interviews", label: "Assigned Interviews", icon: Settings },
         ] : []),
-        ...(isClient ? [{ id: "payments", label: "Payments", icon: DollarSign }] : []),
+        ...(isClient ? [
+            { id: "applications", label: "Applications", icon: FolderOpen },
+            { id: "payments", label: "Payments", icon: DollarSign }
+        ] : []),
         { id: "analytics", label: "Analytics", icon: BarChart3 },
         { id: "profile", label: "Profile", icon: User },
     ];

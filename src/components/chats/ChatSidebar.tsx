@@ -74,15 +74,24 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
     });
   }, [orderedChats, searchQuery, user?.id]);
 
+  const [selectedRole, setSelectedRole] = useState<string>('all');
+
   const filteredUsers = useMemo(() => {
-    if (!searchQuery) return allUsers.filter(u => u.username?.toLowerCase() !== 'admin');
-    return allUsers
-      .filter(u => u.username?.toLowerCase() !== 'admin')
-      .filter(u => 
-        (u.username || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    let filtered = allUsers.filter(u => u.username?.toLowerCase() !== 'admin');
+
+    if (selectedRole !== 'all') {
+      filtered = filtered.filter(u => u.role?.toLowerCase() === selectedRole.toLowerCase());
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter(u =>
+        (u.username || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (u.fullName || '').toLowerCase().includes(searchQuery.toLowerCase())
       );
-  }, [allUsers, searchQuery]);
+    }
+
+    return filtered;
+  }, [allUsers, searchQuery, selectedRole]);
 
   return (
     <aside className="w-80 border-r border-gray-200 h-[70vh] sm:h-[80vh] overflow-visible bg-white flex flex-col relative z-20">
@@ -221,6 +230,18 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
         
         {tab === 'users' && (
           <div className="p-2">
+            <div className="mb-3 px-1">
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-all duration-300"
+              >
+                <option value="all">All Users</option>
+                <option value="freelancer">Freelancers</option>
+                <option value="client">Clients</option>
+                <option value="interviewer">Interviewers</option>
+              </select>
+            </div>
             {filteredUsers.map((u) => (
               <button
                 key={u._id}

@@ -43,6 +43,7 @@ export interface ProjectApplication {
     deadline: string;
     expectedPayment: number;
     appliedAt: string;
+    applicantId?: string;
 }
 
 // Project methods interface
@@ -184,7 +185,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
       
     const getProjectApplications = async (
         projectId: string
-    ): Promise<(ProjectApplication & { applicantId?: string })[]> => {
+    ): Promise<ProjectApplication[]> => {
         try {
             setError(null);
             const res = await api.get(
