@@ -11,37 +11,55 @@ export default function AdminUsersPanel() {
   const [query, setQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
 
-  // Fetch users once on mount
+  // Fetch users based on selected role
   useEffect(() => {
-    const fetch = async () => {
+    const fetchUsers = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await axios.get(`${import.meta.env.VITE_SERVER}/users/all`, { withCredentials: true });
-        const raw = res.data?.users || res.data?.data || [];
+
+        let endpoint = '';
+        let roleLabel = '';
+
+        switch (selectedRole) {
+          case 'freelancer':
+            endpoint = '/users/getFreelancers';
+            roleLabel = 'freelancer';
+            break;
+          case 'client':
+            endpoint = '/users/getClients';
+            roleLabel = 'client';
+            break;
+          case 'interviewer':
+            endpoint = '/users/getInterviewers';
+            roleLabel = 'interviewer';
+            break;
+          default:
+            endpoint = '/users/all';
+            roleLabel = '';
+        }
+
+        const res = await axios.get(`${import.meta.env.VITE_SERVER}${endpoint}`, { withCredentials: true });
+        const raw = res.data.data?.users || [];
         const normalized = (Array.isArray(raw) ? raw : []).map((u: any) => ({
           _id: u._id || u.id,
           username: u.username,
           fullName: u.fullName,
-          role: u.role || u.userType,
+          role: roleLabel || (u.role || u.userType || '').toLowerCase(),
         }));
         setUsers(normalized);
-      } catch (e: any) {
+    } catch (e: any) {
         setError(e?.message || 'Failed to fetch users');
-      } finally {
+    } finally {
         setLoading(false);
-      }
-    };
-    fetch();
-  }, []);
+    }
+};
+fetchUsers();
+  }, [selectedRole]);
 
-  // Filter users based on search query and role
+  // Filter users based on search query only (role filtering is done via API)
   const filtered = useMemo(() => {
     let result = users.filter(u => u.username?.toLowerCase() !== 'admin');
-
-    if (selectedRole !== 'all') {
-      result = result.filter(u => (u.role || '').toLowerCase() === selectedRole.toLowerCase());
-    }
 
     if (query.trim() !== '') {
       const q = query.toLowerCase();
@@ -52,7 +70,7 @@ export default function AdminUsersPanel() {
     }
 
     return result;
-  }, [users, query, selectedRole]);
+  }, [users, query]);
 
   return (
     <div className="p-4 space-y-3">
@@ -72,7 +90,7 @@ export default function AdminUsersPanel() {
           onChange={(e) => setSelectedRole(e.target.value)}
           className="px-3 py-1.5 border rounded-md focus:outline-none focus:ring text-sm"
         >
-          <option value="all">All Roles</option>
+          <option value="all">Select an option</option>
           <option value="freelancer">Freelancers</option>
           <option value="client">Clients</option>
           <option value="interviewer">Interviewers</option>

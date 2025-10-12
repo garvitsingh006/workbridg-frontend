@@ -16,47 +16,48 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
   const [allUsers, setAllUsers] = useState<Array<{ _id: string; username: string; fullName?: string; role?: string }>>([]);
   const [tab, setTab] = useState<'chats' | 'users'>(() => (user?.userType === 'admin' ? 'users' : 'chats'));
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRole, setSelectedRole] = useState<string>('all');
 
   useEffect(() => {
     const fetchUsers = async () => {
       if (user?.userType !== 'admin') return;
       try {
-        // Try common admin endpoints
-        const tryEndpoints = [
-          `${import.meta.env.VITE_SERVER}/users/all`,
-          `${import.meta.env.VITE_SERVER}/users`,
-        ];
-        let payload: any = null;
-        for (const ep of tryEndpoints) {
-          try {
-            const res = await axios.get(ep, { withCredentials: true });
-            payload = res.data;
-            if (payload) break;
-          } catch (e) {
-            // try next
-          }
+        let endpoint = '';
+        let roleLabel = '';
+
+        switch (selectedRole) {
+          case 'freelancer':
+            endpoint = '/users/getFreelancers';
+            roleLabel = 'freelancer';
+            break;
+          case 'client':
+            endpoint = '/users/getClients';
+            roleLabel = 'client';
+            break;
+          case 'interviewer':
+            endpoint = '/users/getInterviewers';
+            roleLabel = 'interviewer';
+            break;
+          default:
+            endpoint = '/users/all';
+            roleLabel = '';
         }
-        if (!payload) return;
-        const raw = payload.data || payload.users || payload || [];
+
+        const res = await axios.get(`${import.meta.env.VITE_SERVER}${endpoint}`, { withCredentials: true });
+        const raw = res.data.data?.users || [];
         const normalized = (Array.isArray(raw) ? raw : []).map((u: any) => ({
           _id: u._id || u.id || u.userId || '',
           username: u.username || u.userName || u.email || 'user',
           fullName: u.fullName || u.name || undefined,
-          role: u.role || u.userType || undefined,
+          role: roleLabel || (u.role || u.userType || '').toLowerCase(),
         })).filter((u: any) => u._id);
         setAllUsers(normalized);
-        if ((Array.isArray(raw) && raw.length === 0) || normalized.length === 0) {
-          // surface what we received for debugging
-          // eslint-disable-next-line no-console
-          console.debug('Users fetch returned empty. Payload:', payload);
-        }
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to fetch users list for admin:', e);
+        // silent fail
       }
     };
     fetchUsers();
-  }, [user?.userType]);
+  }, [user?.userType, selectedRole]);
 
   const orderedChats = useMemo(() => {
     const visible = user?.userType === 'admin'
@@ -74,14 +75,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
     });
   }, [orderedChats, searchQuery, user?.id]);
 
-  const [selectedRole, setSelectedRole] = useState<string>('all');
-
   const filteredUsers = useMemo(() => {
     let filtered = allUsers.filter(u => u.username?.toLowerCase() !== 'admin');
-
-    if (selectedRole !== 'all') {
-      filtered = filtered.filter(u => u.role?.toLowerCase() === selectedRole.toLowerCase());
-    }
 
     if (searchQuery) {
       filtered = filtered.filter(u =>
@@ -91,7 +86,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
     }
 
     return filtered;
-  }, [allUsers, searchQuery, selectedRole]);
+  }, [allUsers, searchQuery]);
 
   return (
     <aside className="w-80 border-r border-gray-200 h-[70vh] sm:h-[80vh] overflow-visible bg-white flex flex-col relative z-20">
@@ -236,7 +231,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                 onChange={(e) => setSelectedRole(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-all duration-300"
               >
-                <option value="all">All Users</option>
+                <option value="all">Select an option</option>
                 <option value="freelancer">Freelancers</option>
                 <option value="client">Clients</option>
                 <option value="interviewer">Interviewers</option>
