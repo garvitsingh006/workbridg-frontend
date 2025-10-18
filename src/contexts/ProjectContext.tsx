@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import type { User } from "./UserContext";
 import api from "../api";
 import { useUser } from "./UserContext";
-import { useChat } from "./ChatContext";
 
 // Types for Project Context
 export interface Remark {
@@ -67,6 +66,8 @@ interface ProjectContextType {
     fetchProjects: () => Promise<void>;
     applyToProject: (projectId: string, payload: { deadline: string; expectedPayment: number }) => Promise<void>;
     getProjectApplications: (projectId: string) => Promise<ProjectApplication[]>;
+    getChosenApplications: (projectId: string) => Promise<ProjectApplication[]>;
+    chooseApplicationByClient: (projectId: string, userId: string) => Promise<void>;
     approveProjectForUser: (userId: string, projectId: string) => Promise<void>;
     rejectProjectForUser: (userId: string, projectId: string) => Promise<void>;
     deleteProjectApplication: (projectId: string, userId: string) => Promise<void>;
@@ -210,14 +211,54 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         }
     };
 
+    const getChosenApplications = async (
+        projectId: string
+    ): Promise<ProjectApplication[]> => {
+        try {
+            setError(null);
+            const res = await api.get(
+                `/projects/${projectId}/chosenApplications`
+            );
+            const raw = res.data?.data || [];
+            return (Array.isArray(raw) ? raw : []).map((app: any) => ({
+                fullName: app.fullName || app.applicant?.fullName,
+                deadline: app.deadline,
+                expectedPayment: app.expectedPayment,
+                appliedAt: app.appliedAt,
+                applicantId: app.applicant?._id || app.applicantId || app.userId || undefined,
+            }));
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to fetch chosen applications"
+            );
+            return [];
+        }
+    };
+
+    const chooseApplicationByClient = async (projectId: string, userId: string): Promise<void> => {
+        try {
+            setError(null);
+            await api.post(
+                `/users/${userId}/projects/${projectId}/chooseApplication`,
+                { projectId, userId }
+            );
+        } catch (err: any) {
+            const message = err?.response?.data?.message || err?.message || 'Failed to choose application';
+            setError(message);
+            throw new Error(message);
+        }
+    };
+
     const approveProjectForUser = async (userId: string, projectId: string): Promise<void> => {
         try {
             setError(null);
-            const response = await api.post(
-                `/users/${userId}/projects/approve`, 
+            await api.post(
+                `/users/${userId}/projects/approve`,
                 { projectId }
             );
-            
+
             // Get project and client details to create group chat
             const project = projects.find(p => p.id === projectId);
             if (project && project.createdBy) {
@@ -392,6 +433,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         fetchProjects,
         applyToProject,
         getProjectApplications,
+        getChosenApplications,
+        chooseApplicationByClient,
         approveProjectForUser,
         rejectProjectForUser,
         deleteProjectApplication,

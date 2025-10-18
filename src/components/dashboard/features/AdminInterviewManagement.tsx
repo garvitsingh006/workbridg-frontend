@@ -67,7 +67,7 @@ export default function AdminInterviewManagement() {
       setError(null);
       const [freelancersList, interviewersList] = await Promise.all([
         fetchFreelancersWithoutInterview(),
-        api.get(`/users/interviewers`).then((r: any) => r.data?.data || r.data?.users || []),
+        api.get(`/users/getInterviewers`).then((r: any) => r.data?.data || r.data?.users || []),
       ]);
       setFreelancers(freelancersList || []);
       setInterviewers(interviewersList || []);

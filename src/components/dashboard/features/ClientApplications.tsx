@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useProject, type ProjectApplication } from '../../../contexts/ProjectContext';
 import { useUser } from '../../../contexts/UserContext';
-import { Trash2, ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 interface ApplicationWithRating extends ProjectApplication {
   applicantId?: string;
@@ -10,15 +11,16 @@ interface ApplicationWithRating extends ProjectApplication {
 }
 
 export default function ClientApplications() {
-  const { projects, fetchProjects, getProjectApplications, approveProjectForUser, rejectProjectForUser, deleteProjectApplication } = useProject();
+  const { projects, fetchProjects, getProjectApplications, getChosenApplications, chooseApplicationByClient } = useProject();
   const { user } = useUser();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [applications, setApplications] = useState<ApplicationWithRating[]>([]);
   const [loading, setLoading] = useState(false);
-  const [actionMsg, setActionMsg] = useState<string | null>(null);
-  const [approvedAppIds, setApprovedAppIds] = useState<Set<string>>(new Set());
-  const [rejectedAppIds, setRejectedAppIds] = useState<Set<string>>(new Set());
   const [sortOrder, setSortOrder] = useState<'high-to-low' | 'low-to-high' | 'none'>('none');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<ApplicationWithRating | null>(null);
+  const [hasChosenApplication, setHasChosenApplication] = useState(false);
+  const [chosenApplication, setChosenApplication] = useState<ApplicationWithRating | null>(null);
 
   useEffect(() => {
     fetchProjects();
@@ -28,12 +30,18 @@ export default function ClientApplications() {
     const loadApps = async () => {
       if (!selectedProjectId) return;
       setLoading(true);
-      try {
-        const apps = await getProjectApplications(selectedProjectId);
+      setHasChosenApplication(false);
+      setChosenApplication(null);
 
-        const appsWithRating = await Promise.all(
-          apps.map(async (app) => {
-            const uid = (app as any).applicantId || (app as any).userId;
+      try {
+        const selectedProject = projects.find(p => p.id === selectedProjectId);
+
+        if (selectedProject && selectedProject.status === 'pending') {
+          const chosenApps = await getChosenApplications(selectedProjectId);
+
+          if (chosenApps.length > 0) {
+            const chosenApp = chosenApps[0];
+            const uid = (chosenApp as any).applicantId || (chosenApp as any).userId;
             let rating = 0;
 
             if (uid) {
@@ -45,17 +53,41 @@ export default function ClientApplications() {
               }
             }
 
-            return { ...app, rating };
-          })
-        );
+            setHasChosenApplication(true);
+            setChosenApplication({ ...chosenApp, rating });
+            setApplications([]);
+          } else {
+            setApplications([]);
+          }
+        } else {
+          const apps = await getProjectApplications(selectedProjectId);
 
-        setApplications(appsWithRating);
+          const appsWithRating = await Promise.all(
+            apps.map(async (app) => {
+              const uid = (app as any).applicantId || (app as any).userId;
+              let rating = 0;
+
+              if (uid) {
+                try {
+                  const userRes = await axios.get(`${import.meta.env.VITE_SERVER}/users/${uid}`, { withCredentials: true });
+                  rating = userRes.data?.data?.rating || userRes.data?.rating || 0;
+                } catch (err) {
+                  console.error('Failed to fetch user rating', err);
+                }
+              }
+
+              return { ...app, rating };
+            })
+          );
+
+          setApplications(appsWithRating);
+        }
       } finally {
         setLoading(false);
       }
     };
     loadApps();
-  }, [selectedProjectId]);
+  }, [selectedProjectId, projects]);
 
   const clientProjects = useMemo(() => {
     return projects.filter(p => {
@@ -79,11 +111,32 @@ export default function ClientApplications() {
     });
   }, [applications, sortOrder]);
 
+  const handleChooseApplication = (app: ApplicationWithRating) => {
+    setSelectedApplication(app);
+    setShowConfirmModal(true);
+  };
+
+  const confirmChooseApplication = async () => {
+    if (!selectedApplication || !selectedProjectId) return;
+
+    try {
+      await chooseApplicationByClient(selectedProjectId, selectedApplication.applicantId!);
+      toast.success('Application chosen successfully! Your project is now pending admin approval.');
+      setShowConfirmModal(false);
+      await fetchProjects();
+      setHasChosenApplication(true);
+      setChosenApplication(selectedApplication);
+      setApplications([]);
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to choose application');
+    }
+  };
+
   return (
     <div className="p-4 space-y-3">
       <div>
         <h2 className="text-xl font-bold">Project Applications</h2>
-        <p className="text-sm text-gray-600">View and manage applications for your projects</p>
+        <p className="text-sm text-gray-600">View and choose applications for your projects</p>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
@@ -124,15 +177,37 @@ export default function ClientApplications() {
         {selectedProjectId && loading && (
           <div className="text-xs text-gray-600">Loading applications…</div>
         )}
-        {selectedProjectId && !loading && sortedApplications.length === 0 && (
+
+        {selectedProjectId && !loading && hasChosenApplication && chosenApplication && (
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-green-700 mb-2">
+              You have already chosen an application for this project. It is now pending admin approval.
+            </div>
+            <div className="border rounded p-3 bg-green-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="font-medium text-sm">{chosenApplication.fullName}</div>
+                  {chosenApplication.rating !== undefined && (
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-white rounded text-xs">
+                      <span className="text-yellow-600">★</span>
+                      <span className="font-medium">{chosenApplication.rating.toFixed(1)}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500">Applied: {new Date(chosenApplication.appliedAt).toLocaleString()}</div>
+              </div>
+              <div className="text-xs text-gray-700 mt-1">Deadline: {new Date(chosenApplication.deadline).toLocaleDateString()}</div>
+              <div className="text-xs text-gray-700">Expected Payment: ${chosenApplication.expectedPayment.toLocaleString()}</div>
+            </div>
+          </div>
+        )}
+
+        {selectedProjectId && !loading && !hasChosenApplication && sortedApplications.length === 0 && (
           <div className="text-xs text-gray-600">No applications yet for this project.</div>
         )}
-        {selectedProjectId && !loading && sortedApplications.length > 0 && (
+        {selectedProjectId && !loading && !hasChosenApplication && sortedApplications.length > 0 && (
           <ul className="space-y-2">
             {sortedApplications.map((a, idx) => {
-              const uid = a.applicantId;
-              const isApproved = approvedAppIds.has(uid || '');
-              const isRejected = rejectedAppIds.has(uid || '');
               return (
                 <li key={idx} className="border rounded p-3">
                   <div className="flex items-center justify-between">
@@ -150,69 +225,11 @@ export default function ClientApplications() {
                   <div className="text-xs text-gray-700 mt-1">Deadline: {new Date(a.deadline).toLocaleDateString()}</div>
                   <div className="text-xs text-gray-700">Expected Payment: ${a.expectedPayment.toLocaleString()}</div>
                   <div className="mt-2 flex items-center gap-1">
-                    {!isApproved && !isRejected && (
-                      <>
-                        <button
-                          className="px-2 py-0.5 text-xs rounded border hover:bg-gray-50"
-                          onClick={async () => {
-                            if (!uid) { setActionMsg('No applicant id'); return; }
-                            try {
-                              await approveProjectForUser(uid, selectedProjectId!);
-                              setApprovedAppIds(prev => new Set(prev).add(uid));
-                              setApplications(prev => prev.filter(app => app.applicantId !== uid));
-                              setActionMsg('Approved');
-                            } catch (e: any) {
-                              setActionMsg(e?.message || 'Failed');
-                            }
-                          }}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          className="px-2 py-0.5 text-xs rounded border hover:bg-gray-50"
-                          onClick={async () => {
-                            if (!uid) { setActionMsg('No applicant id'); return; }
-                            try {
-                              await rejectProjectForUser(uid, selectedProjectId!);
-                              setRejectedAppIds(prev => new Set(prev).add(uid));
-                              setApplications(prev => prev.filter(app => app.applicantId !== uid));
-                              setActionMsg('Rejected');
-                            } catch (e: any) {
-                              setActionMsg(e?.message || 'Failed');
-                            }
-                          }}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
                     <button
-                      className="px-2 py-0.5 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
-                      onClick={() => {
-                        window.location.hash = `#messages:`;
-                        window.dispatchEvent(new CustomEvent('open-messages-feature'));
-                        if (!window.location.pathname.includes('/dashboard')) {
-                          window.location.href = '/dashboard';
-                        }
-                      }}
+                      className="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
+                      onClick={() => handleChooseApplication(a)}
                     >
-                      Message
-                    </button>
-                    <button
-                      title="Delete application"
-                      className="px-2 py-0.5 text-xs rounded border hover:bg-gray-50 inline-flex items-center gap-1"
-                      onClick={async () => {
-                        if (!uid) { setActionMsg('No applicant id'); return; }
-                        try {
-                          await deleteProjectApplication(selectedProjectId!, uid);
-                          setApplications(prev => prev.filter((_, i) => i !== idx));
-                          setActionMsg('Application deleted');
-                        } catch (e: any) {
-                          setActionMsg(e?.message || 'Failed');
-                        }
-                      }}
-                    >
-                      <Trash2 className="w-2.5 h-2.5" /> Delete
+                      Choose This Application
                     </button>
                   </div>
                 </li>
@@ -220,8 +237,47 @@ export default function ClientApplications() {
             })}
           </ul>
         )}
-        {actionMsg && <div className="text-xs text-gray-500 mt-2">{actionMsg}</div>}
       </div>
+
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-bold mb-2">Confirm Application Selection</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Are you sure you want to choose this freelancer? This action cannot be undone and will send the application to the admin for approval.
+            </p>
+            {selectedApplication && (
+              <div className="border rounded p-3 bg-gray-50 mb-4">
+                <div className="font-medium text-sm">{selectedApplication.fullName}</div>
+                {selectedApplication.rating !== undefined && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <span className="text-yellow-600">★</span>
+                    <span className="text-xs font-medium">{selectedApplication.rating.toFixed(1)}</span>
+                  </div>
+                )}
+                <div className="text-xs text-gray-700 mt-1">Expected Payment: ${selectedApplication.expectedPayment.toLocaleString()}</div>
+              </div>
+            )}
+            <div className="flex gap-2 justify-end">
+              <button
+                className="px-4 py-2 text-sm rounded border hover:bg-gray-50"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setSelectedApplication(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
+                onClick={confirmChooseApplication}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
