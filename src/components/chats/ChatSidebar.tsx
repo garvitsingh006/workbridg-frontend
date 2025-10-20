@@ -12,7 +12,7 @@ interface ChatSidebarProps {
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelectChat }) => {
   const { user } = useUser();
-  const { initiateChat } = useChat();
+  const { initiateChat, createAdminChat } = useChat();
   const [allUsers, setAllUsers] = useState<Array<{ _id: string; username: string; fullName?: string; role?: string }>>([]);
   const [tab, setTab] = useState<'chats' | 'users'>(() => (user?.userType === 'admin' ? 'users' : 'chats'));
   const [searchQuery, setSearchQuery] = useState('');
@@ -142,6 +142,41 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
       <div className="flex-1 overflow-y-auto">
         {tab === 'chats' && (
           <div className="p-2">
+            {/* Chat with Admin Button - Show for non-admin users who don't have an admin chat */}
+            {user?.userType !== 'admin' && !filteredChats.some(chat => 
+              chat.participants.some(p => 
+                p.username?.toLowerCase() === 'admin' || 
+                p.role?.toLowerCase() === 'admin'
+              )
+            ) && (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const adminChat = await createAdminChat();
+                    onSelectChat(adminChat);
+                  } catch (error) {
+                    console.error('Failed to create admin chat:', error);
+                  }
+                }}
+                className="w-full text-left p-3 rounded-xl mb-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-white">👤</span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-sm text-blue-900 mb-1">
+                      💬 Chat with Admin
+                    </h3>
+                    <p className="text-xs text-blue-700">
+                      Get help and support from our team
+                    </p>
+                  </div>
+                </div>
+              </button>
+            )}
+            
             {filteredChats.map((chat) => {
               const isActive = chat._id === activeChatId;
               const otherParticipants = chat.participants.filter(p => p._id !== (user?.id || ''));
@@ -154,6 +189,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                 titleRaw = otherParticipants[0]?.username || 'Chat';
               }
               const title = titleRaw.toLowerCase() === 'admin' || otherParticipants[0]?.username?.toLowerCase?.() === 'admin' ? 'Admin' : titleRaw;
+              const isAdminChat = title.toLowerCase() === 'admin';
               const lastMessage = chat.messages[chat.messages.length - 1];
               const unreadCount = chat.messages.filter(m => !m.read && m.sender._id !== (user?.id || '')).length;
               const lastSenderName = lastMessage
@@ -165,6 +201,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                 ? `${chat.participants.length} members`
                 : chat.type === 'project' 
                 ? 'Project chat'
+                : isAdminChat
+                ? 'Support & Help'
                 : '';
                 
               return (
@@ -174,21 +212,31 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                   onClick={() => onSelectChat(chat)}
                   className={`w-full text-left p-3 rounded-xl mb-1 transition-all duration-300 ${
                     isActive 
-                      ? 'bg-black text-white shadow-md' 
-                      : 'hover:bg-gray-50'
+                      ? (isAdminChat ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg' : 'bg-black text-white shadow-md')
+                      : (isAdminChat ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 hover:from-blue-100 hover:to-indigo-100' : 'hover:bg-gray-50')
                   }`}
                 >
                   <div className="flex items-start gap-2">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      isActive ? 'bg-white/20' : 'bg-gray-100'
+                      isActive 
+                        ? (isAdminChat ? 'bg-white/20' : 'bg-white/20')
+                        : (isAdminChat ? 'bg-blue-600' : 'bg-gray-100')
                     }`}>
-                      <span className={`text-xs font-bold ${isActive ? 'text-white' : 'text-gray-700'}`}>
-                        {title.charAt(0).toUpperCase()}
+                      <span className={`text-xs font-bold ${
+                        isActive 
+                          ? 'text-white' 
+                          : (isAdminChat ? 'text-white' : 'text-gray-700')
+                      }`}>
+                        {isAdminChat ? '👤' : title.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className={`font-medium text-sm truncate ${isActive ? 'text-white' : 'text-gray-900'}`}>
+                        <h3 className={`font-medium text-sm truncate ${
+                          isActive 
+                            ? 'text-white' 
+                            : (isAdminChat ? 'text-blue-900' : 'text-gray-900')
+                        }`}>
                           {title}
                         </h3>
                         {unreadCount > 0 && (
@@ -198,12 +246,20 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                         )}
                       </div>
                       {subtitle && (
-                        <div className={`text-[10px] mb-1 ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
+                        <div className={`text-[10px] mb-1 ${
+                          isActive 
+                            ? 'text-white/70' 
+                            : (isAdminChat ? 'text-blue-700' : 'text-gray-500')
+                        }`}>
                           {subtitle}
                         </div>
                       )}
                       {lastMessage && (
-                        <div className={`text-[10px] truncate ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
+                        <div className={`text-[10px] truncate ${
+                          isActive 
+                            ? 'text-white/70' 
+                            : (isAdminChat ? 'text-blue-600' : 'text-gray-500')
+                        }`}>
                           {lastMessage.type === 'system' ? lastMessage.content : `${lastSenderName}: ${lastMessage.content}`}
                         </div>
                       )}

@@ -68,6 +68,7 @@ export interface ChatStatics {
         freelancerId: string
     ) => Promise<Chat>;
     findChatsByUser: () => Promise<Chat[]>;
+    createAdminChat: () => Promise<Chat>;
 }
 
 interface ChatContextType extends ChatMethods, ChatStatics {
@@ -167,6 +168,45 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         } as Chat;
     };
 
+    // Ensure admin chat exists for every user
+    const ensureAdminChatExists = async (chats: Chat[]): Promise<Chat[]> => {
+        try {
+            // Check if admin chat already exists
+            const adminChat = chats.find(chat => 
+                chat.participants.some(p => 
+                    p.username?.toLowerCase() === 'admin' || 
+                    p.role?.toLowerCase() === 'admin'
+                )
+            );
+
+            if (adminChat) {
+                return chats; // Admin chat already exists
+            }
+
+            // Get admin ID from environment
+            const adminId = import.meta.env.VITE_ADMIN_ID;
+            if (!adminId) {
+                console.warn('VITE_ADMIN_ID not found in environment variables');
+                return chats;
+            }
+
+            // Create admin chat using the existing endpoint
+            console.log('Creating admin chat for user...');
+            const response = await api.post("/chats/new", {
+                type: "individual",
+                otherUserId: adminId
+            });
+
+            const newAdminChat = response.data?.data || response.data;
+            const transformedAdminChat = normalizeChat(newAdminChat);
+            
+            return [transformedAdminChat, ...chats];
+        } catch (err: any) {
+            console.error("Failed to create admin chat:", err);
+            return chats; // Return original chats if admin chat creation fails
+        }
+    };
+
     const fetchChats = async (silent: boolean = false) => {
         try {
             if (!silent) setLoading(true);
@@ -174,9 +214,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
             const response = await api.get("/chats/user");
             const chatsData = response.data?.data || response.data || [];
-            const transformedChats = (
+            let transformedChats = (
                 Array.isArray(chatsData) ? chatsData : []
             ).map(normalizeChat);
+
+            // Ensure admin chat exists for all users (only on first load, not silent refreshes)
+            if (!silent) {
+                transformedChats = await ensureAdminChatExists(transformedChats);
+            }
+
             // Only update state if something meaningful changed to avoid UI flicker
             const prev = chats;
             const prevKey = prev
@@ -469,6 +515,44 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
     };
 
+    const createAdminChat = async (): Promise<Chat> => {
+        try {
+            setError(null);
+            
+            // Check if admin chat already exists
+            const existingAdminChat = chats.find(chat => 
+                chat.participants.some(p => 
+                    p.username?.toLowerCase() === 'admin' || 
+                    p.role?.toLowerCase() === 'admin'
+                )
+            );
+
+            if (existingAdminChat) {
+                return existingAdminChat;
+            }
+
+            // Get admin ID from environment
+            const adminId = import.meta.env.VITE_ADMIN_ID;
+            if (!adminId) {
+                throw new Error('VITE_ADMIN_ID not found in environment variables');
+            }
+
+            const response = await api.post("/chats/new", {
+                type: "individual",
+                otherUserId: adminId
+            });
+
+            const newAdminChat = response.data?.data || response.data;
+            const transformedAdminChat = normalizeChat(newAdminChat);
+            
+            setChats(prev => [transformedAdminChat, ...prev]);
+            return transformedAdminChat;
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Failed to create admin chat");
+            throw err;
+        }
+    };
+
     useEffect(() => {
         fetchChats();
         // Lightweight polling for near real-time updates (silent, no flicker)
@@ -496,6 +580,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         initiateChat,
         createProjectGroupChat,
         findChatsByUser,
+        createAdminChat,
     };
 
     return (

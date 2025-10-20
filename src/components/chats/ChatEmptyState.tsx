@@ -27,14 +27,6 @@ const ChatEmptyState: React.FC<{ userRole: string }> = ({ userRole }) => {
         {roleHint[userRole] || 'Select a chat from the left to get started.'}
       </p>
       
-      <div className="flex flex-col sm:flex-row gap-3">
-        <button className="px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
-          Start New Chat
-        </button>
-        <button className="px-6 py-3 border border-gray-200 text-gray-700 rounded-full font-medium hover:bg-gray-50 transition-all duration-300">
-          Browse Contacts
-        </button>
-      </div>
     </div>
   );
 };
