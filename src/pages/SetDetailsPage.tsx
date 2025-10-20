@@ -22,6 +22,8 @@ import {
 import { toast } from "react-toastify";
 import api from "../api";
 import { useUser } from "../contexts/UserContext";
+import FileUpload from "../components/common/FileUpload";
+import { useFileUpload } from "../hooks/useFileUpload";
 
 interface WorkExperience {
     title: string;
@@ -63,7 +65,20 @@ export default function SetDetailsPage() {
     const [isInitializing, setIsInitializing] = useState(true);
 
     const [userType, setUserType] = useState<"freelancer" | "client">("freelancer");
-    const {fetchLoginDetails} = useUser()
+    const {fetchLoginDetails} = useUser();
+
+    // File upload hook for resume
+    const resumeUpload = useFileUpload({
+        maxSize: 10,
+        allowedTypes: ['pdf', 'doc', 'docx'],
+        autoUpload: false, // Upload on form submit
+        onUploadSuccess: (url) => {
+            handleFreelancerInputChange('resume', url);
+        },
+        onUploadError: (error) => {
+            console.error('Resume upload error:', error);
+        }
+    });
 
     useEffect(() => {
         setIsVisible(true);
@@ -89,7 +104,7 @@ export default function SetDetailsPage() {
         };
 
         fetchDetails();
-    }, [fetchLoginDetails, navigate]);
+    }, [navigate]);
 
     const [freelancerFormData, setFreelancerFormData] =
         useState<FreelancerFormData>({
@@ -314,10 +329,28 @@ export default function SetDetailsPage() {
         setIsSubmitting(true);
 
         try {
-            const data =
-                userType === "freelancer" ? freelancerFormData : clientFormData;
+            let finalData;
+            
+            if (userType === "freelancer") {
+                // Upload resume if file is selected but not uploaded yet
+                if (resumeUpload.file && !resumeUpload.uploadedUrl) {
+                    toast.info('Uploading resume...');
+                    const uploadedUrl = await resumeUpload.uploadFile();
+                    if (!uploadedUrl) {
+                        setIsSubmitting(false);
+                        return;
+                    }
+                }
+                
+                finalData = {
+                    ...freelancerFormData,
+                    resume: resumeUpload.uploadedUrl || freelancerFormData.resume
+                };
+            } else {
+                finalData = clientFormData;
+            }
 
-            console.log("Submitting form data:", data);
+            console.log("Submitting form data:", finalData);
 
             const res = await fetch(
                 `${import.meta.env.VITE_SERVER}/profiles/me`,
@@ -327,19 +360,22 @@ export default function SetDetailsPage() {
                         "Content-Type": "application/json",
                     },
                     credentials: "include",
-                    body: JSON.stringify(data),
+                    body: JSON.stringify(finalData),
                 }
             );
 
             const dataFromBackend = await res.json();
             if (res.ok) {
                 console.log("Profile updated:", dataFromBackend);
+                toast.success('Profile updated successfully!');
                 navigate("/dashboard");
             } else {
                 console.error("Error updating profile:", dataFromBackend);
+                toast.error(dataFromBackend.message || 'Failed to update profile');
             }
         } catch (error) {
             console.error("Error submitting form:", error);
+            toast.error('An error occurred. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -676,26 +712,35 @@ export default function SetDetailsPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-4">
                         Resume
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-all hover:bg-blue-50/50">
-                        <Upload className="w-10 h-10 text-gray-400 mx-auto mb-4" />
-                        <p className="text-sm text-gray-600 mb-2 font-medium">
-                            Click to upload your resume or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-500">
-                            PDF, DOC, DOCX up to 10MB
-                        </p>
-                        <input
-                            type="file"
-                            accept=".pdf,.doc,.docx"
-                            className="hidden"
-                            onChange={(e) => {
-                                console.log(
-                                    "File selected:",
-                                    e.target.files?.[0]
-                                );
-                            }}
-                        />
-                    </div>
+                    <FileUpload
+                        onFileSelect={resumeUpload.handleFileSelect}
+                        onFileRemove={resumeUpload.removeFile}
+                        currentFile={resumeUpload.file}
+                        uploadedUrl={resumeUpload.uploadedUrl}
+                        isUploading={resumeUpload.isUploading}
+                        uploadProgress={resumeUpload.uploadProgress}
+                        label="Resume"
+                        description="PDF, DOC, DOCX up to 10MB"
+                        acceptedTypes={['.pdf', '.doc', '.docx']}
+                        maxSize={10}
+                    />
+                    
+                    {/* Upload Now Button - Optional for immediate upload */}
+                    {resumeUpload.file && !resumeUpload.uploadedUrl && !resumeUpload.isUploading && (
+                        <div className="mt-4">
+                            <button
+                                type="button"
+                                onClick={() => resumeUpload.uploadFile()}
+                                className="w-full px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold flex items-center justify-center space-x-2"
+                            >
+                                <Upload className="w-4 h-4" />
+                                <span>Upload Resume Now</span>
+                            </button>
+                            <p className="text-xs text-gray-500 mt-2 text-center">
+                                Or upload automatically when you submit the form
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

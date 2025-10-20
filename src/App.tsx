@@ -23,6 +23,7 @@ import PublicProfilePage from "./pages/PublicProfilePage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import FileUploadDemo from "./components/demo/FileUploadDemo";
 
 function App() {
     return (
@@ -46,6 +47,7 @@ function App() {
                             />
                             <Routes>
                                 {/* Dashboard routes (without header/footer) */}
+                                <Route path="/file-upload-demo" element={<FileUploadDemo />} />
                                 <Route path="/dashboard" element={<Dashboard />} />
                                 <Route path="/dashboard/client" element={<DashboardClient />} />
                                 <Route path="/dashboard/freelancer" element={<DashboardFreelancer />} />

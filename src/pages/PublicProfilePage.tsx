@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Globe, Linkedin, Github, Mail, Calendar, Award, Briefcase, Building2, User } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, Mail, Calendar, Award, Briefcase, Building2, User } from 'lucide-react';
 import axios from 'axios';
 
 export default function PublicProfilePage() {
@@ -128,27 +128,8 @@ export default function PublicProfilePage() {
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    {data.linkedIn && (
-                      <a 
-                        href={data.linkedIn} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-200 transition-colors"
-                      >
-                        <Linkedin className="w-4 h-4" />
-                      </a>
-                    )}
-                    {data.github && (
-                      <a 
-                        href={data.github} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
-                      >
-                        <Github className="w-4 h-4" />
-                      </a>
-                    )}
-                    {data.website && (
+                    {/* Only show website for clients, not LinkedIn/GitHub for freelancers to prevent external contact */}
+                    {isClient && data.website && (
                       <a 
                         href={data.website} 
                         target="_blank" 
@@ -251,25 +232,37 @@ export default function PublicProfilePage() {
             {/* Contact Info */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Contact Information</h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-700">{user.email || '—'}</span>
+              <div className="space-y-4">
+                {/* Email - Primary contact method */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-blue-800 mb-1">Email</p>
+                      <p className="text-sm font-medium text-blue-900">{user.email || data.email || 'Contact via platform'}</p>
+                    </div>
+                  </div>
                 </div>
-                {data.location && (
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-700">{data.location}</span>
-                  </div>
-                )}
-                {user.createdAt && (
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-700">
-                      Member since {new Date(user.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                )}
+                
+                {/* Other contact info */}
+                <div className="space-y-3">
+                  {data.location && (
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-700">{data.location}</span>
+                    </div>
+                  )}
+                  {user.createdAt && (
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-700">
+                        Member since {new Date(user.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

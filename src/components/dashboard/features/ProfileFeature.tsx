@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../../contexts/UserContext";
-import { Pencil, Check, X, Linkedin, Github, MapPin, Briefcase, Building2, Globe, Users, DollarSign } from "lucide-react";
+import { Pencil, Check, X, Linkedin, Github, MapPin, Briefcase, Building2, Globe, Users, DollarSign, FileText, Download, Upload, Eye } from "lucide-react";
 import api from "../../../api";
+import { useFileUpload } from "../../../hooks/useFileUpload";
+import FileUpload from "../../common/FileUpload";
 
 type Editable<T> = { [K in keyof T]: T[K] };
 
@@ -9,6 +11,27 @@ export default function ProfileFeature() {
     const { user, fetchUser } = useUser();
     const [isEditing, setIsEditing] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [isEditingResume, setIsEditingResume] = useState(false);
+
+    // Resume upload hook
+    const resumeUpload = useFileUpload({
+        maxSize: 10,
+        allowedTypes: ['pdf', 'doc', 'docx'],
+        autoUpload: false,
+        onUploadSuccess: async (url) => {
+            // Update the user's resume URL in the backend
+            try {
+                await api.post('/profiles/me', { resume: url });
+                await fetchUser();
+                setIsEditingResume(false);
+            } catch (error) {
+                console.error('Failed to update resume URL:', error);
+            }
+        },
+        onUploadError: (error) => {
+            console.error('Resume upload error:', error);
+        }
+    });
 
     const initialFreelancer = useMemo(() => ({
         location: user?.freelancerDetails?.location || "",
@@ -174,6 +197,19 @@ export default function ProfileFeature() {
                                 <Section title="Links" description="Showcase your profiles">
                                     <Field icon={<Linkedin className="w-4 h-4 text-gray-500" />} label="LinkedIn" value={freelancerForm.linkedIn} editing={isEditing} onChange={v => handleChange("linkedIn", v)} placeholder="https://linkedin.com/in/username" />
                                     <Field icon={<Github className="w-4 h-4 text-gray-500" />} label="GitHub" value={freelancerForm.github} editing={isEditing} onChange={v => handleChange("github", v)} placeholder="https://github.com/username" />
+                                </Section>
+
+                                <Section title="Resume" description="Your professional resume">
+                                    <ResumeSection 
+                                        resumeUrl={user?.freelancerDetails?.resume}
+                                        isEditing={isEditingResume}
+                                        onEdit={() => setIsEditingResume(true)}
+                                        onCancel={() => {
+                                            setIsEditingResume(false);
+                                            resumeUpload.resetState();
+                                        }}
+                                        resumeUpload={resumeUpload}
+                                    />
                                 </Section>
                             </>
                         ) : (
@@ -391,6 +427,130 @@ function Chips({ items, editing, onAdd, onRemove, placeholder }: { items: string
                         ) : null}
                     </span>
                 ))}
+            </div>
+        </div>
+    );
+}
+
+function ResumeSection({ resumeUrl, isEditing, onEdit, onCancel, resumeUpload }: {
+    resumeUrl?: string;
+    isEditing: boolean;
+    onEdit: () => void;
+    onCancel: () => void;
+    resumeUpload: any;
+}) {
+    const handleDownload = () => {
+        if (resumeUrl) {
+            // Create a temporary link to download the file
+            const link = document.createElement('a');
+            link.href = resumeUrl;
+            link.download = 'resume'; // Browser will add appropriate extension
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (resumeUpload.file) {
+            await resumeUpload.uploadFile();
+        }
+    };
+
+    if (isEditing) {
+        return (
+            <div className="space-y-4">
+                <FileUpload
+                    onFileSelect={resumeUpload.handleFileSelect}
+                    onFileRemove={resumeUpload.removeFile}
+                    currentFile={resumeUpload.file}
+                    uploadedUrl={resumeUpload.uploadedUrl}
+                    isUploading={resumeUpload.isUploading}
+                    uploadProgress={resumeUpload.uploadProgress}
+                    label="Resume"
+                    description="PDF, DOC, DOCX up to 10MB"
+                    acceptedTypes={['.pdf', '.doc', '.docx']}
+                    maxSize={10}
+                />
+                
+                <div className="flex items-center gap-2">
+                    {resumeUpload.file && !resumeUpload.uploadedUrl && !resumeUpload.isUploading && (
+                        <button
+                            onClick={handleUpload}
+                            className="inline-flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-xs font-medium"
+                        >
+                            <Upload className="w-3 h-3" />
+                            Upload Resume
+                        </button>
+                    )}
+                    <button
+                        onClick={onCancel}
+                        className="inline-flex items-center gap-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all text-xs font-medium"
+                    >
+                        <X className="w-3 h-3" />
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!resumeUrl) {
+        return (
+            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+                <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-500 mb-3">No resume uploaded</p>
+                <button
+                    onClick={onEdit}
+                    className="inline-flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-xs font-medium"
+                >
+                    <Upload className="w-3 h-3" />
+                    Upload Resume
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                        <h4 className="text-sm font-medium text-gray-900">Resume.pdf</h4>
+                        <p className="text-xs text-gray-500">Professional resume</p>
+                    </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => window.open(resumeUrl, '_blank')}
+                        className="inline-flex items-center gap-1 px-2 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-lg transition-all text-xs font-medium"
+                        title="View Resume"
+                    >
+                        <Eye className="w-3 h-3" />
+                        View
+                    </button>
+                    <button
+                        onClick={handleDownload}
+                        className="inline-flex items-center gap-1 px-2 py-1.5 text-green-600 hover:text-green-700 hover:bg-green-100 rounded-lg transition-all text-xs font-medium"
+                        title="Download Resume"
+                    >
+                        <Download className="w-3 h-3" />
+                        Download
+                    </button>
+                    <button
+                        onClick={onEdit}
+                        className="inline-flex items-center gap-1 px-2 py-1.5 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all text-xs font-medium"
+                        title="Edit Resume"
+                    >
+                        <Pencil className="w-3 h-3" />
+                        Edit
+                    </button>
+                </div>
             </div>
         </div>
     );
