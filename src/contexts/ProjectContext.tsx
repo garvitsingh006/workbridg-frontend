@@ -33,6 +33,7 @@ export interface Project {
     deadline: Date;
     remarks: Remark[];
     payment?: Payment;
+    totalAmount?: number; // Total project amount for payment system
     createdAt: Date;
     updatedAt: Date;
 }

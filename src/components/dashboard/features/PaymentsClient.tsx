@@ -1,68 +1,251 @@
-import { DollarSign, CreditCard, Receipt, Shield } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { DollarSign, CreditCard, Receipt, Shield, MoreVertical, AlertCircle, RefreshCw } from 'lucide-react';
+import { usePayment, type Payment } from '../../../contexts/PaymentContext';
+import { useUser } from '../../../contexts/UserContext';
+import PaymentModal from '../../payment/PaymentModal';
+import PaymentStatusBadge from '../../payment/PaymentStatusBadge';
 
 export default function PaymentsClient() {
-  const payouts = [
-    { id: 'pmt_001', project: 'Landing Page Design', amount: 1200, date: '2025-08-12', status: 'Paid' },
-    { id: 'pmt_002', project: 'iOS App Prototype', amount: 2800, date: '2025-08-27', status: 'Processing' },
-    { id: 'pmt_003', project: 'SEO Audit', amount: 650, date: '2025-09-03', status: 'Paid' },
-  ];
+  const { user } = useUser();
+  const { 
+    payments, 
+    loading, 
+    error, 
+    fetchUserPayments, 
+    createPaymentOrder, 
+    verifyPayment, 
+    openRazorpayCheckout 
+  } = usePayment();
+  
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState<string | null>(null);
 
-  const total = payouts.reduce((s, p) => s + p.amount, 0);
+  useEffect(() => {
+    fetchUserPayments();
+  }, [fetchUserPayments]);
+
+  const handlePayment = async (payment: Payment) => {
+    if (!user) return;
+    
+    try {
+      setProcessingPayment(`${payment._id}-total`);
+      
+      // Create Razorpay order
+      const orderData = await createPaymentOrder(payment._id, 'total');
+      
+      // Open Razorpay checkout
+      openRazorpayCheckout(
+        orderData,
+        { name: user.fullName, email: user.email },
+        async (razorpayResponse) => {
+          try {
+            // Verify payment
+            await verifyPayment(payment._id, 'total', razorpayResponse);
+            
+            // Refresh payments
+            await fetchUserPayments();
+            
+            alert('Payment successful!');
+          } catch (error) {
+            console.error('Payment verification failed:', error);
+            alert('Payment verification failed. Please contact support.');
+          } finally {
+            setProcessingPayment(null);
+          }
+        },
+        (error) => {
+          console.error('Payment failed:', error);
+          setProcessingPayment(null);
+        }
+      );
+    } catch (error) {
+      console.error('Failed to initiate payment:', error);
+      alert('Failed to initiate payment. Please try again.');
+      setProcessingPayment(null);
+    }
+  };
+
+  const openPaymentModal = (payment: Payment) => {
+    setSelectedPayment(payment);
+    setIsModalOpen(true);
+  };
+
+  const closePaymentModal = () => {
+    setSelectedPayment(null);
+    setIsModalOpen(false);
+  };
+
+  const calculateTotals = () => {
+    const totalPaid = payments.reduce((sum, payment) => {
+      if (payment.total.status === 'paid') {
+        return sum + (payment.totalAmount + payment.platformFee.serviceCharge);
+      }
+      return sum;
+    }, 0);
+    
+    const totalPending = payments.reduce((sum, payment) => {
+      if (payment.total.status === 'pending') {
+        return sum + (payment.totalAmount + payment.platformFee.serviceCharge);
+      }
+      return sum;
+    }, 0);
+    
+    return { totalPaid, totalPending };
+  };
+
+  const { totalPaid, totalPending } = calculateTotals();
+
+  if (loading && payments.length === 0) {
+    return (
+      <div className="p-4 flex items-center justify-center h-64">
+        <div className="flex items-center gap-2 text-gray-600">
+          <RefreshCw className="w-5 h-5 animate-spin" />
+          <span>Loading payments...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-red-600" />
+          <span className="text-red-800">{error}</span>
+          <button 
+            onClick={() => fetchUserPayments()}
+            className="ml-auto px-3 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded text-sm"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex items-center gap-2">
-        <DollarSign className="w-5 h-5 text-blue-600" />
-        <h2 className="text-lg font-semibold text-gray-900">Payments</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <DollarSign className="w-5 h-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">Payments</h2>
+        </div>
+        <button 
+          onClick={() => fetchUserPayments()}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          disabled={loading}
+        >
+          <RefreshCw className={`w-4 h-4 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
+        </button>
       </div>
 
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <div className="text-xs text-gray-500 mb-1">Total Paid</div>
-          <div className="text-xl font-bold">${Intl.NumberFormat().format(total)}</div>
+          <div className="text-xl font-bold text-green-600">₹{totalPaid.toLocaleString()}</div>
         </div>
         <div className="bg-white rounded-lg p-4 border border-gray-200">
-          <div className="text-xs text-gray-500 mb-1">Last Payment</div>
-          <div className="text-xl font-bold">${payouts[0]?.amount || 0}</div>
+          <div className="text-xs text-gray-500 mb-1">Pending Payments</div>
+          <div className="text-xl font-bold text-yellow-600">₹{totalPending.toLocaleString()}</div>
         </div>
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <div className="text-xs text-gray-500 mb-1">Secure Escrow</div>
-          <div className="flex items-center gap-2 text-green-700 font-medium text-sm"><Shield className="w-4 h-4" /> Enabled</div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2"><Receipt className="w-4 h-4 text-blue-600" /> Payment History</h3>
-          <button className="px-2 py-1 border rounded-lg text-xs hover:bg-gray-50 flex items-center gap-1"><CreditCard className="w-3 h-3" /> Add Payment Method</button>
-        </div>
-        <div className="p-4">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-xs">
-              <thead className="text-left text-gray-500">
-                <tr>
-                  <th className="py-1 pr-3">Project</th>
-                  <th className="py-1 pr-3">Amount</th>
-                  <th className="py-1 pr-3">Date</th>
-                  <th className="py-1">Status</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-800">
-                {payouts.map(p => (
-                  <tr key={p.id} className="border-t">
-                    <td className="py-1 pr-3">{p.project}</td>
-                    <td className="py-1 pr-3">${p.amount}</td>
-                    <td className="py-1 pr-3">{p.date}</td>
-                    <td className="py-1">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.status === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>{p.status}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex items-center gap-2 text-green-700 font-medium text-sm">
+            <Shield className="w-4 h-4" /> Enabled
           </div>
         </div>
       </div>
+
+      {/* Payments Table */}
+      {payments.length === 0 ? (
+        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+          <Receipt className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No payments yet</h3>
+          <p className="text-gray-600">Your payment history will appear here once projects are approved.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {payments.map((payment) => (
+            <div key={payment._id} className="bg-white rounded-lg border border-gray-200">
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{payment.projectId.title}</h3>
+                    <p className="text-sm text-gray-600">
+                      Project: ₹{payment.totalAmount.toLocaleString()} + Service Charge (5%): ₹{payment.platformFee.serviceCharge.toLocaleString()} = Total: ₹{(payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <PaymentStatusBadge status={payment.overallStatus} type="overall" />
+                    <button
+                      onClick={() => openPaymentModal(payment)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-4">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="text-left text-sm text-gray-500">
+                        <th className="pb-2">Payment Type</th>
+                        <th className="pb-2">Amount</th>
+                        <th className="pb-2">Status</th>
+                        <th className="pb-2">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-sm">
+                      <tr className="border-t border-gray-100">
+                        <td className="py-3">Total Payment</td>
+                        <td className="py-3 font-semibold">₹{(payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}</td>
+                        <td className="py-3">
+                          <PaymentStatusBadge status={payment.total.status} />
+                        </td>
+                        <td className="py-3">
+                          {payment.total.status === 'pending' ? (
+                            <button
+                              onClick={() => handlePayment(payment)}
+                              disabled={processingPayment === `${payment._id}-total`}
+                              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                            >
+                              {processingPayment === `${payment._id}-total` ? (
+                                <RefreshCw className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <CreditCard className="w-4 h-4" />
+                              )}
+                              Pay Now
+                            </button>
+                          ) : (
+                            <span className="text-green-600 font-medium flex items-center gap-1">
+                              <Shield className="w-4 h-4" />
+                              Paid
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {selectedPayment && (
+        <PaymentModal
+          payment={selectedPayment}
+          isOpen={isModalOpen}
+          onClose={closePaymentModal}
+        />
+      )}
     </div>
   );
 }

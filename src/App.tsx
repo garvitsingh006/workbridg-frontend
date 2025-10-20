@@ -5,6 +5,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { ProjectProvider } from "./contexts/ProjectContext";
 import { ChatProvider } from "./contexts/ChatContext";
 import { InterviewProvider } from "./contexts/InterviewContext";
+import { PaymentProvider } from "./contexts/PaymentContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/LandingPage";
@@ -29,6 +30,7 @@ function App() {
             <ProjectProvider>
                 <ChatProvider>
                     <InterviewProvider>
+                        <PaymentProvider>
                     <Router>
                         <div className="min-h-screen flex flex-col">
                             <ToastContainer
@@ -94,6 +96,7 @@ function App() {
                             </Routes>
                         </div>
                     </Router>
+                        </PaymentProvider>
                     </InterviewProvider>
                 </ChatProvider>
             </ProjectProvider>

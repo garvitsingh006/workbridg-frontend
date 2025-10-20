@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, CheckCircle, Clock, AlertCircle, XCircle, FileText } from 'lucide-react';
+import { X, CheckCircle, Clock, AlertCircle, XCircle, FileText, DollarSign } from 'lucide-react';
 import { useProject, type Project } from '../../contexts/ProjectContext';
 
 interface StatusUpdateModalProps {
@@ -9,8 +9,9 @@ interface StatusUpdateModalProps {
 }
 
 export default function StatusUpdateModal({ isOpen, onClose, project }: StatusUpdateModalProps) {
-  const { updateStatus } = useProject();
+  const { updateStatus, updateProject } = useProject();
   const [selectedStatus, setSelectedStatus] = useState<Project['status'] | ''>('');
+  const [totalAmount, setTotalAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const statusOptions = [
@@ -59,13 +60,31 @@ export default function StatusUpdateModal({ isOpen, onClose, project }: StatusUp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!project || !selectedStatus) return;
+    
+    // If approving project (setting to in-progress), total amount is required
+    if (selectedStatus === 'in-progress' && (!totalAmount || parseFloat(totalAmount) <= 0)) {
+      alert('Please enter a valid total amount to approve the project.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
-      await updateStatus(project.id, selectedStatus);
+      if (selectedStatus === 'in-progress' && totalAmount) {
+        // Include totalAmount when approving project to trigger payment creation
+        await updateProject(project.id, { 
+          status: selectedStatus, 
+          totalAmount: parseFloat(totalAmount) 
+        });
+      } else {
+        await updateStatus(project.id, selectedStatus);
+      }
       onClose();
+      // Reset form
+      setSelectedStatus('');
+      setTotalAmount('');
     } catch (error) {
       console.error('Error updating status:', error);
+      alert('Failed to update project status. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -73,6 +92,10 @@ export default function StatusUpdateModal({ isOpen, onClose, project }: StatusUp
 
   const handleStatusSelect = (status: Project['status']) => {
     setSelectedStatus(status);
+    // Reset total amount when changing status
+    if (status !== 'in-progress') {
+      setTotalAmount('');
+    }
   };
 
   if (!isOpen || !project) return null;
@@ -150,6 +173,38 @@ export default function StatusUpdateModal({ isOpen, onClose, project }: StatusUp
               </button>
             ))}
           </div>
+
+          {/* Total Amount Input for Project Approval */}
+          {selectedStatus === 'in-progress' && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <DollarSign className="w-5 h-5 text-blue-600" />
+                <h4 className="font-medium text-blue-900">Project Approval - Set Total Amount</h4>
+              </div>
+              <p className="text-sm text-blue-700 mb-3">
+                Setting the total amount will automatically create a payment record with 10% advance and 90% final payment stages.
+              </p>
+              <div className="space-y-2">
+                <label htmlFor="totalAmount" className="block text-sm font-medium text-blue-900">
+                  Total Project Amount (₹)
+                </label>
+                <input
+                  type="number"
+                  id="totalAmount"
+                  value={totalAmount}
+                  onChange={(e) => setTotalAmount(e.target.value)}
+                  placeholder="Enter total amount (e.g., 50000)"
+                  min="1"
+                  step="1"
+                  className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+                <p className="text-xs text-blue-600">
+                  Client pays: Project amount + 10% platform fee. Freelancer receives: Project amount - 3% service fee = ₹{totalAmount ? (parseFloat(totalAmount) * 0.97).toLocaleString() : '0'}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">

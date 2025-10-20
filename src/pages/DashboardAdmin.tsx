@@ -5,6 +5,7 @@ import AdminProjectsReview from "../components/dashboard/features/AdminProjectsR
 import AdminUsersPanel from "../components/dashboard/features/AdminUsersPanel";
 import AdminApplications from "../components/dashboard/features/AdminApplications";
 import AdminInterviewManagement from "../components/dashboard/features/AdminInterviewManagement";
+import PaymentsAdmin from "../components/dashboard/features/PaymentsAdmin";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -57,12 +58,7 @@ export default function DashboardAdmin() {
       case "account-settings":
         return <AccountSettings />;
       case "escrow":
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold">Escrow & Payment Management</h2>
-            <p className="text-gray-600">Track funds and release/hold (placeholder).</p>
-          </div>
-        );
+        return <PaymentsAdmin />;
       case "agreements":
         return (
           <div className="p-6">

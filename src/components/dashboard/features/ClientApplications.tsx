@@ -180,9 +180,37 @@ export default function ClientApplications() {
 
         {selectedProjectId && !loading && hasChosenApplication && chosenApplication && (
           <div className="space-y-2">
-            <div className="text-sm font-medium text-green-700 mb-2">
-              You have already chosen an application for this project. It is now pending admin approval.
-            </div>
+            {(() => {
+              const selectedProject = projects.find(p => p.id === selectedProjectId);
+              const projectStatus = selectedProject?.status;
+              
+              if (projectStatus === 'in-progress') {
+                return (
+                  <div className="text-sm font-medium text-blue-700 mb-2">
+                    ✅ Project approved! Your chosen freelancer is now working on this project.
+                  </div>
+                );
+              } else if (projectStatus === 'pending') {
+                return (
+                  <div className="text-sm font-medium text-yellow-700 mb-2">
+                    ⏳ You have chosen an application. Waiting for admin approval.
+                  </div>
+                );
+              } else if (projectStatus === 'completed') {
+                return (
+                  <div className="text-sm font-medium text-green-700 mb-2">
+                    ✅ Project completed successfully!
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="text-sm font-medium text-gray-700 mb-2">
+                    Application status: {projectStatus}
+                  </div>
+                );
+              }
+            })()
+            }
             <div className="border rounded p-3 bg-green-50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
