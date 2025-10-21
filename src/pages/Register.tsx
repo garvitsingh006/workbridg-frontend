@@ -7,14 +7,12 @@ import api from "../api";
 
 const Register: React.FC = () => {
     const navigate = useNavigate();
-    const [userType, setUserType] = useState<"freelancer" | "client">("freelancer");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [formData, setFormData] = useState({
         username: "",
-        role: userType,
         firstName: "",
         lastName: "",
         email: "",
@@ -37,7 +35,6 @@ const Register: React.FC = () => {
                 fullName: formData.firstName + " " + formData.lastName,
                 email: formData.email,
                 password: formData.password,
-                role: userType,
                 username: formData.username,
             };
 
@@ -174,35 +171,6 @@ const Register: React.FC = () => {
 
                     {/* Main Card */}
                     <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 backdrop-blur-sm">
-                        {/* User Type Selection */}
-                        <div className="mb-8">
-                            <div className="grid grid-cols-2 gap-3 p-1 bg-gray-100 rounded-2xl">
-                                <button
-                                    type="button"
-                                    onClick={() => setUserType("freelancer")}
-                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                                        userType === "freelancer"
-                                            ? "bg-white text-gray-900 shadow-md transform scale-105"
-                                            : "text-gray-600 hover:text-gray-900"
-                                    }`}
-                                >
-                                    <Users className="h-4 w-4 mr-2" />
-                                    Freelancer
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setUserType("client")}
-                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                                        userType === "client"
-                                            ? "bg-white text-gray-900 shadow-md transform scale-105"
-                                            : "text-gray-600 hover:text-gray-900"
-                                    }`}
-                                >
-                                    <Briefcase className="h-4 w-4 mr-2" />
-                                    Client
-                                </button>
-                            </div>
-                        </div>
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="grid grid-cols-2 gap-4">
@@ -371,7 +339,7 @@ const Register: React.FC = () => {
                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                 ) : (
                                     <>
-                                        Create {userType} account
+                                        Create Account
                                         <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                                     </>
                                 )}

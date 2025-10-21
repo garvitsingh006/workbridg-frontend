@@ -144,10 +144,12 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
           <div className="p-2">
             {/* Chat with Admin Button - Show for non-admin users who don't have an admin chat */}
             {user?.userType !== 'admin' && !filteredChats.some(chat => 
-              chat.participants.some(p => 
-                p.username?.toLowerCase() === 'admin' || 
-                p.role?.toLowerCase() === 'admin'
-              )
+              chat.participants.some(p => {
+                const isAdmin = p.username?.toLowerCase() === 'admin' || 
+                             p.role?.toLowerCase() === 'admin' ||
+                             p._id === import.meta.env.VITE_ADMIN_ID;
+                return isAdmin;
+              })
             ) && (
               <button
                 type="button"

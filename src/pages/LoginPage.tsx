@@ -7,7 +7,7 @@ import api from "../api";
 import { useUser } from "../contexts/UserContext";
 
 const LoginPage: React.FC = () => {
-    const { fetchUser } = useUser();
+    const { fetchUser, fetchLoginDetails } = useUser();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +19,43 @@ const LoginPage: React.FC = () => {
 
     useEffect(() => {
         setIsVisible(true);
-    }, []);
+        
+        // Check if user is already logged in
+        const checkAuthStatus = async () => {
+            try {
+                // First, try to fetch login details to see if user is authenticated
+                const loginDetails = await fetchLoginDetails();
+                
+                if (loginDetails) {
+                    // User is logged in, now check if they have complete profile
+                    try {
+                        const fullUser = await fetchUser();
+                        
+                        if (fullUser) {
+                            // User has complete profile, redirect to dashboard
+                            const role = fullUser.userType;
+                            if (role === "freelancer") navigate("/dashboard/freelancer");
+                            else if (role === "client") navigate("/dashboard/client");
+                            else if (role === "admin") navigate("/dashboard/admin");
+                            else navigate("/dashboard");
+                        } else {
+                            // User is logged in but doesn't have complete profile
+                            navigate("/set-details");
+                        }
+                    } catch (error) {
+                        // Error fetching full user details, redirect to set-details
+                        navigate("/set-details");
+                    }
+                }
+                // If no login details, user is not logged in, stay on login page
+            } catch (error) {
+                // User is not logged in, stay on login page
+                console.log("User not logged in, staying on login page");
+            }
+        };
+        
+        checkAuthStatus();
+    }, [navigate, fetchLoginDetails, fetchUser]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

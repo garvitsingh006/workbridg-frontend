@@ -101,6 +101,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [activeChat, setActiveChat] = useState<Chat | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [adminChatEnsured, setAdminChatEnsured] = useState(false);
 
     const normalizeMessage = (msg: any): Message => {
         return {
@@ -126,25 +127,50 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     };
 
     const normalizeChat = (chat: any): Chat => {
+        // Find existing chat to preserve participant data
+        const existingChat = chats.find(c => c._id === (chat._id || chat.id));
+        
         return {
             _id: chat._id || chat.id,
             type: chat.type || (chat.project ? "project" : "individual"),
             participants: (chat.participants || chat.users || []).map(
                 (p: any) => {
-                    if (!p) return { _id: "", username: p.username || p.fullName || "User" };
-                    if (typeof p === "string")
+                    if (!p) return { _id: "", username: "User" };
+                    
+                    // If participant is just a string ID, try to find existing participant data
+                    if (typeof p === "string") {
+                        const existingParticipant = existingChat?.participants.find(ep => ep._id === p);
+                        if (existingParticipant) {
+                            return existingParticipant;
+                        }
                         return { _id: p, username: "User" };
+                    }
+                    
                     // if it's an ObjectId object with toString:
                     if (
                         p._bsontype === "ObjectID" &&
                         typeof p.toString === "function"
                     ) {
-                        return { _id: p.toString(), username: p.username || p.fullName || "User" };
+                        const participantId = p.toString();
+                        const existingParticipant = existingChat?.participants.find(ep => ep._id === participantId);
+                        if (existingParticipant && (!p.username && !p.fullName)) {
+                            return existingParticipant;
+                        }
+                        return { 
+                            _id: participantId, 
+                            username: p.username || p.fullName || existingParticipant?.username || "User",
+                            role: p.role || p.userType || existingParticipant?.role
+                        };
                     }
+                    
+                    // For regular participant objects, preserve existing data if new data is incomplete
+                    const participantId = p._id || p.id || (p.toString ? p.toString() : "");
+                    const existingParticipant = existingChat?.participants.find(ep => ep._id === participantId);
+                    
                     return {
-                        _id: p._id || p.id || (p.toString ? p.toString() : ""),
-                        username: p.username || p.fullName || "User",
-                        role: p.role || p.userType,
+                        _id: participantId,
+                        username: p.username || p.fullName || existingParticipant?.username || "User",
+                        role: p.role || p.userType || existingParticipant?.role,
                     };
                 }
             ),
@@ -168,25 +194,32 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         } as Chat;
     };
 
-    // Ensure admin chat exists for every user
+    // Check if admin chat exists in the current chats
+    const hasAdminChat = (chats: Chat[]): boolean => {
+        return chats.some(chat => 
+            chat.participants.some(p => {
+                const isAdmin = p.username?.toLowerCase() === 'admin' || 
+                             p.role?.toLowerCase() === 'admin' ||
+                             p._id === import.meta.env.VITE_ADMIN_ID;
+                return isAdmin;
+            })
+        );
+    };
+
+    // Ensure admin chat exists for every user (only run once)
     const ensureAdminChatExists = async (chats: Chat[]): Promise<Chat[]> => {
         try {
-            // Check if admin chat already exists
-            const adminChat = chats.find(chat => 
-                chat.participants.some(p => 
-                    p.username?.toLowerCase() === 'admin' || 
-                    p.role?.toLowerCase() === 'admin'
-                )
-            );
-
-            if (adminChat) {
-                return chats; // Admin chat already exists
+            // If we've already ensured admin chat exists, don't run again
+            if (adminChatEnsured || hasAdminChat(chats)) {
+                setAdminChatEnsured(true);
+                return chats;
             }
 
             // Get admin ID from environment
             const adminId = import.meta.env.VITE_ADMIN_ID;
             if (!adminId) {
                 console.warn('VITE_ADMIN_ID not found in environment variables');
+                setAdminChatEnsured(true);
                 return chats;
             }
 
@@ -200,9 +233,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             const newAdminChat = response.data?.data || response.data;
             const transformedAdminChat = normalizeChat(newAdminChat);
             
+            setAdminChatEnsured(true);
             return [transformedAdminChat, ...chats];
         } catch (err: any) {
             console.error("Failed to create admin chat:", err);
+            setAdminChatEnsured(true); // Mark as ensured even if failed to prevent retries
             return chats; // Return original chats if admin chat creation fails
         }
     };
@@ -218,8 +253,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 Array.isArray(chatsData) ? chatsData : []
             ).map(normalizeChat);
 
-            // Ensure admin chat exists for all users (only on first load, not silent refreshes)
-            if (!silent) {
+            // Ensure admin chat exists for all users (only on first load or if not yet ensured)
+            if (!silent && !adminChatEnsured) {
                 transformedChats = await ensureAdminChatExists(transformedChats);
             }
 
@@ -519,12 +554,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
             
-            // Check if admin chat already exists
+            // Check if admin chat already exists using the improved detection
             const existingAdminChat = chats.find(chat => 
-                chat.participants.some(p => 
-                    p.username?.toLowerCase() === 'admin' || 
-                    p.role?.toLowerCase() === 'admin'
-                )
+                chat.participants.some(p => {
+                    const isAdmin = p.username?.toLowerCase() === 'admin' || 
+                                 p.role?.toLowerCase() === 'admin' ||
+                                 p._id === import.meta.env.VITE_ADMIN_ID;
+                    return isAdmin;
+                })
             );
 
             if (existingAdminChat) {
@@ -546,6 +583,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             const transformedAdminChat = normalizeChat(newAdminChat);
             
             setChats(prev => [transformedAdminChat, ...prev]);
+            setAdminChatEnsured(true);
             return transformedAdminChat;
         } catch (err: any) {
             setError(err.response?.data?.message || "Failed to create admin chat");
