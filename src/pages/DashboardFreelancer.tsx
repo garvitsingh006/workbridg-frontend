@@ -69,7 +69,7 @@ export default function DashboardFreelancer() {
   };
 
   return (
-    <div className="h-screen bg-gray-50">
+    <div className="h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-blue-50/20">
       <div className="flex h-full lg:h-screen">
         <DashboardSidebar
           activeFeature={activeFeature}
@@ -78,7 +78,7 @@ export default function DashboardFreelancer() {
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="h-16 bg-white border-b border-gray-200 px-6 flex items-center flex-shrink-0">
+          <div className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setIsMobileSidebarOpen(true)}
@@ -89,6 +89,9 @@ export default function DashboardFreelancer() {
               <h1 className="text-xl font-semibold text-gray-900">
                 {getFeatureTitle()}
               </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-gray-600">July 2025</div>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">{renderFeature()}</div>

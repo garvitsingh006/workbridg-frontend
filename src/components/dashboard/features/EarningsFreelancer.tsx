@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
-import { DollarSign, Wallet, Receipt, Clock, CheckCircle, AlertCircle, RefreshCw, MoreVertical } from 'lucide-react';
+import { Wallet, Receipt, Clock, CheckCircle, AlertCircle, RefreshCw, MoreVertical, TrendingUp, Download } from 'lucide-react';
 import { usePayment, type Payment } from '../../../contexts/PaymentContext';
 import PaymentModal from '../../payment/PaymentModal';
 import PaymentStatusBadge from '../../payment/PaymentStatusBadge';
 
 export default function EarningsFreelancer() {
-  const { 
-    payments, 
-    loading, 
-    error, 
-    fetchUserPayments 
+  const {
+    payments,
+    loading,
+    error,
+    fetchUserPayments
   } = usePayment();
-  
+
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -31,15 +31,14 @@ export default function EarningsFreelancer() {
 
   const calculateEarnings = () => {
     const totalEarnings = payments.reduce((sum, payment) => {
-      // Freelancer gets: totalAmount - commissionFee
       const freelancerAmount = payment.totalAmount - payment.platformFee.commissionFee;
       return sum + freelancerAmount;
     }, 0);
-    
+
     const releasedEarnings = payments.reduce((sum, payment) => {
       return sum + (payment.releaseStatus === 'released' ? payment.releaseAmount : 0);
     }, 0);
-    
+
     const pendingEarnings = payments.reduce((sum, payment) => {
       if (payment.total.status === 'paid' && payment.releaseStatus === 'not_released') {
         const freelancerAmount = payment.totalAmount - payment.platformFee.commissionFee;
@@ -47,14 +46,14 @@ export default function EarningsFreelancer() {
       }
       return sum;
     }, 0);
-    
+
     const inProgressEarnings = payments.reduce((sum, payment) => {
       if (payment.total.status === 'pending') {
         return sum + (payment.totalAmount - payment.platformFee.commissionFee);
       }
       return sum;
     }, 0);
-    
+
     return { totalEarnings, releasedEarnings, pendingEarnings, inProgressEarnings };
   };
 
@@ -70,7 +69,7 @@ export default function EarningsFreelancer() {
 
   if (loading && payments.length === 0) {
     return (
-      <div className="p-4 flex items-center justify-center h-64">
+      <div className="p-6 flex items-center justify-center h-64">
         <div className="flex items-center gap-2 text-gray-600">
           <RefreshCw className="w-5 h-5 animate-spin" />
           <span>Loading earnings...</span>
@@ -81,11 +80,11 @@ export default function EarningsFreelancer() {
 
   if (error) {
     return (
-      <div className="p-4">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2">
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-red-600" />
           <span className="text-red-800">{error}</span>
-          <button 
+          <button
             onClick={() => fetchUserPayments()}
             className="ml-auto px-3 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded text-sm"
           >
@@ -97,89 +96,127 @@ export default function EarningsFreelancer() {
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <DollarSign className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-900">Earnings</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Earnings</h2>
+          <p className="text-sm text-gray-600 mt-1">Track your income and payouts</p>
         </div>
-        <button 
-          onClick={() => fetchUserPayments()}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          disabled={loading}
-        >
-          <RefreshCw className={`w-4 h-4 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fetchUserPayments()}
+            className="p-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            disabled={loading}
+          >
+            <RefreshCw className={`w-5 h-5 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30">
+            <Download className="w-4 h-4" />
+            Export
+          </button>
+        </div>
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <SummaryCard 
-          title="Total Expected" 
-          value={`₹${totalEarnings.toLocaleString()}`} 
-          icon={<Wallet className="w-6 h-6 text-blue-700" />} 
-          bg="bg-blue-50" 
-        />
-        <SummaryCard 
-          title="Released" 
-          value={`₹${releasedEarnings.toLocaleString()}`} 
-          icon={<CheckCircle className="w-6 h-6 text-green-700" />} 
-          bg="bg-green-50" 
-        />
-        <SummaryCard 
-          title="Pending Release" 
-          value={`₹${pendingEarnings.toLocaleString()}`} 
-          icon={<Clock className="w-6 h-6 text-yellow-700" />} 
-          bg="bg-yellow-50" 
-        />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="flex items-start justify-between mb-4 relative z-10">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg">
+              <Wallet className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
+              <TrendingUp className="w-3 h-3 text-green-600" />
+              <span className="text-xs font-semibold text-green-600">+12%</span>
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-1">₹{totalEarnings.toLocaleString()}</h3>
+          <p className="text-sm text-gray-600 font-medium">Total Expected</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="flex items-start justify-between mb-4 relative z-10">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
+              <CheckCircle className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
+              <TrendingUp className="w-3 h-3 text-green-600" />
+              <span className="text-xs font-semibold text-green-600">+8%</span>
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-1">₹{releasedEarnings.toLocaleString()}</h3>
+          <p className="text-sm text-gray-600 font-medium">Released</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="flex items-start justify-between mb-4 relative z-10">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-lg">
+              <Clock className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
+              <Clock className="w-3 h-3 text-blue-600" />
+              <span className="text-xs font-semibold text-blue-600">Pending</span>
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-1">₹{pendingEarnings.toLocaleString()}</h3>
+          <p className="text-sm text-gray-600 font-medium">Pending Release</p>
+        </div>
       </div>
 
       {/* Project Payments Table */}
       {payments.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-          <Receipt className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No earnings yet</h3>
-          <p className="text-gray-600">Your earnings will appear here once you start working on projects.</p>
+        <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Receipt className="w-8 h-8 text-purple-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No earnings yet</h3>
+          <p className="text-gray-600 max-w-md mx-auto">Your earnings will appear here once you start working on projects.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-              <Receipt className="w-4 h-4 text-blue-600" /> 
-              Project Earnings
-            </h3>
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-purple-600" />
+                Project Earnings
+              </h3>
+              <div className="text-sm text-gray-600">
+                {payments.length} {payments.length === 1 ? 'project' : 'projects'}
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gray-50">
-                <tr className="text-left text-sm text-gray-500">
-                  <th className="px-4 py-3">Project</th>
-                  <th className="px-4 py-3">Payment Status</th>
-                  <th className="px-4 py-3">Release Status</th>
-                  <th className="px-4 py-3">More Info</th>
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr className="text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-4">Project</th>
+                  <th className="px-6 py-4">Payment Status</th>
+                  <th className="px-6 py-4">Release Status</th>
+                  <th className="px-6 py-4">Amount</th>
+                  <th className="px-6 py-4">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-100">
                 {payments.map((payment) => {
                   const freelancerAmount = payment.totalAmount - payment.platformFee.commissionFee;
-                  
+
                   return (
-                    <tr key={payment._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
+                    <tr key={payment._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4">
                         <div>
-                          <div className="font-medium text-gray-900">{payment.projectId.title}</div>
-                          <div className="text-sm text-gray-600">
-                            <div>Final Amount: ₹{freelancerAmount.toLocaleString()}</div>
-                            <div className="text-xs text-gray-500">
-                              Project: ₹{payment.totalAmount.toLocaleString()} - Commission Fee (8%): ₹{payment.platformFee.commissionFee.toLocaleString()}
-                            </div>
+                          <div className="font-medium text-sm text-gray-900">{payment.projectId.title}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            Project: ₹{payment.totalAmount.toLocaleString()} - Fee: ₹{payment.platformFee.commissionFee.toLocaleString()}
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-6 py-4">
                         <PaymentStatusBadge status={payment.total.status} size="sm" />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-6 py-4">
                         <div className="space-y-1">
                           <PaymentStatusBadge status={payment.releaseStatus} type="release" size="sm" />
                           {payment.releaseStatus === 'released' && (
@@ -189,7 +226,10 @@ export default function EarningsFreelancer() {
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-sm text-gray-900">₹{freelancerAmount.toLocaleString()}</div>
+                      </td>
+                      <td className="px-6 py-4">
                         <button
                           onClick={() => openPaymentModal(payment)}
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -203,36 +243,51 @@ export default function EarningsFreelancer() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          <div className="p-4 border-t border-gray-100 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Showing 1 to {payments.length} of {payments.length} results
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                Previous
+              </button>
+              <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                1
+              </button>
+              <button className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Status Timeline */}
+      {/* Status Overview */}
       {payments.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h3 className="text-base font-semibold text-gray-900 mb-4">Payment Status Overview</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-600">{payments.length}</div>
-              <div className="text-sm text-gray-600">Total Projects</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center hover:shadow-md transition-all">
+            <div className="text-3xl font-bold text-gray-900">{payments.length}</div>
+            <div className="text-sm text-gray-600 mt-1">Total Projects</div>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center hover:shadow-md transition-all">
+            <div className="text-3xl font-bold text-yellow-600">
+              {payments.filter(p => p.total.status === 'pending').length}
             </div>
-            <div className="p-3 bg-yellow-50 rounded-lg">
-              <div className="text-2xl font-bold text-yellow-600">
-                {payments.filter(p => p.total.status === 'pending').length}
-              </div>
-              <div className="text-sm text-gray-600">In Progress</div>
+            <div className="text-sm text-gray-600 mt-1">In Progress</div>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center hover:shadow-md transition-all">
+            <div className="text-3xl font-bold text-blue-600">
+              {payments.filter(p => p.total.status === 'paid' && p.releaseStatus === 'not_released').length}
             </div>
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">
-                {payments.filter(p => p.total.status === 'paid' && p.releaseStatus === 'not_released').length}
-              </div>
-              <div className="text-sm text-gray-600">Awaiting Release</div>
+            <div className="text-sm text-gray-600 mt-1">Awaiting Release</div>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center hover:shadow-md transition-all">
+            <div className="text-3xl font-bold text-green-600">
+              {payments.filter(p => p.releaseStatus === 'released').length}
             </div>
-            <div className="p-3 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">
-                {payments.filter(p => p.releaseStatus === 'released').length}
-              </div>
-              <div className="text-sm text-gray-600">Released</div>
-            </div>
+            <div className="text-sm text-gray-600 mt-1">Released</div>
           </div>
         </div>
       )}
@@ -248,17 +303,3 @@ export default function EarningsFreelancer() {
     </div>
   );
 }
-
-function SummaryCard({ title, value, icon, bg }: { title: string; value: string; icon: React.ReactNode; bg: string; }) {
-  return (
-    <div className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-3">
-        <div className={`p-2 rounded-lg ${bg}`}>{icon}</div>
-      </div>
-      <h3 className="text-xl font-bold text-gray-900 mb-1">{value}</h3>
-      <p className="text-gray-600 text-xs">{title}</p>
-    </div>
-  );
-}
-
-
