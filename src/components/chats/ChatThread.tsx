@@ -3,7 +3,7 @@ import { type Chat } from '../../contexts/ChatContext';
 import { useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import MessageInput from './MessageInput';
-import { ShieldPlus, CircleCheck as CheckCircle2, Users, UserPlus, UserMinus, MoveVertical as MoreVertical, Phone, Video } from 'lucide-react';
+import { CircleCheck as CheckCircle2, Users, Phone, Video } from 'lucide-react';
 import GroupChatInfo from './GroupChatInfo';
 
 interface ChatThreadProps {
@@ -11,7 +11,7 @@ interface ChatThreadProps {
 }
 
 const ChatThread: React.FC<ChatThreadProps> = ({ chat }) => {
-  const { addMessage, markMessagesRead, addParticipantToChat, getChatParticipants } = useChat();
+  const { addMessage, markMessagesRead, getChatParticipants } = useChat();
   const { user } = useUser();
   const endRef = useRef<HTMLDivElement | null>(null);
   const [showGroupInfo, setShowGroupInfo] = React.useState(false);
@@ -193,7 +193,7 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat }) => {
 };
 
 const AdminActions: React.FC<{ chatId: string; status: 'pending' | 'approved' | 'with_admin' }> = ({ chatId, status }) => {
-  const { approveChat, addAdminToChat } = useChat();
+  const { approveChat } = useChat();
   return (
     <div className="flex items-center gap-2">
       {status === 'pending' && (

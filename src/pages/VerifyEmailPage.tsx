@@ -12,7 +12,7 @@ import {
 import { useUser } from "../contexts/UserContext";
 
 const VerifyEmailPage: React.FC = () => {
-    const { fetchUser, fetchLoginDetails } = useUser();
+    const { fetchLoginDetails } = useUser();
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
 

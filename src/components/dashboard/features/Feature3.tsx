@@ -118,7 +118,7 @@ export default function Feature3() {
             </div>
           </div>
           <div className="space-y-4">
-            {chartData.map((month, index) => (
+            {chartData.map((month) => (
               <div key={month.month} className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium text-gray-700">{month.month}</span>

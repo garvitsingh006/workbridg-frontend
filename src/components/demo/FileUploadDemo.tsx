@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import FileUpload from '../common/FileUpload';
 import { useFileUpload } from '../../hooks/useFileUpload';

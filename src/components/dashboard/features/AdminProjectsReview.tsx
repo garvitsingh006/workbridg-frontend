@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { FolderOpen, ListFilter as Filter, Search, Users } from "lucide-react";
+import { FolderOpen, ListFilter as Filter, Search } from "lucide-react";
 import { useProject } from "../../../contexts/ProjectContext";
 import type {
     Project,
@@ -9,12 +9,12 @@ import StatusUpdateModal from "../../modals/StatusUpdateModal";
 
 export default function AdminProjectsReview() {
     const [searchTerm, setSearchTerm] = useState("");
-    const { projects, loading, error, fetchProjects, getProjectApplications } =
+    const { projects, loading, error, fetchProjects } =
         useProject();
     const [appsOpen, setAppsOpen] = useState(false);
-    const [appsLoading, setAppsLoading] = useState(false);
-    const [applications, setApplications] = useState<ProjectApplication[]>([]);
-    const [appsProjectTitle, setAppsProjectTitle] = useState("");
+    const [appsLoading] = useState(false);
+    const [applications] = useState<ProjectApplication[]>([]);
+    const [appsProjectTitle] = useState("");
     const [selectedProject, setSelectedProject] =
         React.useState<Project | null>(null);
     const [statusModalOpen, setStatusModalOpen] = React.useState(false);

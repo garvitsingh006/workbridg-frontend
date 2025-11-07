@@ -235,7 +235,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({
     const createPaymentOrder = useCallback(
         async (
             paymentId: string,
-            paymentType: "total"
+            _paymentType: "total"
         ): Promise<CreateOrderResponse> => {
             try {
                 setLoading(true);
@@ -269,7 +269,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({
     const verifyPayment = useCallback(
         async (
             paymentId: string,
-            paymentType: "total",
+            _paymentType: "total",
             cashfreeOrderId: string,
             cashfreeSignature?: string
         ): Promise<Payment> => {
@@ -410,7 +410,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({
     const openCashfreeCheckout = useCallback(
         (
             orderData: CreateOrderResponse,
-            userDetails: { name: string; email: string; phone?: string },
+            _userDetails: { name: string; email: string; phone?: string },
             onSuccess: (response: {
                 orderId: string;
                 paymentSessionId: string;

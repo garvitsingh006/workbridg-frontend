@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, UserPlus, UserMinus, Shield, User, Briefcase } from 'lucide-react';
+import { X, UserMinus, Shield, User, Briefcase } from 'lucide-react';
 import { useChat, type Chat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 
@@ -16,7 +16,7 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
   onClose, 
   onParticipantAdded 
 }) => {
-  const { addParticipantToChat, removeParticipantFromChat, addAdminToChat } = useChat();
+  const { removeParticipantFromChat, addAdminToChat } = useChat();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
 

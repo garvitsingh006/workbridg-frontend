@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Users, Briefcase, IdCard, ArrowRight, Sparkles, Zap, Heart, Star, Globe } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Briefcase, IdCard, ArrowRight, Sparkles, Zap, Heart, Star, Globe } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 import api from "../api";

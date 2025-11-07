@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Briefcase, Shield, ArrowRight, CircleCheck as CheckCircle, MessageSquare, FileText, CreditCard, Star, Sparkles, Zap } from 'lucide-react';
+import { Users, Briefcase, Shield, ArrowRight, CircleCheck as CheckCircle, FileText, CreditCard, Star, Sparkles } from 'lucide-react';
 
 const HowItWorksPage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);

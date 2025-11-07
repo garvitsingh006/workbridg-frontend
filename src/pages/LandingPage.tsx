@@ -2,16 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
     ArrowRight,
-    Star,
-    CircleCheck as CheckCircle,
-    Users,
     Shield,
     Award,
-    Briefcase,
-    MessageSquare,
-    Zap,
-    Heart,
-    Target,
     Clock,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -67,11 +59,11 @@ const LandingPage: React.FC = () => {
         },
     ];
 
-    const stats = [
-        { number: "5,000+", label: "Active professionals", icon: Users },
-        { number: "98%", label: "Project success rate", icon: CheckCircle },
-        { number: "4.9/5", label: "Average rating", icon: Star },
-    ];
+    // const stats = [
+    //     { number: "5,000+", label: "Active professionals", icon: Users },
+    //     { number: "98%", label: "Project success rate", icon: CheckCircle },
+    //     { number: "4.9/5", label: "Average rating", icon: Star },
+    // ];
 
     const features = [
         {

@@ -143,7 +143,7 @@ export default function Feature2() {
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Earnings</h3>
           <div className="space-y-4">
-            {monthlyEarnings.map((month, index) => (
+            {monthlyEarnings.map((month) => (
               <div key={month.month} className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700">{month.month}</span>
                 <div className="flex items-center space-x-3 flex-1 mx-4">

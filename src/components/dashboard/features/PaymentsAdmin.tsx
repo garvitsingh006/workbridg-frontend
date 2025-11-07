@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DollarSign, Shield, Eye, CheckCircle, RotateCcw, AlertCircle, RefreshCw, Search, Filter } from 'lucide-react';
+import { DollarSign, Shield, Eye, AlertCircle, RefreshCw, Search, Filter } from 'lucide-react';
 import { usePayment, type Payment } from '../../../contexts/PaymentContext';
 import PaymentModal from '../../payment/PaymentModal';
 import PaymentStatusBadge from '../../payment/PaymentStatusBadge';
@@ -10,13 +10,13 @@ export default function PaymentsAdmin() {
     loading, 
     error, 
     fetchAllPayments, 
-    releasePayment, 
-    refundPayment 
+    // releasePayment, 
+    // refundPayment 
   } = usePayment();
   
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [processingAction, setProcessingAction] = useState<string | null>(null);
+//   const [processingAction, setProcessingAction] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -24,41 +24,41 @@ export default function PaymentsAdmin() {
     fetchAllPayments();
   }, [fetchAllPayments]);
 
-  const handleReleasePayment = async (payment: Payment) => {
-    if (!confirm(`Are you sure you want to release ₹${payment.releaseAmount.toLocaleString()} to ${payment.freelancerId.fullName}?`)) {
-      return;
-    }
+//   const handleReleasePayment = async (payment: Payment) => {
+//     if (!confirm(`Are you sure you want to release ₹${payment.releaseAmount.toLocaleString()} to ${payment.freelancerId.fullName}?`)) {
+//       return;
+//     }
 
-    try {
-      setProcessingAction(`release-${payment._id}`);
-      await releasePayment(payment._id);
-      await fetchAllPayments(); // Refresh data
-      alert(`Payment of ₹${payment.releaseAmount.toLocaleString()} released successfully!`);
-    } catch (error) {
-      console.error('Failed to release payment:', error);
-      alert('Failed to release payment. Please try again.');
-    } finally {
-      setProcessingAction(null);
-    }
-  };
+//     try {
+//       setProcessingAction(`release-${payment._id}`);
+//       await releasePayment(payment._id);
+//       await fetchAllPayments(); // Refresh data
+//       alert(`Payment of ₹${payment.releaseAmount.toLocaleString()} released successfully!`);
+//     } catch (error) {
+//       console.error('Failed to release payment:', error);
+//       alert('Failed to release payment. Please try again.');
+//     } finally {
+//       setProcessingAction(null);
+//     }
+//   };
 
-  const handleRefundPayment = async (payment: Payment) => {
-    if (!confirm(`Are you sure you want to refund this payment to ${payment.clientId.fullName}?`)) {
-      return;
-    }
+//   const handleRefundPayment = async (payment: Payment) => {
+//     if (!confirm(`Are you sure you want to refund this payment to ${payment.clientId.fullName}?`)) {
+//       return;
+//     }
 
-    try {
-      setProcessingAction(`refund-${payment._id}`);
-      await refundPayment(payment._id);
-      await fetchAllPayments(); // Refresh data
-      alert('Payment refunded successfully!');
-    } catch (error) {
-      console.error('Failed to refund payment:', error);
-      alert('Failed to refund payment. Please try again.');
-    } finally {
-      setProcessingAction(null);
-    }
-  };
+//     try {
+//       setProcessingAction(`refund-${payment._id}`);
+//       await refundPayment(payment._id);
+//       await fetchAllPayments(); // Refresh data
+//       alert('Payment refunded successfully!');
+//     } catch (error) {
+//       console.error('Failed to refund payment:', error);
+//       alert('Failed to refund payment. Please try again.');
+//     } finally {
+//       setProcessingAction(null);
+//     }
+//   };
 
   const openPaymentModal = (payment: Payment) => {
     setSelectedPayment(payment);
