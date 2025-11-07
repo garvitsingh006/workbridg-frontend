@@ -40,6 +40,7 @@ export interface User {
     username: string;
     email: string;
     fullName: string;
+    phone?: string;
     userType: "freelancer" | "client" | "admin" | "interviewer";
     isVerified?: boolean;
     freelancerDetails?: FreelancerDetails;

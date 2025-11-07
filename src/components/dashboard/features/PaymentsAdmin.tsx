@@ -256,7 +256,7 @@ export default function PaymentsAdmin() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        {payment.total.status === 'paid' && payment.releaseStatus === 'not_released' && (
+                        {/* {payment.total.status === 'paid' && payment.releaseStatus === 'not_released' && (
                           <button
                             onClick={() => handleReleasePayment(payment)}
                             disabled={processingAction === `release-${payment._id}`}
@@ -270,8 +270,8 @@ export default function PaymentsAdmin() {
                             Release
                           </button>
                         )}
-                        
-                        {payment.releaseStatus === 'not_released' && payment.overallStatus !== 'pending' && (
+                         */}
+                        {/* {payment.releaseStatus === 'not_released' && payment.overallStatus !== 'pending' && (
                           <button
                             onClick={() => handleRefundPayment(payment)}
                             disabled={processingAction === `refund-${payment._id}`}
@@ -284,7 +284,7 @@ export default function PaymentsAdmin() {
                             )}
                             Refund
                           </button>
-                        )}
+                        )} */}
                         
                         <button
                           onClick={() => openPaymentModal(payment)}

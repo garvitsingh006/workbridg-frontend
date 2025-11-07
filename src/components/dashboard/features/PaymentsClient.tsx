@@ -14,7 +14,7 @@ export default function PaymentsClient() {
     fetchUserPayments, 
     createPaymentOrder, 
     verifyPayment, 
-    openRazorpayCheckout 
+    openCashfreeCheckout 
   } = usePayment();
   
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
@@ -31,17 +31,28 @@ export default function PaymentsClient() {
     try {
       setProcessingPayment(`${payment._id}-total`);
       
-      // Create Razorpay order
+      // Create Cashfree order
       const orderData = await createPaymentOrder(payment._id, 'total');
       
-      // Open Razorpay checkout
-      openRazorpayCheckout(
+      // Open Cashfree checkout
+      openCashfreeCheckout(
         orderData,
-        { name: user.fullName, email: user.email },
-        async (razorpayResponse) => {
+        { 
+          name: user.fullName, 
+          email: user.email,
+          phone: user.phone
+        },
+        async (response) => {
           try {
             // Verify payment
-            await verifyPayment(payment._id, 'total', razorpayResponse);
+            await verifyPayment(
+              payment._id, 
+              'total', 
+              response.orderId,
+              response.paymentSessionId
+            );
+
+            // Signature verification can be done here using webhook
             
             // Refresh payments
             await fetchUserPayments();
@@ -54,8 +65,9 @@ export default function PaymentsClient() {
             setProcessingPayment(null);
           }
         },
-        (error) => {
+        (error: any) => {
           console.error('Payment failed:', error);
+          alert(error.message || 'Payment failed. Please try again.');
           setProcessingPayment(null);
         }
       );
@@ -208,7 +220,7 @@ export default function PaymentsClient() {
                           <PaymentStatusBadge status={payment.total.status} />
                         </td>
                         <td className="py-3">
-                          {payment.total.status === 'pending' ? (
+                          {payment.overallStatus === 'pending' ? (
                             <button
                               onClick={() => handlePayment(payment)}
                               disabled={processingPayment === `${payment._id}-total`}
