@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Briefcase, ArrowRight, Sparkles, Zap, Heart, Star } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
@@ -17,44 +17,87 @@ const LoginPage: React.FC = () => {
         password: "",
     });
 
+    // Refs to track component state
+    const isMounted = useRef(true);
+    const hasCheckedAuth = useRef(false);
+    const authCheckInProgress = useRef(false);
+    const authCheckTimeout = useRef<NodeJS.Timeout | null>(null);
+
+    // Clear any pending timeouts on unmount
     useEffect(() => {
+        return () => {
+            if (authCheckTimeout.current) {
+                clearTimeout(authCheckTimeout.current);
+            }
+            isMounted.current = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!isMounted.current) return;
+        
         setIsVisible(true);
         
-        // Check if user is already logged in
+        // Only run auth check if we haven't already done so
+        if (hasCheckedAuth.current || authCheckInProgress.current) return;
+
         const checkAuthStatus = async () => {
+            if (!isMounted.current || authCheckInProgress.current) return;
+            
+            authCheckInProgress.current = true;
+            
             try {
-                // First, try to fetch login details to see if user is authenticated
+                // First, check if we have a token to avoid unnecessary requests
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    hasCheckedAuth.current = true;
+                    return;
+                }
+
+                // Add a small delay to prevent rapid-fire requests during initial render
+                await new Promise(resolve => {
+                    authCheckTimeout.current = setTimeout(resolve, 100);
+                });
+
+                if (!isMounted.current) return;
+                
                 const loginDetails = await fetchLoginDetails();
                 
+                if (!isMounted.current) return;
+                
                 if (loginDetails) {
-                    // User is logged in, now check if they have complete profile
-                    try {
-                        const fullUser = await fetchUser();
-                        
-                        if (fullUser) {
-                            // User has complete profile, redirect to dashboard
-                            const role = fullUser.userType;
-                            if (role === "freelancer") navigate("/dashboard/freelancer");
-                            else if (role === "client") navigate("/dashboard/client");
-                            else if (role === "admin") navigate("/dashboard/admin");
-                            else navigate("/dashboard");
-                        } else {
-                            // User is logged in but doesn't have complete profile
-                            navigate("/set-details");
-                        }
-                    } catch (error) {
-                        // Error fetching full user details, redirect to set-details
-                        navigate("/set-details");
+                    const fullUser = await fetchUser();
+                    
+                    if (!isMounted.current) return;
+                    
+                    if (fullUser?.userType) {
+                        const role = fullUser.userType;
+                        navigate(`/dashboard/${role}`, { replace: true });
+                        return;
+                    } else if (fullUser) {
+                        navigate("/set-details", { replace: true });
+                        return;
                     }
                 }
-                // If no login details, user is not logged in, stay on login page
             } catch (error) {
-                // User is not logged in, stay on login page
-                console.log("User not logged in, staying on login page");
+                // Clear any invalid tokens on error
+                localStorage.removeItem('token');
+                console.error("Auth check failed:", error);
+            } finally {
+                if (isMounted.current) {
+                    hasCheckedAuth.current = true;
+                    authCheckInProgress.current = false;
+                }
             }
         };
         
         checkAuthStatus();
+        
+        return () => {
+            if (authCheckTimeout.current) {
+                clearTimeout(authCheckTimeout.current);
+            }
+        };
     }, [navigate, fetchLoginDetails, fetchUser]);
 
     const handleSubmit = async (e: React.FormEvent) => {

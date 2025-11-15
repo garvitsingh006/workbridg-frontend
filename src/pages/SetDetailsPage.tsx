@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { getAccessToken, isAuthenticated } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import {
     MapPin,
@@ -62,10 +63,11 @@ export default function SetDetailsPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isInitializing, setIsInitializing] = useState(true);
-
     const [userType, setUserType] = useState<"freelancer" | "client">("freelancer");
-    const {fetchLoginDetails} = useUser();
+    const { fetchUser, fetchLoginDetails } = useUser();
+    const toastShown = useRef(false);
 
     // File upload hook for resume
     const resumeUpload = useFileUpload({
@@ -80,31 +82,55 @@ export default function SetDetailsPage() {
         }
     });
 
+    // Use a ref to track if we've already checked authentication
+    const authChecked = useRef(false);
+
     useEffect(() => {
-        setIsVisible(true);
-        const fetchDetails = async () => {
-            try {
-                const res = await fetchLoginDetails();
-                if (!res) {
-                    console.error("Cannot access login details!");
-                    setIsInitializing(false);
-                    return;
-                }
-                if (res.role === "admin") {
-                    navigate("/dashboard/admin");
-                    return;
-                }
-                if (res.role === "freelancer" || res.role === "client") {
-                    setUserType(res.role);
-                    setCurrentStep(1);
-                }
-            } finally {
+    if (authChecked.current) return;
+
+    let isMounted = true;
+
+    console.log("[SetDetailsPage] Starting authentication check...");
+
+    const checkAuth = async () => {
+        try {
+            console.log("[SetDetailsPage] Checking login status...");
+            const loginDetails = await fetchLoginDetails();
+
+            if (!isMounted) return;
+
+            if (!loginDetails) {
+                toast.error("Please log in to access this page");
+                navigate("/register", { replace: true });
+                return;
+            }
+
+            const user = await fetchUser();
+            if (!isMounted) return;
+
+            if (user?.userType) {
+                navigate(`/dashboard/${user.userType}`, { replace: true });
+                return;
+            }
+
+            setUserType("freelancer");
+            setCurrentStep(0);
+            setIsVisible(true);
+
+        } finally {
+            if (isMounted) {
+                authChecked.current = true;
+                setIsLoading(false);
                 setIsInitializing(false);
             }
-        };
+        }
+    };
 
-        fetchDetails();
-    }, [navigate]);
+    checkAuth();
+    return () => {isMounted = false};
+
+}, []); // important!
+
 
     const [freelancerFormData, setFreelancerFormData] =
         useState<FreelancerFormData>({

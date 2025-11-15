@@ -220,7 +220,7 @@ export default function PaymentsClient() {
                           <PaymentStatusBadge status={payment.total.status} />
                         </td>
                         <td className="py-3">
-                          {payment.overallStatus === 'pending' ? (
+                          {(payment.overallStatus === 'pending' || payment.overallStatus === "failed") ? (
                             <button
                               onClick={() => handlePayment(payment)}
                               disabled={processingPayment === `${payment._id}-total`}

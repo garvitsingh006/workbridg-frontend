@@ -54,7 +54,7 @@ interface UserContextType {
     loading: boolean;
     error: string | null;
     fetchUser: () => Promise<User | null>;
-    fetchLoginDetails: () => Promise<{
+    fetchLoginDetails: (noArg?: never) => Promise<{
         id: string;
         username: string;
         fullName: string;

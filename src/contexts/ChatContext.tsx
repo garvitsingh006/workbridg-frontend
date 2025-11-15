@@ -592,12 +592,24 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     };
 
     useEffect(() => {
-        fetchChats();
-        // Lightweight polling for near real-time updates (silent, no flicker)
-        const intervalId = setInterval(() => {
-            fetchChats(true).catch(() => {});
-        }, 5000);
-        return () => clearInterval(intervalId);
+        // Only fetch chats if we have a token
+        const token = localStorage.getItem('token');
+        if (token) {
+            fetchChats().catch(console.error);
+            
+            // Lightweight polling for near real-time updates (silent, no flicker)
+            const intervalId = setInterval(() => {
+                const currentToken = localStorage.getItem('token');
+                if (currentToken) {
+                    fetchChats(true).catch(() => {});
+                }
+            }, 5000);
+            
+            return () => clearInterval(intervalId);
+        }
+        
+        // Cleanup function in case component unmounts
+        return () => {};
     }, []);
 
     const value: ChatContextType = {

@@ -40,11 +40,12 @@ export interface Payment {
     releaseAmount: number;
     releaseStatus: "not_released" | "released" | "refunded";
     overallStatus:
-        | "pending"
-        | "advance_paid"
-        | "final_paid"
-        | "released"
-        | "refunded";
+    | "pending"
+    | "failed"
+    | "advance_paid"
+    | "final_paid"
+    | "released"
+    | "refunded";
     createdAt: string;
     updatedAt: string;
 }
@@ -466,7 +467,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({
                             });
                         })
                         .catch((err: any) => {
-                            console.error("Payment failed:", err);
+                            console.error("Payment failed (error from frontend):", err);
                             if (onError) onError(err);
                         });
                 } catch (error) {
