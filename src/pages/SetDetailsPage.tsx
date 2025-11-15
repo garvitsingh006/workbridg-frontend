@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getAccessToken, isAuthenticated } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import {
     MapPin,
@@ -63,11 +62,11 @@ export default function SetDetailsPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    // const [isLoading, setIsLoading] = useState(true);
     const [isInitializing, setIsInitializing] = useState(true);
     const [userType, setUserType] = useState<"freelancer" | "client">("freelancer");
     const { fetchUser, fetchLoginDetails } = useUser();
-    const toastShown = useRef(false);
+    // const toastShown = useRef(false);
 
     // File upload hook for resume
     const resumeUpload = useFileUpload({
@@ -120,7 +119,7 @@ export default function SetDetailsPage() {
         } finally {
             if (isMounted) {
                 authChecked.current = true;
-                setIsLoading(false);
+                // setIsLoading(false);
                 setIsInitializing(false);
             }
         }
