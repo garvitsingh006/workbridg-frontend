@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Users, Target, Award, Heart, Zap, ArrowRight, CircleCheck as CheckCircle, Sparkles, Globe, TrendingUp } from 'lucide-react';
+import { Shield, Users, Target, Award, Heart, Zap, ArrowRight, CircleCheck as CheckCircle, Globe, TrendingUp } from 'lucide-react';
 
 const AboutPage: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [currentStat, setCurrentStat] = useState(0);
+  const [, setIsVisible] = useState(false);
+  const [, setCurrentStat] = useState(0);
 
   useEffect(() => {
     setIsVisible(true);
@@ -21,12 +21,6 @@ const AboutPage: React.FC = () => {
     { icon: '🎯', color: 'bg-green-500', delay: '0.5s' },
     { icon: '🔥', color: 'bg-red-500', delay: '1.5s' },
     { icon: '✨', color: 'bg-pink-500', delay: '2.5s' },
-  ];
-
-  const stats = [
-    { number: '5,000+', label: 'Active professionals' },
-    { number: '98%', label: 'Project success rate' },
-    { number: '4.9/5', label: 'Average rating' },
   ];
 
   return (

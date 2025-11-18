@@ -4,7 +4,7 @@ import { Users, Briefcase, Shield, ArrowRight, CheckCircle, FileText, CreditCard
 
 const HowItWorks = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
+  const [, setActiveStep] = useState(0);
 
   useEffect(() => {
     setIsVisible(true);

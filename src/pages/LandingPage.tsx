@@ -5,12 +5,18 @@ import {
     Shield,
     Award,
     Clock,
+    Code,
+    Box,
+    Palette,
+    FileText,
+    Brain,
+    Video,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const LandingPage: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
-    const [currentTestimonial, setCurrentTestimonial] = useState(0);
+    const [, setCurrentTestimonial] = useState(0);
 
     useEffect(() => {
         setIsVisible(true);
@@ -64,6 +70,45 @@ const LandingPage: React.FC = () => {
     //     { number: "98%", label: "Project success rate", icon: CheckCircle },
     //     { number: "4.9/5", label: "Average rating", icon: Star },
     // ];
+
+    const popularServices = [
+        {
+            icon: Code,
+            title: "Web & Mobile App Development",
+            description: "Custom solutions for web and mobile platforms",
+            gradient: "from-blue-500 to-cyan-500"
+        },
+        {
+            icon: Box,
+            title: "3D",
+            description: "3D modeling, animation, and visualization",
+            gradient: "from-purple-500 to-pink-500"
+        },
+        {
+            icon: Palette,
+            title: "Graphic Design & UI/UX",
+            description: "Beautiful designs that engage users",
+            gradient: "from-orange-500 to-red-500"
+        },
+        {
+            icon: FileText,
+            title: "Content Writing",
+            description: "Compelling content that converts",
+            gradient: "from-green-500 to-emerald-500"
+        },
+        {
+            icon: Brain,
+            title: "AI / Machine Learning",
+            description: "Intelligent solutions powered by AI",
+            gradient: "from-indigo-500 to-blue-500"
+        },
+        {
+            icon: Video,
+            title: "Video Editing",
+            description: "Professional video production and editing",
+            gradient: "from-pink-500 to-rose-500"
+        }
+    ];
 
     const features = [
         {
@@ -283,6 +328,54 @@ const LandingPage: React.FC = () => {
                     </div>
                 </div>
             </section> */}
+
+            {/* Popular Services Section */}
+            <section className="py-24 bg-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="text-center mb-16"
+                    >
+                        <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                            Popular Services
+                        </h2>
+                        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                            Explore our most in-demand services from talented professionals
+                        </p>
+                    </motion.div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {popularServices.map((service, index) => (
+                            <motion.div
+                                key={service.title}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                                whileHover={{ y: -8 }}
+                                className="group"
+                            >
+                                <Link to="/services" className="block">
+                                    <div className="bg-white hover:bg-gray-50 border border-gray-200 rounded-xl p-8 transition-all duration-300 hover:shadow-xl h-full">
+                                        <div className={`w-16 h-16 rounded-lg bg-gradient-to-br ${service.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                                            <service.icon className="h-8 w-8 text-white" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                                            {service.title}
+                                        </h3>
+                                        <p className="text-gray-600">
+                                            {service.description}
+                                        </p>
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
 
             {/* Features Section */}
             <section className="py-24 bg-gray-50">
