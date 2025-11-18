@@ -50,7 +50,7 @@ const AboutPage: React.FC = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      {/* <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto text-center z-10">
           <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="inline-flex items-center space-x-2 bg-gray-100 rounded-full px-6 py-3 mb-8">
@@ -71,7 +71,6 @@ const AboutPage: React.FC = () => {
               professional standards through our unique admin-mediated approach.
             </p>
 
-            {/* Animated Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
               {stats.map((stat, index) => (
                 <div
@@ -89,10 +88,10 @@ const AboutPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Mission Section */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-50 mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">

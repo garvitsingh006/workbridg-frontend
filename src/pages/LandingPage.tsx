@@ -93,75 +93,74 @@ const LandingPage: React.FC = () => {
         <div className="min-h-screen bg-white overflow-hidden">
             {/* Floating Brand Icons */}
             <div className="fixed inset-0 pointer-events-none z-0 opacity-10">
-  {/* Left side → 4 logos */}
-  {brandLogos.slice(0, 4).map((brand, i) => {
-    const count = 4;
-    const ySpacing = count > 1 ? 70 / (count - 1) : 0;
-    const topBase = 15 + i * ySpacing;
-    const jitter = ((i * 997) % 7) - 3; // tiny variation
-    const top = Math.min(90, Math.max(5, topBase + jitter));
-    const left = 5 + ((i * 17) % 35);
+                {/* Left side → 4 logos */}
+                {brandLogos.slice(0, 4).map((brand, i) => {
+                    const count = 4;
+                    const ySpacing = count > 1 ? 70 / (count - 1) : 0;
+                    const topBase = 15 + i * ySpacing;
+                    const jitter = ((i * 997) % 7) - 3; // tiny variation
+                    const top = Math.min(90, Math.max(5, topBase + jitter));
+                    const left = 5 + ((i * 17) % 35);
 
-    return (
-      <div
-        key={brand.name}
-        className={`absolute w-12 h-12 ${brand.color} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-float`}
-        style={{
-          left: `${left}%`,
-          top: `${top}%`,
-          animationDelay: `${i * 0.45}s`,
-          animationDuration: `${4 + (i % 3)}s`
-        }}
-      >
-        {brand.icon}
-      </div>
-    );
-  })}
+                    return (
+                        <div
+                            key={brand.name}
+                            className={`absolute w-12 h-12 ${brand.color} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-float`}
+                            style={{
+                                left: `${left}%`,
+                                top: `${top}%`,
+                                animationDelay: `${i * 0.45}s`,
+                                animationDuration: `${4 + (i % 3)}s`
+                            }}
+                        >
+                            {brand.icon}
+                        </div>
+                    );
+                })}
 
-  {/* Right side → 5 logos */}
-  {brandLogos.slice(4, 9).map((brand, i) => {
-    const count = 5;
-    const ySpacing = count > 1 ? 70 / (count - 1) : 0;
-    const topBase = 15 + i * ySpacing;
-    const jitter = ((i * 991) % 7) - 3;
-    const top = Math.min(90, Math.max(5, topBase + jitter));
-    const left = 60 + ((i * 19) % 30);
+                {/* Right side → 5 logos */}
+                {brandLogos.slice(4, 9).map((brand, i) => {
+                    const count = 5;
+                    const ySpacing = count > 1 ? 70 / (count - 1) : 0;
+                    const topBase = 15 + i * ySpacing;
+                    const jitter = ((i * 991) % 7) - 3;
+                    const top = Math.min(90, Math.max(5, topBase + jitter));
+                    const left = 60 + ((i * 19) % 30);
 
-    return (
-      <div
-        key={brand.name}
-        className={`absolute w-12 h-12 ${brand.color} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-float`}
-        style={{
-          left: `${left}%`,
-          top: `${top}%`,
-          animationDelay: `${i * 0.45}s`,
-          animationDuration: `${4 + (i % 3)}s`
-        }}
-      >
-        {brand.icon}
-      </div>
-    );
-  })}
-</div>
+                    return (
+                        <div
+                            key={brand.name}
+                            className={`absolute w-12 h-12 ${brand.color} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-float`}
+                            style={{
+                                left: `${left}%`,
+                                top: `${top}%`,
+                                animationDelay: `${i * 0.45}s`,
+                                animationDuration: `${4 + (i % 3)}s`
+                            }}
+                        >
+                            {brand.icon}
+                        </div>
+                    );
+                })}
+            </div>
 
 
             {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+            <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 mt-10">
                 <div className="max-w-6xl mx-auto text-center z-10">
                     <div
                         className={`transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
                     >
                         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-8">
-                            Never run out of
+                            The talent you wish you
                             <br />
                             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                talent again.
+                                found sooner
                             </span>
                         </h1>
 
                         <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-                            Use Workbridg for free as long as you like or get
-                            full access with any of our paid plans.
+                            You focus on the work you need. We handle everything else.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
@@ -176,7 +175,7 @@ const LandingPage: React.FC = () => {
                                 to="/how-it-works"
                                 className="group text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all duration-300 flex items-center"
                             >
-                                See our plans
+                                See how Workbridg works
                                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </div>
@@ -198,33 +197,35 @@ const LandingPage: React.FC = () => {
             </section>
 
             {/* Stats Section */}
-<section className="py-24 bg-gray-50">
+           {/* <section className="py-24 bg-gray-50">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div className="text-center mb-16">
+
       <motion.h2
-        className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6"
-        initial={{ opacity: 0, y: 50 }}
+        className="text-4xl sm:text-5xl font-bold text-gray-900 mb-10"
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         viewport={{ once: true }}
       >
         A growing library of
       </motion.h2>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {[
-          "5,000+ professionals",
-          "98% success rate",
-          "Zero disputes"
+          "5,000+ verified freelancers",
+          "Reliable turnaround times",
+          "Secure, escrow-backed payments",
+          "Zero dispute track record"
         ].map((text, i) => (
           <motion.div
             key={text}
-            className="text-6xl sm:text-7xl font-bold text-gray-900"
-            initial={{ opacity: 0, y: 60 }}
+            className="text-4xl sm:text-6xl font-bold text-gray-900"
+            initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 0.7,
-              delay: i * 0.4 + 0.3, // staggered delay
+              duration: 0.6,
+              delay: i * 0.35 + 0.2,
               ease: "easeOut"
             }}
             viewport={{ once: true }}
@@ -233,12 +234,15 @@ const LandingPage: React.FC = () => {
           </motion.div>
         ))}
       </div>
+
     </div>
   </div>
-</section>
+</section> */}
+
+
 
             {/* Testimonials Section */}
-            <section className="py-24">
+            {/* <section className="py-24">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
@@ -250,11 +254,10 @@ const LandingPage: React.FC = () => {
                         {testimonials.map((testimonial, index) => (
                             <div
                                 key={index}
-                                className={`bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 ${
-                                    index === currentTestimonial
+                                className={`bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 ${index === currentTestimonial
                                         ? "ring-2 ring-blue-500"
                                         : ""
-                                }`}
+                                    }`}
                             >
                                 <div className="flex items-center mb-6">
                                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-2xl mr-4">
@@ -279,7 +282,7 @@ const LandingPage: React.FC = () => {
                         ))}
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* Features Section */}
             <section className="py-24 bg-gray-50">
@@ -317,9 +320,8 @@ const LandingPage: React.FC = () => {
             <section className="py-24">
                 <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
                     <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-                        Find design patterns
+                        Freelancing, finally done right!
                         <br />
-                        in seconds.
                     </h2>
                     <p className="text-xl text-gray-600 mb-12">
                         Join thousands of professionals who trust Workbridg for
@@ -337,7 +339,7 @@ const LandingPage: React.FC = () => {
                             to="/how-it-works"
                             className="group text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-50 transition-all duration-300 flex items-center justify-center border border-gray-200"
                         >
-                            See our plans
+                            See how Workbridg works
                             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>

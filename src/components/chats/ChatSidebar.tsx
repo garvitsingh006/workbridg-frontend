@@ -59,21 +59,29 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
         fetchUsers();
     }, [user?.userType, selectedRole]);
 
-    const orderedChats = useMemo(() => {
+    const getOrderedChats = () => {
         const visible = user?.userType === 'admin'
-            ? chats.filter(c => c.participants.some(p => p._id === (user?.id || '')) && c.messages.length > 0) // only active chats
+            ? chats.filter(c => c.participants.some(p => p._id === (user?.id || '')))
             : chats;
-        return [...visible].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-    }, [chats, user?.id, user?.userType]);
 
-    const filteredChats = useMemo(() => {
-        if (!searchQuery) return orderedChats;
-        return orderedChats.filter(chat => {
+        return [...visible].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    };
+
+    const orderedChats = getOrderedChats();
+
+
+    const filteredChats = !searchQuery
+        ? orderedChats
+        : orderedChats.filter(chat => {
             const otherParticipants = chat.participants.filter(p => p._id !== (user?.id || ''));
-            const titleRaw = chat.type === 'project' && chat.project ? chat.project.title : (otherParticipants[0]?.username || 'Chat');
+            const titleRaw =
+                chat.type === 'project' && chat.project
+                    ? chat.project.title
+                    : otherParticipants[0]?.username || "Chat";
+
             return titleRaw.toLowerCase().includes(searchQuery.toLowerCase());
         });
-    }, [orderedChats, searchQuery, user?.id]);
+
 
     const filteredUsers = useMemo(() => {
         let filtered = allUsers.filter(u => u.username?.toLowerCase() !== 'admin');
