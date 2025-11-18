@@ -5,6 +5,7 @@ import React, {
     useEffect,
     type ReactNode,
 } from "react";
+import { io, Socket } from "socket.io-client";
 import api from "../api";
 
 // Types for Chat Context - Updated to match backend
@@ -102,6 +103,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [adminChatEnsured, setAdminChatEnsured] = useState(false);
+    const socketRef = React.useRef<Socket | null>(null);
+    const [socket, setSocket] = useState<Socket | null>(null); // keep for convenience/use in other effects
 
     const normalizeMessage = (msg: any): Message => {
         return {
@@ -129,14 +132,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const normalizeChat = (chat: any): Chat => {
         // Find existing chat to preserve participant data
         const existingChat = chats.find(c => c._id === (chat._id || chat.id));
-        
+
         return {
             _id: chat._id || chat.id,
             type: chat.type || (chat.project ? "project" : "individual"),
             participants: (chat.participants || chat.users || []).map(
                 (p: any) => {
                     if (!p) return { _id: "", username: "User" };
-                    
+
                     // If participant is just a string ID, try to find existing participant data
                     if (typeof p === "string") {
                         const existingParticipant = existingChat?.participants.find(ep => ep._id === p);
@@ -145,7 +148,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         }
                         return { _id: p, username: "User" };
                     }
-                    
+
                     // if it's an ObjectId object with toString:
                     if (
                         p._bsontype === "ObjectID" &&
@@ -156,17 +159,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         if (existingParticipant && (!p.username && !p.fullName)) {
                             return existingParticipant;
                         }
-                        return { 
-                            _id: participantId, 
+                        return {
+                            _id: participantId,
                             username: p.username || p.fullName || existingParticipant?.username || "User",
                             role: p.role || p.userType || existingParticipant?.role
                         };
                     }
-                    
+
                     // For regular participant objects, preserve existing data if new data is incomplete
                     const participantId = p._id || p.id || (p.toString ? p.toString() : "");
                     const existingParticipant = existingChat?.participants.find(ep => ep._id === participantId);
-                    
+
                     return {
                         _id: participantId,
                         username: p.username || p.fullName || existingParticipant?.username || "User",
@@ -176,10 +179,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             ),
             project: chat.project
                 ? {
-                      _id: chat.project._id || chat.project.id,
-                      title:
-                          chat.project.title || chat.project.name || "Project",
-                  }
+                    _id: chat.project._id || chat.project.id,
+                    title:
+                        chat.project.title || chat.project.name || "Project",
+                }
                 : undefined,
             messages: Array.isArray(chat.messages)
                 ? chat.messages.map(normalizeMessage)
@@ -196,11 +199,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // Check if admin chat exists in the current chats
     const hasAdminChat = (chats: Chat[]): boolean => {
-        return chats.some(chat => 
+        return chats.some(chat =>
             chat.participants.some(p => {
-                const isAdmin = p.username?.toLowerCase() === 'admin' || 
-                             p.role?.toLowerCase() === 'admin' ||
-                             p._id === import.meta.env.VITE_ADMIN_ID;
+                const isAdmin = p.username?.toLowerCase() === 'admin' ||
+                    p.role?.toLowerCase() === 'admin' ||
+                    p._id === import.meta.env.VITE_ADMIN_ID;
                 return isAdmin;
             })
         );
@@ -232,7 +235,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
             const newAdminChat = response.data?.data || response.data;
             const transformedAdminChat = normalizeChat(newAdminChat);
-            
+
             setAdminChatEnsured(true);
             return [transformedAdminChat, ...chats];
         } catch (err: any) {
@@ -320,12 +323,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 prev.map((chat) =>
                     chat._id === chatId
                         ? {
-                              ...chat,
-                              messages: chat.messages.map((msg) => ({
-                                  ...msg,
-                                  read: true,
-                              })),
-                          }
+                            ...chat,
+                            messages: chat.messages.map((msg) => ({
+                                ...msg,
+                                read: true,
+                            })),
+                        }
                         : chat
                 )
             );
@@ -335,12 +338,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 setActiveChat((prev) =>
                     prev
                         ? {
-                              ...prev,
-                              messages: prev.messages.map((msg) => ({
-                                  ...msg,
-                                  read: true,
-                              })),
-                          }
+                            ...prev,
+                            messages: prev.messages.map((msg) => ({
+                                ...msg,
+                                read: true,
+                            })),
+                        }
                         : null
                 );
             }
@@ -365,7 +368,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         try {
             setError(null);
             const adminId = import.meta.env.VITE_ADMIN_ID
-            const response = await api.patch(`/chats/${chatId}/add-admin`, {adminId: adminId});
+            const response = await api.patch(`/chats/${chatId}/add-admin`, { adminId: adminId });
             const updatedChat = response.data?.data || response.data;
             const transformedChat = normalizeChat(updatedChat);
 
@@ -409,7 +412,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         } catch (err: any) {
             setError(
                 err.response?.data?.message ||
-                    "Failed to add participant to chat"
+                "Failed to add participant to chat"
             );
             throw err;
         }
@@ -429,7 +432,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         } catch (err: any) {
             setError(
                 err.response?.data?.message ||
-                    "Failed to remove participant from chat"
+                "Failed to remove participant from chat"
             );
             throw err;
         }
@@ -531,7 +534,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         } catch (err: any) {
             setError(
                 err.response?.data?.message ||
-                    "Failed to create project group chat"
+                "Failed to create project group chat"
             );
             throw err;
         }
@@ -553,13 +556,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const createAdminChat = async (): Promise<Chat> => {
         try {
             setError(null);
-            
+
             // Check if admin chat already exists using the improved detection
-            const existingAdminChat = chats.find(chat => 
+            const existingAdminChat = chats.find(chat =>
                 chat.participants.some(p => {
-                    const isAdmin = p.username?.toLowerCase() === 'admin' || 
-                                 p.role?.toLowerCase() === 'admin' ||
-                                 p._id === import.meta.env.VITE_ADMIN_ID;
+                    const isAdmin = p.username?.toLowerCase() === 'admin' ||
+                        p.role?.toLowerCase() === 'admin' ||
+                        p._id === import.meta.env.VITE_ADMIN_ID;
                     return isAdmin;
                 })
             );
@@ -581,7 +584,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
             const newAdminChat = response.data?.data || response.data;
             const transformedAdminChat = normalizeChat(newAdminChat);
-            
+
             setChats(prev => [transformedAdminChat, ...prev]);
             setAdminChatEnsured(true);
             return transformedAdminChat;
@@ -596,21 +599,138 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         const token = localStorage.getItem('token');
         if (token) {
             fetchChats().catch(console.error);
-            
+
             // Lightweight polling for near real-time updates (silent, no flicker)
             const intervalId = setInterval(() => {
                 const currentToken = localStorage.getItem('token');
                 if (currentToken) {
-                    fetchChats(true).catch(() => {});
+                    fetchChats(true).catch(() => { });
                 }
             }, 5000);
-            
+
             return () => clearInterval(intervalId);
         }
-        
+
         // Cleanup function in case component unmounts
-        return () => {};
+        return () => { };
     }, []);
+
+    useEffect(() => {
+        // avoid creating multiple sockets
+        if (socketRef.current) return;
+
+        const URL = import.meta.env.VITE_SOCKET_SERVER || "http://localhost:8000";
+
+        const s = io(URL, {
+            withCredentials: true,
+            transports: ["websocket"],
+        });
+
+        socketRef.current = s;
+        setSocket(s);
+
+        s.on("connect", () => {
+            console.log("🔥 FRONTEND: Socket connected:", s.id);
+        });
+
+        s.on("connect_error", (err) => {
+            console.error("❌ FRONTEND: Socket connect_error:", err?.message || err);
+        });
+
+        s.on("message:new", ({ chatId, message }) => {
+    const normalizedMsg = normalizeMessage(message);
+
+    setChats(prev =>
+        prev.map(chat =>
+            chat._id === chatId
+                ? {
+                    ...chat,
+                    messages: [...chat.messages, normalizedMsg],
+                    updatedAt: new Date()
+                }
+                : chat
+        )
+    );
+
+    // 🔥 CRITICAL FIX — also update activeChat synced with chats
+    setActiveChat(prev =>
+        prev && prev._id === chatId
+            ? {
+                ...prev,
+                messages: [...prev.messages, normalizedMsg],
+                updatedAt: new Date()
+            }
+            : prev
+    );
+});
+
+
+
+
+
+
+        return () => {
+            // graceful cleanup
+            try {
+                s.disconnect();
+            } catch (e) { }
+            socketRef.current = null;
+            setSocket(null);
+        };
+    }, []); // run once
+
+    const selectChat = (chat: Chat | null) => {
+        try {
+            // ignore null selects
+            if (!chat) return;
+
+            // if same chat, do nothing
+            if (activeChat?._id === chat._id) return;
+
+            // use the stable socketRef instead of socket state to avoid stale closures
+            const s = socketRef.current;
+
+            // leave previous room only when switching
+            if (s && activeChat?._id) {
+                console.log("🔥 FRONTEND: leaving room:", activeChat._id);
+                s.emit("leave", `chat:${activeChat._id}`);
+            }
+
+            // set UI immediately
+            setActiveChat(chat);
+
+            // join new room
+            if (s && chat._id) {
+                console.log("🔥 FRONTEND: joining room:", chat._id);
+                s.emit("join", `chat:${chat._id}`);
+            }
+        } catch (e) {
+            console.error("Failed to switch chat rooms via socket:", e);
+            setActiveChat(chat); // fallback
+        }
+    };
+
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleConnect = () => {
+            if (activeChat?._id) {
+                console.log("🔥 FRONTEND: reconnect -> rejoin", activeChat._id);
+                // use socketRef to be safe
+                socketRef.current?.emit("join", `chat:${activeChat._id}`);
+            }
+        };
+
+        socket.on("connect", handleConnect);
+
+        // NOTE: do NOT emit `leave` here. selectChat handles leaving explicitly.
+        return () => {
+            socket.off("connect", handleConnect);
+        };
+    }, [socket, activeChat]);
+
+
 
     const value: ChatContextType = {
         chats,
@@ -618,7 +738,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         loading,
         error,
         fetchChats,
-        setActiveChat,
+        setActiveChat: selectChat,
         addMessage,
         markMessagesRead,
         getUnreadMessages,

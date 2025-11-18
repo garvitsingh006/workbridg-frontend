@@ -1,0 +1,11 @@
+Client:
+1. on google login again, it says invalid creadentials
+2. preferred communication style - remove
+3. Add - budget
+4. Add - openings
+
+Freelancer:
+1. Don't show dashboard at front, show something job search type
+2. Show scheduled interview popup on somewhere onteh front page so that freelancer knows
+3. add resume as must
+4. 
