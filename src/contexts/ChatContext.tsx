@@ -554,46 +554,48 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     };
 
     const createAdminChat = async (): Promise<Chat> => {
-        try {
-            setError(null);
+    try {
+        setError(null);
 
-            // Check if admin chat already exists using the improved detection
-            const existingAdminChat = chats.find(chat =>
-                chat.participants.some(p => {
-                    const isAdmin = p.username?.toLowerCase() === 'admin' ||
-                        p.role?.toLowerCase() === 'admin' ||
-                        p._id === import.meta.env.VITE_ADMIN_ID;
-                    return isAdmin;
-                })
-            );
+        // First, ensure we have the latest chats
+        await fetchChats(true); // Force refresh from server
 
-            if (existingAdminChat) {
-                return existingAdminChat;
-            }
+        // Check again with the latest data
+        const existingAdminChat = chats.find(chat => 
+            chat.participants.some(p => {
+                const isAdmin = p.username?.toLowerCase() === 'admin' ||
+                    p.role?.toLowerCase() === 'admin' ||
+                    p._id === import.meta.env.VITE_ADMIN_ID;
+                return isAdmin;
+            })
+        );
 
-            // Get admin ID from environment
-            const adminId = import.meta.env.VITE_ADMIN_ID;
-            if (!adminId) {
-                throw new Error('VITE_ADMIN_ID not found in environment variables');
-            }
-
-            const response = await api.post("/chats/new", {
-                type: "individual",
-                otherUserId: adminId
-            });
-
-            const newAdminChat = response.data?.data || response.data;
-            const transformedAdminChat = normalizeChat(newAdminChat);
-
-            setChats(prev => [transformedAdminChat, ...prev]);
-            setAdminChatEnsured(true);
-            return transformedAdminChat;
-        } catch (err: any) {
-            setError(err.response?.data?.message || "Failed to create admin chat");
-            throw err;
+        if (existingAdminChat) {
+            return existingAdminChat;
         }
-    };
 
+        const adminId = import.meta.env.VITE_ADMIN_ID;
+        if (!adminId) {
+            throw new Error('VITE_ADMIN_ID not found in environment variables');
+        }
+
+        const response = await api.post("/chats/new", {
+            type: "individual",
+            otherUserId: adminId
+        });
+
+        const newAdminChat = response.data?.data || response.data;
+        const transformedAdminChat = normalizeChat(newAdminChat);
+
+        // Update the chats list with the new chat
+        setChats(prev => [transformedAdminChat, ...prev]);
+        setAdminChatEnsured(true);
+        return transformedAdminChat;
+    } catch (err: any) {
+        setError(err.response?.data?.message || "Failed to create admin chat");
+        throw err;
+    }
+};
     useEffect(() => {
         // Only fetch chats if we have a token
         const token = localStorage.getItem('token');

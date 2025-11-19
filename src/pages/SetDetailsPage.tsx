@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Country, State} from 'country-state-city';
 import { useNavigate } from "react-router-dom";
 import {
     MapPin,
@@ -13,11 +14,11 @@ import {
     Linkedin,
     Check,
     Building2,
-    DollarSign,
     Users,
     Globe,
     Sparkles,
     Target,
+    FileText,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api";
@@ -33,7 +34,8 @@ interface WorkExperience {
 }
 
 interface FreelancerFormData {
-    location: string;
+    country: string;
+    state: string;
     workField: string;
     workExperience: WorkExperience[];
     skills: string[];
@@ -42,18 +44,25 @@ interface FreelancerFormData {
     preferredRole: string;
     resume: string;
     bio: string;
+    pay_per_hour: number;
+    ratingDetails: {
+        technical: number;
+        communication: number;
+        professionalism: number;
+        speed: number;
+        pastWork: number;
+    };
 }
 
 interface ClientFormData {
     companyName: string;
     industry: string;
     companySize: string;
-    location: string;
+    country: string;
+    state: string;
     website: string;
     linkedIn: string;
     projectTypes: string[];
-    budgetRange: string;
-    preferredCommunication: string;
     companyDescription: string;
 }
 
@@ -85,55 +94,56 @@ export default function SetDetailsPage() {
     const authChecked = useRef(false);
 
     useEffect(() => {
-    if (authChecked.current) return;
+        if (authChecked.current) return;
 
-    let isMounted = true;
+        let isMounted = true;
 
-    console.log("[SetDetailsPage] Starting authentication check...");
+        console.log("[SetDetailsPage] Starting authentication check...");
 
-    const checkAuth = async () => {
-        try {
-            console.log("[SetDetailsPage] Checking login status...");
-            const loginDetails = await fetchLoginDetails();
+        const checkAuth = async () => {
+            try {
+                console.log("[SetDetailsPage] Checking login status...");
+                const loginDetails = await fetchLoginDetails();
 
-            if (!isMounted) return;
+                if (!isMounted) return;
 
-            if (!loginDetails) {
-                toast.error("Please log in to access this page");
-                navigate("/register", { replace: true });
-                return;
+                if (!loginDetails) {
+                    toast.error("Please log in to access this page");
+                    navigate("/register", { replace: true });
+                    return;
+                }
+
+                const user = await fetchUser();
+                if (!isMounted) return;
+
+                if (user?.userType) {
+                    navigate(`/dashboard/${user.userType}`, { replace: true });
+                    return;
+                }
+
+                setUserType("freelancer");
+                setCurrentStep(0);
+                setIsVisible(true);
+
+            } finally {
+                if (isMounted) {
+                    authChecked.current = true;
+                    // setIsLoading(false);
+                    setIsInitializing(false);
+                }
             }
+        };
 
-            const user = await fetchUser();
-            if (!isMounted) return;
+        checkAuth();
+        return () => { isMounted = false };
 
-            if (user?.userType) {
-                navigate(`/dashboard/${user.userType}`, { replace: true });
-                return;
-            }
-
-            setUserType("freelancer");
-            setCurrentStep(0);
-            setIsVisible(true);
-
-        } finally {
-            if (isMounted) {
-                authChecked.current = true;
-                // setIsLoading(false);
-                setIsInitializing(false);
-            }
-        }
-    };
-
-    checkAuth();
-    return () => {isMounted = false};
-
-}, []); // important!
+    }, []); // important!
 
 
     const [freelancerFormData, setFreelancerFormData] =
         useState<FreelancerFormData>({
-            location: "",
+            country: '',
+            state: '',
             workField: "",
             workExperience: [
                 { title: "", company: "", years: 0, description: "" },
@@ -144,23 +154,49 @@ export default function SetDetailsPage() {
             preferredRole: "",
             resume: "",
             bio: "",
+            pay_per_hour: 0,
+            ratingDetails: {
+                technical: 0,
+                communication: 0,
+                professionalism: 0,
+                speed: 0,
+                pastWork: 0
+            },
         });
 
     const [clientFormData, setClientFormData] = useState<ClientFormData>({
         companyName: "",
         industry: "",
         companySize: "",
-        location: "",
+        country: '',
+        state: '',
         website: "",
         linkedIn: "",
         projectTypes: [],
-        budgetRange: "",
-        preferredCommunication: "",
         companyDescription: "",
     });
 
     const [currentSkill, setCurrentSkill] = useState("");
     const [currentProjectType, setCurrentProjectType] = useState("");
+
+
+    const getCountries = () => {
+        return Country.getAllCountries().map(country => ({
+            code: country.isoCode,
+            name: country.name
+        }));
+    };
+
+    const getStates = (countryName: string) => {
+    // Find the country by name to get its code
+    const country = Country.getAllCountries().find(c => c.name === countryName);
+    if (!country) return [];
+    
+    return State.getStatesOfCountry(country.isoCode).map(state => ({
+        code: state.isoCode,
+        name: state.name
+    }));
+};
 
     const handleFreelancerInputChange = (
         field: keyof FreelancerFormData,
@@ -285,19 +321,23 @@ export default function SetDetailsPage() {
             switch (currentStep) {
                 case 1:
                     return (
-                        freelancerFormData.location.trim() &&
+                        freelancerFormData.country.trim() &&
+                        freelancerFormData.state.trim() &&
                         freelancerFormData.workField.trim()
                     );
                 case 2:
                     return (
                         freelancerFormData.workExperience.some(
                             (exp) => exp.title.trim() && exp.years > 0
-                        ) && freelancerFormData.skills.length > 0
+                        ) &&
+                        freelancerFormData.skills.length > 0 &&
+                        freelancerFormData.pay_per_hour > 0
                     );
                 case 3:
                     return (
                         freelancerFormData.preferredRole.trim() &&
-                        freelancerFormData.bio.trim()
+                        freelancerFormData.bio.trim() &&
+                        !!freelancerFormData.resume
                     );
                 default:
                     return false;
@@ -308,16 +348,15 @@ export default function SetDetailsPage() {
                     return (
                         clientFormData.companyName.trim() &&
                         clientFormData.industry.trim() &&
-                        clientFormData.location.trim()
+                        clientFormData.country.trim() &&
+                        clientFormData.state.trim()
                     );
                 case 2:
                     return (
-                        clientFormData.projectTypes.length > 0 &&
-                        clientFormData.budgetRange.trim()
+                        clientFormData.projectTypes.length > 0
                     );
                 case 3:
                     return (
-                        clientFormData.preferredCommunication.trim() &&
                         clientFormData.companyDescription.trim()
                     );
                 default:
@@ -355,7 +394,7 @@ export default function SetDetailsPage() {
 
         try {
             let finalData;
-            
+
             if (userType === "freelancer") {
                 // Upload resume if file is selected but not uploaded yet
                 if (resumeUpload.file && !resumeUpload.uploadedUrl) {
@@ -366,13 +405,25 @@ export default function SetDetailsPage() {
                         return;
                     }
                 }
-                
+
+                const location = `${freelancerFormData.country}, ${freelancerFormData.state}`;
+
                 finalData = {
                     ...freelancerFormData,
+                    location,
                     resume: resumeUpload.uploadedUrl || freelancerFormData.resume
                 };
+                delete (finalData as any).country;
+                delete (finalData as any).state;
             } else {
-                finalData = clientFormData;
+                const location = `${clientFormData.country}, ${clientFormData.state}`;
+                finalData = {
+                    ...clientFormData,
+                    location,
+                    // ... other fields
+                };
+                delete (finalData as any).country;
+                delete (finalData as any).state;
             }
 
             console.log("Submitting form data:", finalData);
@@ -421,23 +472,6 @@ export default function SetDetailsPage() {
             </div>
 
             <div className="space-y-8">
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                        Location *
-                    </label>
-                    <input
-                        type="text"
-                        value={freelancerFormData.location}
-                        onChange={(e) =>
-                            handleFreelancerInputChange(
-                                "location",
-                                e.target.value
-                            )
-                        }
-                        placeholder="e.g., New York, NY or Remote"
-                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
-                    />
-                </div>
 
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -469,6 +503,47 @@ export default function SetDetailsPage() {
                         <option value="other">Other</option>
                     </select>
                 </div>
+
+
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                            <select
+                                value={freelancerFormData.country}
+                                onChange={(e) => handleFreelancerInputChange("country", e.target.value)}
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">Select Country</option>
+                                {getCountries().map(country => (
+                                    <option key={country.code} value={country.name}>
+                                        {country.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">State/City</label>
+                            <select
+                                value={freelancerFormData.state}
+                                onChange={(e) => handleFreelancerInputChange("state", e.target.value)}
+                                disabled={!freelancerFormData.country}
+                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
+                            >
+                                <option value="">Select State</option>
+                                {freelancerFormData.country &&
+                                    getStates(freelancerFormData.country).map(state => (
+                                        <option key={state.code} value={state.name}>
+                                            {state.name}
+                                        </option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     );
@@ -516,16 +591,16 @@ export default function SetDetailsPage() {
                                     </span>
                                     {freelancerFormData.workExperience.length >
                                         1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                removeWorkExperience(index)
-                                            }
-                                            className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-all"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    )}
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeWorkExperience(index)
+                                                }
+                                                className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-full transition-all"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        )}
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -632,6 +707,33 @@ export default function SetDetailsPage() {
                             ))}
                         </div>
                     )}
+                </div>
+
+                {/* Pay Per Hour */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Hourly Rate (INR) *
+                    </label>
+                    <div className="relative">
+                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                        <input
+                            type="number"
+                            value={freelancerFormData.pay_per_hour || ''}
+                            onChange={(e) =>
+                                handleFreelancerInputChange(
+                                    'pay_per_hour',
+                                    Math.max(0, parseFloat(e.target.value) || 0)
+                                )
+                            }
+                            min="0"
+                            step="5"
+                            placeholder="e.g., 500, 1000, 1500"
+                            className="w-full pl-10 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
+                        />
+                    </div>
+                    <p className="mt-2 text-sm text-gray-500">
+                        This is the hourly rate you'll charge for your services
+                    </p>
                 </div>
             </div>
         </div>
@@ -749,7 +851,7 @@ export default function SetDetailsPage() {
                         acceptedTypes={['.pdf', '.doc', '.docx']}
                         maxSize={10}
                     />
-                    
+
                     {/* Upload Now Button - Optional for immediate upload */}
                     {resumeUpload.file && !resumeUpload.uploadedUrl && !resumeUpload.isUploading && (
                         <div className="mt-4">
@@ -853,22 +955,46 @@ export default function SetDetailsPage() {
                         <option value="1000+">1000+ employees</option>
                     </select>
                 </div>
+            </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                        Location *
-                    </label>
-                    <input
-                        type="text"
-                        value={clientFormData.location}
-                        onChange={(e) =>
-                            handleClientInputChange("location", e.target.value)
-                        }
-                        placeholder="e.g., New York, NY or Global"
-                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
-                    />
+            <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                        <select
+                            value={clientFormData.country}
+                            onChange={(e) => handleClientInputChange("country", e.target.value)}
+                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                            <option value="">Select Country</option>
+                            {getCountries().map(country => (
+                                <option key={country.code} value={country.name}>
+                                    {country.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">State/City</label>
+                        <select
+                            value={clientFormData.state}
+                            onChange={(e) => handleClientInputChange("state", e.target.value)}
+                            disabled={!clientFormData.country}
+                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
+                        >
+                            <option value="">Select State</option>
+                            {clientFormData.country &&
+                                getStates(clientFormData.country).map(state => (
+                                    <option key={state.code} value={state.name}>
+                                        {state.name}
+                                    </option>
+                                ))
+                            }
+                        </select>
+                    </div>
                 </div>
             </div>
+
         </div>
     );
 
@@ -876,18 +1002,17 @@ export default function SetDetailsPage() {
         <div className="space-y-8">
             <div className="text-center mb-12">
                 <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <DollarSign className="w-10 w-10 text-green-600" />
+                    <Briefcase className="w-10 w-10 text-green-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    Project Preferences
+                    Project Details
                 </h2>
                 <p className="text-gray-600 text-lg">
-                    What type of projects do you typically need help with?
+                    Tell us about the types of projects you typically work on
                 </p>
             </div>
 
             <div className="space-y-8">
-                {/* Project Types */}
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                     <label className="block text-sm font-semibold text-gray-700 mb-4">
                         Project Types *
@@ -896,9 +1021,7 @@ export default function SetDetailsPage() {
                         <input
                             type="text"
                             value={currentProjectType}
-                            onChange={(e) =>
-                                setCurrentProjectType(e.target.value)
-                            }
+                            onChange={(e) => setCurrentProjectType(e.target.value)}
                             onKeyPress={handleProjectTypeKeyPress}
                             placeholder="Add a project type and press Enter"
                             className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
@@ -913,7 +1036,7 @@ export default function SetDetailsPage() {
                     </div>
 
                     {clientFormData.projectTypes.length > 0 && (
-                        <div className="flex flex-wrap gap-3 mb-4">
+                        <div className="flex flex-wrap gap-3">
                             {clientFormData.projectTypes.map((type, index) => (
                                 <span
                                     key={index}
@@ -931,39 +1054,11 @@ export default function SetDetailsPage() {
                             ))}
                         </div>
                     )}
-                    <p className="text-xs text-gray-500">
-                        Examples: Web Development, Mobile Apps, UI/UX Design,
-                        Content Writing, Digital Marketing
-                    </p>
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
-                        Typical Budget Range *
-                    </label>
-                    <select
-                        value={clientFormData.budgetRange}
-                        onChange={(e) =>
-                            handleClientInputChange(
-                                "budgetRange",
-                                e.target.value
-                            )
-                        }
-                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
-                    >
-                        <option value="">Select budget range</option>
-                        <option value="under-1000">Under $1,000</option>
-                        <option value="1000-5000">$1,000 - $5,000</option>
-                        <option value="5000-10000">$5,000 - $10,000</option>
-                        <option value="10000-25000">$10,000 - $25,000</option>
-                        <option value="25000-50000">$25,000 - $50,000</option>
-                        <option value="50000+">$50,000+</option>
-                    </select>
-                </div>
-
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                        Website
+                        Company Website
                     </label>
                     <div className="relative">
                         <Globe className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -971,12 +1066,27 @@ export default function SetDetailsPage() {
                             type="url"
                             value={clientFormData.website}
                             onChange={(e) =>
-                                handleClientInputChange(
-                                    "website",
-                                    e.target.value
-                                )
+                                handleClientInputChange("website", e.target.value)
                             }
                             placeholder="https://yourcompany.com"
+                            className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
+                        />
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        LinkedIn Page
+                    </label>
+                    <div className="relative">
+                        <Linkedin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                            type="url"
+                            value={clientFormData.linkedIn}
+                            onChange={(e) =>
+                                handleClientInputChange("linkedIn", e.target.value)
+                            }
+                            placeholder="https://linkedin.com/company/yourcompany"
                             className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                         />
                     </div>
@@ -989,50 +1099,17 @@ export default function SetDetailsPage() {
         <div className="space-y-8">
             <div className="text-center mb-12">
                 <div className="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Users className="w-10 w-10 text-purple-600" />
+                    <FileText className="w-10 w-10 text-purple-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    Communication & Profile
+                    Company Profile
                 </h2>
                 <p className="text-gray-600 text-lg">
-                    How do you prefer to work with freelancers?
+                    Tell us more about your company
                 </p>
             </div>
 
             <div className="space-y-8">
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                        Preferred Communication Style *
-                    </label>
-                    <select
-                        value={clientFormData.preferredCommunication}
-                        onChange={(e) =>
-                            handleClientInputChange(
-                                "preferredCommunication",
-                                e.target.value
-                            )
-                        }
-                        className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
-                    >
-                        <option value="">
-                            Select communication preference
-                        </option>
-                        <option value="daily-updates">
-                            Daily updates and check-ins
-                        </option>
-                        <option value="weekly-updates">
-                            Weekly progress reports
-                        </option>
-                        <option value="milestone-based">
-                            Milestone-based communication
-                        </option>
-                        <option value="as-needed">As needed basis</option>
-                        <option value="scheduled-meetings">
-                            Regular scheduled meetings
-                        </option>
-                    </select>
-                </div>
-
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Company Description *
@@ -1046,33 +1123,12 @@ export default function SetDetailsPage() {
                             )
                         }
                         placeholder="Tell us about your company, what you do, and what kind of freelancers would be a good fit (max 500 characters)"
-                        rows={4}
+                        rows={6}
                         maxLength={500}
                         className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none hover:border-gray-300"
                     />
                     <div className="text-right text-sm text-gray-500 mt-2">
                         {clientFormData.companyDescription.length}/500
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                        LinkedIn Company Page
-                    </label>
-                    <div className="relative">
-                        <Linkedin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input
-                            type="url"
-                            value={clientFormData.linkedIn}
-                            onChange={(e) =>
-                                handleClientInputChange(
-                                    "linkedIn",
-                                    e.target.value
-                                )
-                            }
-                            placeholder="https://linkedin.com/company/yourcompany"
-                            className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
-                        />
                     </div>
                 </div>
             </div>
@@ -1097,19 +1153,16 @@ export default function SetDetailsPage() {
                 <button
                     type="button"
                     onClick={() => setUserType("freelancer")}
-                    className={`p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
-                        userType === "freelancer"
-                            ? "border-blue-600 bg-blue-50 shadow-lg"
-                            : "border-gray-200 bg-white hover:border-gray-300"
-                    }`}
+                    className={`p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${userType === "freelancer"
+                        ? "border-blue-600 bg-blue-50 shadow-lg"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                        }`}
                 >
                     <div className="flex flex-col items-center space-y-4">
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                            userType === "freelancer" ? "bg-blue-600" : "bg-gray-100"
-                        }`}>
-                            <Users className={`w-8 h-8 ${
-                                userType === "freelancer" ? "text-white" : "text-gray-600"
-                            }`} />
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${userType === "freelancer" ? "bg-blue-600" : "bg-gray-100"
+                            }`}>
+                            <Users className={`w-8 h-8 ${userType === "freelancer" ? "text-white" : "text-gray-600"
+                                }`} />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900">Freelancer</h3>
                         <p className="text-sm text-gray-600 text-center">
@@ -1126,19 +1179,16 @@ export default function SetDetailsPage() {
                 <button
                     type="button"
                     onClick={() => setUserType("client")}
-                    className={`p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
-                        userType === "client"
-                            ? "border-blue-600 bg-blue-50 shadow-lg"
-                            : "border-gray-200 bg-white hover:border-gray-300"
-                    }`}
+                    className={`p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${userType === "client"
+                        ? "border-blue-600 bg-blue-50 shadow-lg"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                        }`}
                 >
                     <div className="flex flex-col items-center space-y-4">
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                            userType === "client" ? "bg-blue-600" : "bg-gray-100"
-                        }`}>
-                            <Briefcase className={`w-8 h-8 ${
-                                userType === "client" ? "text-white" : "text-gray-600"
-                            }`} />
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center ${userType === "client" ? "bg-blue-600" : "bg-gray-100"
+                            }`}>
+                            <Briefcase className={`w-8 h-8 ${userType === "client" ? "text-white" : "text-gray-600"
+                                }`} />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900">Client</h3>
                         <p className="text-sm text-gray-600 text-center">
@@ -1238,11 +1288,10 @@ export default function SetDetailsPage() {
                         <button
                             onClick={handlePrevious}
                             disabled={currentStep === 0}
-                            className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all ${
-                                currentStep === 0
-                                    ? "text-gray-400 cursor-not-allowed"
-                                    : "text-gray-700 hover:bg-gray-100 hover:scale-105"
-                            }`}
+                            className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all ${currentStep === 0
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-gray-700 hover:bg-gray-100 hover:scale-105"
+                                }`}
                         >
                             <ChevronLeft className="w-5 h-5" />
                             <span>Previous</span>
@@ -1252,11 +1301,10 @@ export default function SetDetailsPage() {
                             <button
                                 onClick={handleNext}
                                 disabled={!canProceedToNext() || isSubmitting || isInitializing}
-                                className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${
-                                    canProceedToNext() && !isSubmitting && !isInitializing
-                                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 shadow-lg"
-                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                }`}
+                                className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${canProceedToNext() && !isSubmitting && !isInitializing
+                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 shadow-lg"
+                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    }`}
                             >
                                 {isSubmitting && currentStep === 0 ? (
                                     <>
@@ -1279,11 +1327,10 @@ export default function SetDetailsPage() {
                             <button
                                 onClick={handleSubmit}
                                 disabled={!canProceedToNext() || isSubmitting}
-                                className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${
-                                    canProceedToNext() && !isSubmitting
-                                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 hover:scale-105 shadow-lg"
-                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                }`}
+                                className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${canProceedToNext() && !isSubmitting
+                                    ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 hover:scale-105 shadow-lg"
+                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    }`}
                             >
                                 {isSubmitting ? (
                                     <>

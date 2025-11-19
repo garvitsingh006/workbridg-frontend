@@ -12,6 +12,7 @@ interface ChatSidebarProps {
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelectChat }) => {
     const { user } = useUser();
+    const [isCreatingAdminChat, setIsCreatingAdminChat] = useState(false);
     const { initiateChat, createAdminChat } = useChat();
     const [allUsers, setAllUsers] = useState<Array<{ _id: string; username: string; fullName?: string; role?: string }>>([]);
     const [tab, setTab] = useState<'chats' | 'users'>(() => (user?.userType === 'admin' ? 'users' : 'chats'));
@@ -160,15 +161,22 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                 <button
                                     type="button"
                                     onClick={async () => {
+                                        if (isCreatingAdminChat) return;
+                                        setIsCreatingAdminChat(true);
                                         try {
                                             const adminChat = await createAdminChat();
                                             onSelectChat(adminChat);
                                         } catch (error) {
                                             console.error('Failed to create admin chat:', error);
+                                        } finally {
+                                            setIsCreatingAdminChat(false);
                                         }
                                     }}
-                                    className="w-full text-left p-3 rounded-xl mb-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300"
+                                    disabled={isCreatingAdminChat}
+                                    className={`w-full text-left p-3 rounded-xl mb-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 ${isCreatingAdminChat ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
                                 >
+                                    {/* Keep the existing button content */}
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                                             <span className="text-xs font-bold text-white">👤</span>

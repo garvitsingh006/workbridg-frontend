@@ -26,22 +26,20 @@ export default function Projects() {
     const [applyOpen, setApplyOpen] = React.useState(false);
 
     const displayProjects = projects
-        .filter(
-            (project) => {
-                const matchesSearch =
-                    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    project.createdBy.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (project.status && project.status.toLowerCase().includes(searchTerm.toLowerCase()));
+        .filter((project) => {
+            const matchesSearch =
+                project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (project.createdBy?.fullName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                (project.status && project.status.toLowerCase().includes(searchTerm.toLowerCase()));
 
-                const matchesFilter = filterStatus === "all" || project.status === filterStatus;
+            const matchesFilter = filterStatus === "all" || project.status === filterStatus;
 
-                return matchesSearch && matchesFilter;
-            }
-        )
+            return matchesSearch && matchesFilter;
+        })
         .map((project) => ({
             id: project.id,
             name: project.title,
-            client: project.createdBy.fullName,
+            client: project.createdBy?.fullName || 'Unknown Client',
             category: "Development",
             image: "https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=200",
             status:
