@@ -35,10 +35,12 @@ interface InterviewContextType {
   // Interviewer
   fetchAssignedForInterviewer: () => Promise<Interview[]>;
   updateInterviewStatus: (id: string, status: InterviewStatus) => Promise<Interview>;
-  submitInterviewFeedback: (id: string, payload: { feedback?: string; rating?: number; status?: InterviewStatus }) => Promise<Interview>;
+  submitInterviewFeedback: (id: string, payload: { feedback?: string; rating?: number; ratingDetails?: any; status?: InterviewStatus }) => Promise<Interview>;
 
   // Freelancer
   fetchPendingForFreelancer: () => Promise<Interview[]>;
+  fetchAvailableSlots: (opts?: { days?: number; includeWeekend?: boolean }) => Promise<Array<{ dateTime: string; duration: number; available: boolean }>>;
+  createInterviewRequest: (payload: { dateTime: string; preferredRole?: string }) => Promise<Interview>;
 
   loading: boolean;
   error: string | null;
@@ -113,7 +115,7 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
-  const submitInterviewFeedback = async (id: string, payload: { feedback?: string; rating?: number; status?: InterviewStatus }) => {
+  const submitInterviewFeedback = async (id: string, payload: { feedback?: string; rating?: number; ratingDetails?: any; status?: InterviewStatus }) => {
     try {
       setLoading(true);
       setError(null);
@@ -141,6 +143,37 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
+  const fetchAvailableSlots = async (opts?: { days?: number; includeWeekend?: boolean }) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const params: any = {};
+      if (opts?.days) params.days = opts.days;
+      if (opts?.includeWeekend) params.includeWeekend = opts.includeWeekend;
+      const res = await api.get(`/interviews/freelancers/slots`, { params });
+      return (res.data.data || []) as Array<{ dateTime: string; duration: number; available: boolean }>;
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e.message || "Failed to fetch slots");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createInterviewRequest = async (payload: { dateTime: string; preferredRole?: string }) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await api.post(`/interviews/freelancers/request`, payload);
+      return res.data.data as Interview;
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e.message || "Failed to create interview request");
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value: InterviewContextType = useMemo(() => ({
     fetchFreelancersWithoutInterview,
     assignInterview,
@@ -148,6 +181,8 @@ export const InterviewProvider: React.FC<{ children: ReactNode }> = ({ children 
     updateInterviewStatus,
     submitInterviewFeedback,
     fetchPendingForFreelancer,
+    fetchAvailableSlots,
+    createInterviewRequest,
     loading,
     error,
     setError,

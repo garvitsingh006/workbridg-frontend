@@ -73,7 +73,7 @@ export default function PaymentsAdmin() {
   const calculateStats = () => {
     const totalAmount = payments.reduce((sum, payment) => sum + payment.totalAmount, 0);
     const totalPlatformFees = payments.reduce((sum, payment) => {
-      return sum + payment.platformFee.serviceCharge + payment.platformFee.commissionFee;
+      return sum + (payment.platformFee?.serviceCharge || 0) + (payment.platformFee?.commissionFee || 0);
     }, 0);
     const totalReleased = payments.reduce((sum, payment) => 
       sum + (payment.releaseStatus === 'released' ? payment.releaseAmount : 0), 0
@@ -86,10 +86,11 @@ export default function PaymentsAdmin() {
   };
 
   const filteredPayments = payments.filter(payment => {
-    const matchesSearch = 
-      payment.projectId.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.clientId.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.freelancerId.fullName.toLowerCase().includes(searchTerm.toLowerCase());
+    const projectTitle = String(payment.projectId?.title || '').toLowerCase();
+    const clientName = String(payment.clientId?.fullName || payment.clientId?.username || '').toLowerCase();
+    const freelancerName = String(payment.freelancerId?.fullName || payment.freelancerId?.username || '').toLowerCase();
+    const q = searchTerm.toLowerCase();
+    const matchesSearch = projectTitle.includes(q) || clientName.includes(q) || freelancerName.includes(q);
     
     const matchesStatus = statusFilter === 'all' || payment.overallStatus === statusFilter;
     
@@ -236,10 +237,10 @@ export default function PaymentsAdmin() {
                       <div className="text-sm text-gray-500">Created: {formatDate(payment.createdAt)}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-gray-900">{payment.clientId.fullName}</div>
+                          <div className="text-gray-900">{payment.clientId?.fullName || payment.clientId?.username || '—'}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-gray-900">{payment.freelancerId.fullName}</div>
+                          <div className="text-gray-900">{payment.freelancerId?.fullName || payment.freelancerId?.username || '—'}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-semibold">₹{payment.totalAmount.toLocaleString()}</div>

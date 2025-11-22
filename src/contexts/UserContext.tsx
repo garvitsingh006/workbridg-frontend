@@ -20,6 +20,7 @@ export interface FreelancerDetails {
     preferredRole?: string;
     resume?: string;
     bio?: string;
+    isInterviewed?: boolean;
 }
 
 export interface ClientDetails {
@@ -159,6 +160,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                         preferredRole: backendData.preferredRole || "", // CORRECTED
                         bio: backendData.bio || "", // CORRECTED
                         resume: backendData.resume || "", // CORRECTED
+                        isInterviewed: backendData.isInterviewed ?? false,
                     },
                 }),
 

@@ -41,7 +41,11 @@ export default function InterviewerAssigned() {
   }, []);
 
   const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ [id: string]: { rating: number; comments: string } }>({});
+  const [feedback, setFeedback] = useState<{ [id: string]: { 
+    ratingDetails: { technical: number; communication: number; professionalism: number; speed: number; pastWork: number };
+    rating: number; 
+    comments: string 
+  } }>({});
   const [confirm, setConfirm] = useState<{ id: string; action: 'completed' | 'cancelled' } | null>(null);
   const [confirmNeedsFeedback, setConfirmNeedsFeedback] = useState(false);
 
@@ -65,11 +69,20 @@ export default function InterviewerAssigned() {
       return;
     }
     try {
-      await submitFeedbackApi(id, { feedback: fb.comments, rating: fb.rating });
+      await submitFeedbackApi(id, { feedback: fb.comments, rating: fb.rating, ratingDetails: fb.ratingDetails });
       await fetchAssigned();
     } catch (e: any) {
       setError(e?.response?.data?.message || e.message || "Failed to submit feedback");
     }
+  };
+
+  const updateRatingDetail = (id: string, field: keyof typeof feedback[string]['ratingDetails'], value: number) => {
+    setFeedback(prev => {
+      const current = prev[id] || { ratingDetails: { technical: 0, communication: 0, professionalism: 0, speed: 0, pastWork: 0 }, rating: 0, comments: '' };
+      const newRatingDetails = { ...current.ratingDetails, [field]: value };
+      const avgRating = Math.round((newRatingDetails.technical + newRatingDetails.communication + newRatingDetails.professionalism + newRatingDetails.speed + newRatingDetails.pastWork) / 5);
+      return { ...prev, [id]: { ...current, ratingDetails: newRatingDetails, rating: avgRating } };
+    });
   };
 
   const now = useMemo(() => new Date(), []);
@@ -106,22 +119,54 @@ export default function InterviewerAssigned() {
 
               <div className="mt-4 border-t pt-3">
                 <div className="font-medium mb-2">Feedback</div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={1}
-                    max={5}
-                    placeholder="Rating (1-5)"
-                    className="border rounded-xl px-3 py-2 w-32"
-                    value={feedback[item._id]?.rating ?? ''}
-                    onChange={e => setFeedback(prev => ({ ...prev, [item._id]: { ...(prev[item._id] || { comments: '' }), rating: Number(e.target.value) } }))}
-                  />
-                  <input
-                    type="text"
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div>
+                    <label className="text-xs text-gray-600">Technical (1-5)</label>
+                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                      value={feedback[item._id]?.ratingDetails?.technical ?? ''}
+                      onChange={e => updateRatingDetail(item._id, 'technical', Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600">Communication (1-5)</label>
+                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                      value={feedback[item._id]?.ratingDetails?.communication ?? ''}
+                      onChange={e => updateRatingDetail(item._id, 'communication', Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600">Professionalism (1-5)</label>
+                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                      value={feedback[item._id]?.ratingDetails?.professionalism ?? ''}
+                      onChange={e => updateRatingDetail(item._id, 'professionalism', Number(e.target.value))} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600">Speed (1-5)</label>
+                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                      value={feedback[item._id]?.ratingDetails?.speed ?? ''}
+                      onChange={e => updateRatingDetail(item._id, 'speed', Number(e.target.value))} />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs text-gray-600">Past Work (1-5)</label>
+                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                      value={feedback[item._id]?.ratingDetails?.pastWork ?? ''}
+                      onChange={e => updateRatingDetail(item._id, 'pastWork', Number(e.target.value))} />
+                  </div>
+                </div>
+                <div className="mb-2">
+                  <label className="text-xs text-gray-600">Overall Rating: {feedback[item._id]?.rating || 0}/5</label>
+                </div>
+                <div>
+                  <textarea
                     placeholder="Comments"
-                    className="border rounded-xl px-3 py-2 flex-1"
+                    className="border rounded-xl px-3 py-2 w-full"
+                    rows={2}
                     value={feedback[item._id]?.comments ?? ''}
-                    onChange={e => setFeedback(prev => ({ ...prev, [item._id]: { ...(prev[item._id] || { rating: 0 }), comments: e.target.value } }))}
+                    onChange={e => setFeedback(prev => ({ 
+                      ...prev, 
+                      [item._id]: { 
+                        ...(prev[item._id] || { ratingDetails: { technical: 0, communication: 0, professionalism: 0, speed: 0, pastWork: 0 }, rating: 0 }), 
+                        comments: e.target.value 
+                      } 
+                    }))}
                   />
                 </div>
                 {(item.status === 'scheduled' || item.status === 'pending') && (
@@ -164,7 +209,8 @@ export default function InterviewerAssigned() {
                       const action = confirm.action;
                       if (action === 'completed') {
                         const fb = feedback[id];
-                        if (!fb || !fb.comments || !fb.rating || fb.rating < 1 || fb.rating > 5) {
+                        if (!fb || !fb.comments || !fb.rating || fb.rating < 1 || fb.rating > 5 || 
+                            !fb.ratingDetails || Object.values(fb.ratingDetails).some(r => r < 1 || r > 5)) {
                           setConfirmNeedsFeedback(true);
                           return;
                         }

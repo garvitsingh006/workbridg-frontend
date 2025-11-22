@@ -36,6 +36,8 @@ export default function AdminInterviewManagement() {
   const { fetchFreelancersWithoutInterview, assignInterview, error, setError } = useInterviews();
   const [loading, setLoading] = useState(false);
   const [freelancers, setFreelancers] = useState<FreelancerLite[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [view, setView] = useState<'freelancers' | 'requests'>('freelancers');
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "scheduled" | "completed" | "cancelled">("all");
   const [interviewers, setInterviewers] = useState<InterviewerLite[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -71,6 +73,16 @@ export default function AdminInterviewManagement() {
       ]);
       setFreelancers(freelancersList || []);
       setInterviewers(interviewersList || []);
+      // also fetch requests for admin queue (non-blocking)
+      try {
+        const reqs = await api.get('/interviews/admin/interviews/requests').then((r: any) => r.data?.data || []);
+        const visible = (reqs || []).filter((r: any) => r.status !== "scheduled");
+        setRequests(visible);
+      } catch (e: any) {
+        // surface request-loading errors to admin UI
+        setError(e?.response?.data?.message || e.message || 'Failed to load interview requests');
+        setRequests([]);
+      }
     } catch (e: any) {
       setError(e?.response?.data?.message || e.message || "Failed to load data");
     } finally {
@@ -102,7 +114,11 @@ export default function AdminInterviewManagement() {
         duration: form.durationMinutes,
         notes: form.notes,
       };
-      await assignInterview(payload);
+      const interview = await assignInterview(payload);
+      // notify other parts of the app that an interview was assigned
+      try { window.dispatchEvent(new CustomEvent('interviewAssigned', { detail: { interviewId: interview?._id, freelancerId: interview?.freelancer } })); } catch (e) {}
+      // remove the assigned freelancer's request from requests list
+      setRequests(prev => prev.filter((r: any) => r.freelancer?._id !== form.freelancerId));
       setShowModal(false);
       setForm(prev => ({ ...prev, interviewerId: "", datetimeLocal: "", link: "", notes: "" }));
       await fetchData();
@@ -132,83 +148,129 @@ export default function AdminInterviewManagement() {
       )}
 
       <div className="flex items-center gap-3 mb-3">
-        <label className="text-sm text-gray-600">Filter by status</label>
-        <select
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value as any)}
-          className="border rounded-xl px-3 py-2"
-        >
-          <option value="all">All</option>
-          <option value="pending">Pending</option>
-          <option value="scheduled">Scheduled</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setView('freelancers')} className={`px-3 py-2 rounded-xl ${view === 'freelancers' ? 'bg-black text-white' : 'border'}`}>Freelancers</button>
+          <button onClick={() => setView('requests')} className={`px-3 py-2 rounded-xl ${view === 'requests' ? 'bg-black text-white' : 'border'}`}>Requests Queue</button>
+        </div>
+        <div className="ml-4">
+          <label className="text-sm text-gray-600">Filter by status</label>
+          <select
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value as any)}
+            className="border rounded-xl px-3 py-2 ml-2"
+          >
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-200">
-        <table className="min-w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="text-left p-3">Full Name</th>
-              <th className="text-left p-3">Email</th>
-              <th className="text-left p-3">Skills</th>
-              <th className="text-left p-3">Experience</th>
-              <th className="text-left p-3">Registration</th>
-              <th className="text-left p-3">Status</th>
-              <th className="text-left p-3">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {freelancers.length === 0 && (
+      {view === 'freelancers' && (
+        <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-200">
+          <table className="min-w-full">
+            <thead className="bg-gray-50">
               <tr>
-                <td className="p-4 text-gray-500" colSpan={7}>No pending freelancers.</td>
+                <th className="text-left p-3">Full Name</th>
+                <th className="text-left p-3">Email</th>
+                <th className="text-left p-3">Skills</th>
+                <th className="text-left p-3">Experience</th>
+                <th className="text-left p-3">Registration</th>
+                <th className="text-left p-3">Status</th>
+                <th className="text-left p-3">Action</th>
               </tr>
-            )}
-            {freelancers
-              .filter((f: any) => {
-                if (statusFilter === 'all') return true;
-                const s = f.latestInterview?.status || 'pending';
-                return s === statusFilter;
-              })
-              .map((f: any) => (
-              <tr key={f._id} className="border-t border-gray-100">
-                <td className="p-3 font-medium">{f.fullName}</td>
-                <td className="p-3">{f.email}</td>
-                <td className="p-3">{(f.skills || []).join(", ")}</td>
-                <td className="p-3">{f.experience || "-"}</td>
-                <td className="p-3">{new Date(f.createdAt).toLocaleDateString()}</td>
-                <td className="p-3">
-                  {f.latestInterview?.status ? (
-                    <span className="px-2 py-1 rounded-full text-xs border">
-                      {f.latestInterview.status}
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700">pending</span>
-                  )}
-                </td>
-                <td className="p-3">
-                  {f.latestInterview?.status === 'cancelled' && (
-                    <button onClick={() => openAssign(f)} className="px-3 py-1 rounded-lg bg-indigo-600 text-white">Reassign</button>
-                  )}
-                  {!f.latestInterview?.status && (
-                    <button onClick={() => openAssign(f)} className="px-3 py-1 rounded-lg bg-black text-white">Assign</button>
-                  )}
-                  {f.latestInterview?.status === 'pending' && (
-                    <button onClick={() => openAssign(f)} className="px-3 py-1 rounded-lg bg-black text-white">Assign</button>
-                  )}
-                  {f.latestInterview?.status === 'scheduled' && (
-                    <span className="text-xs text-gray-500">Already scheduled</span>
-                  )}
-                  {f.latestInterview?.status === 'completed' && (
-                    <span className="text-xs text-gray-500">Completed</span>
-                  )}
-                </td>
+            </thead>
+            <tbody>
+              {freelancers.length === 0 && (
+                <tr>
+                  <td className="p-4 text-gray-500" colSpan={7}>No pending freelancers.</td>
+                </tr>
+              )}
+              {freelancers
+                .filter((f: any) => {
+                  if (statusFilter === 'all') return true;
+                  const s = f.latestInterview?.status || 'pending';
+                  return s === statusFilter;
+                })
+                .map((f: any) => (
+                <tr key={f._id} className="border-t border-gray-100">
+                  <td className="p-3 font-medium">{f.fullName}</td>
+                  <td className="p-3">{f.email}</td>
+                  <td className="p-3">{(f.skills || []).join(", ")}</td>
+                  <td className="p-3">{f.experience || "-"}</td>
+                  <td className="p-3">{new Date(f.createdAt).toLocaleDateString()}</td>
+                  <td className="p-3">
+                    {f.latestInterview?.status ? (
+                      <span className="px-2 py-1 rounded-full text-xs border">
+                        {f.latestInterview.status}
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700">pending</span>
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {f.latestInterview?.status === 'cancelled' && (
+                      <button onClick={() => openAssign(f)} className="px-3 py-1 rounded-lg bg-indigo-600 text-white">Reassign</button>
+                    )}
+                    {!f.latestInterview?.status && (
+                      <button onClick={() => openAssign(f)} className="px-3 py-1 rounded-lg bg-black text-white">Assign</button>
+                    )}
+                    {f.latestInterview?.status === 'pending' && (
+                      <button onClick={() => openAssign(f)} className="px-3 py-1 rounded-lg bg-black text-white">Assign</button>
+                    )}
+                    {f.latestInterview?.status === 'scheduled' && (
+                      <span className="text-xs text-gray-500">Already scheduled</span>
+                    )}
+                    {f.latestInterview?.status === 'completed' && (
+                      <span className="text-xs text-gray-500">Completed</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {view === 'requests' && (
+        <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-200">
+          <table className="min-w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left p-3">Freelancer</th>
+                <th className="text-left p-3">Preferred Role</th>
+                <th className="text-left p-3">Requested Slot</th>
+                <th className="text-left p-3">Conflict</th>
+                <th className="text-left p-3">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {requests.length === 0 && (
+                <tr>
+                  <td className="p-4 text-gray-500" colSpan={5}>No interview requests in the queue.</td>
+                </tr>
+              )}
+              {requests.map((r: any) => (
+                <tr key={r._id} className="border-t border-gray-100">
+                  <td className="p-3 font-medium">{r.freelancer?.fullName || r.freelancer?.username || 'Unknown'}</td>
+                  <td className="p-3">{r.preferredRole || '-'}</td>
+                  <td className="p-3">{new Date(r.dateTime).toLocaleString()}</td>
+                  <td className="p-3">{r.conflict ? <span className="text-sm text-red-600">Conflict</span> : <span className="text-sm text-green-600">OK</span>}</td>
+                  <td className="p-3">
+                    <button onClick={() => { 
+                      const istTime = new Date(new Date(r.dateTime).getTime() + (5.5 * 60 * 60 * 1000));
+                      openAssign({ _id: r.freelancer?._id, fullName: r.freelancer?.fullName, email: '' } as any); 
+                      setForm(prev => ({ ...prev, datetimeLocal: istTime.toISOString().slice(0,16), freelancerId: r.freelancer?._id })); 
+                    }} className="px-3 py-1 rounded-lg bg-black text-white">Assign</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       
 
       {showModal && (
