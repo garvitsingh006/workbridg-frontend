@@ -19,7 +19,7 @@ export default function PublicProfilePage() {
         const res = await axios.get(`${import.meta.env.VITE_SERVER}/profiles/${username}`, { withCredentials: true });
         setData(res.data?.data || res.data);
       } catch (e: any) {
-        setError(e?.message || 'Failed to load profile');
+        setError(e?.response?.data?.message || e?.message || 'Failed to load profile');
       } finally {
         setLoading(false);
       }

@@ -8,6 +8,7 @@ import AnalyticsClient from "../components/dashboard/features/AnalyticsClient";
 import PaymentsClient from "../components/dashboard/features/PaymentsClient";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
 import ClientApplications from "../components/dashboard/features/ClientApplications";
+import BrowseFreelancers from "../components/dashboard/features/BrowseFreelancers";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
@@ -33,6 +34,7 @@ export default function DashboardClient() {
 
   const getFeatureTitle = () => {
     const titles: { [key: string]: string } = {
+      'browse-freelancers': 'Browse Freelancers',
       home: 'Dashboard',
       projects: 'My Projects',
       messages: 'Messages',
@@ -47,6 +49,8 @@ export default function DashboardClient() {
 
   const renderFeature = () => {
     switch (activeFeature) {
+      case "browse-freelancers":
+        return <BrowseFreelancers />;
       case "home":
         return <DashboardHomeClient onViewAllProjects={() => setActiveFeature("projects")} />;
       case "projects":

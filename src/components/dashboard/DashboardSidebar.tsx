@@ -1,4 +1,4 @@
-import { Hop as Home, MessageCircle, FolderOpen, User, ChartBar as BarChart3, DollarSign, Settings, HelpCircle } from "lucide-react";
+import { Hop as Home, MessageCircle, FolderOpen, User, Users, ChartBar as BarChart3, DollarSign, Settings, HelpCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChat } from "../../contexts/ChatContext";
 import { useUser } from "../../contexts/UserContext";
@@ -54,6 +54,7 @@ export default function DashboardSidebar({
             { id: "assigned-interviews", label: "Assigned Interviews", icon: Settings },
         ] : []),
         ...(isClient ? [
+            { id: "browse-freelancers", label: "Browse Freelancers", icon: Users },
             { id: "applications", label: "Applications", icon: FolderOpen },
             { id: "payments", label: "Payments", icon: DollarSign }
         ] : []),
