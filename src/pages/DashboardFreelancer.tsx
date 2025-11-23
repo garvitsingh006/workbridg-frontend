@@ -21,7 +21,7 @@ export default function DashboardFreelancer() {
   const { fetchPendingForFreelancer } = useInterviews();
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [hasAssignedInterview, setHasAssignedInterview] = useState(false);
-  const [assignedInterview, setAssignedInterview] = useState<any | null>(null);
+  const [, setAssignedInterview] = useState<any | null>(null);
 
   useEffect(() => {
     const func = async () => {

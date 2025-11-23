@@ -87,8 +87,8 @@ export default function PaymentsAdmin() {
 
   const filteredPayments = payments.filter(payment => {
     const projectTitle = String(payment.projectId?.title || '').toLowerCase();
-    const clientName = String(payment.clientId?.fullName || payment.clientId?.username || '').toLowerCase();
-    const freelancerName = String(payment.freelancerId?.fullName || payment.freelancerId?.username || '').toLowerCase();
+    const clientName = String(payment.clientId?.fullName || '').toLowerCase();
+    const freelancerName = String(payment.freelancerId?.fullName || '').toLowerCase();
     const q = searchTerm.toLowerCase();
     const matchesSearch = projectTitle.includes(q) || clientName.includes(q) || freelancerName.includes(q);
     
@@ -237,10 +237,10 @@ export default function PaymentsAdmin() {
                       <div className="text-sm text-gray-500">Created: {formatDate(payment.createdAt)}</div>
                     </td>
                     <td className="px-4 py-3">
-                          <div className="text-gray-900">{payment.clientId?.fullName || payment.clientId?.username || '—'}</div>
+                          <div className="text-gray-900">{payment.clientId?.fullName || '—'}</div>
                     </td>
                     <td className="px-4 py-3">
-                          <div className="text-gray-900">{payment.freelancerId?.fullName || payment.freelancerId?.username || '—'}</div>
+                          <div className="text-gray-900">{payment.freelancerId?.fullName || '—'}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-semibold">₹{payment.totalAmount.toLocaleString()}</div>

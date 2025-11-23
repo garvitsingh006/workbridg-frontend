@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../../api";
-import { Star, MapPin, Users, CheckCircle } from "lucide-react";
+import { Star, MapPin, CheckCircle } from "lucide-react";
 
 function truncate(str: string, n: number) {
   if (!str) return "";
