@@ -45,8 +45,8 @@ export default function DashboardHome({}: DashboardHomeProps) {
   }, 0);
   
   const prevMonthCompleted = projects.filter(p => {
-    if (p.status === 'completed' && p.completedAt) {
-      const completedDate = new Date(p.completedAt);
+    if (p.status === 'completed' && (p as any).completedAt) {
+      const completedDate = new Date((p as any).completedAt);
       return completedDate.getMonth() === prevMonth && completedDate.getFullYear() === prevYear;
     }
     return false;

@@ -42,8 +42,8 @@ export default function AnalyticsFreelancer() {
   }, 0);
   
   const prevMonthCompleted = myProjects.filter(p => {
-    if (p.status === 'completed' && p.completedAt) {
-      const completedDate = new Date(p.completedAt);
+    if (p.status === 'completed' && (p as any).completedAt) {
+      const completedDate = new Date((p as any).completedAt);
       return completedDate.getMonth() === prevMonth && completedDate.getFullYear() === prevYear;
     }
     return false;
@@ -66,7 +66,7 @@ export default function AnalyticsFreelancer() {
   const recentPaid = myProjects
     .filter((p: any) => (p.payout || 0) > 0)
     .slice(0, 5)
-    .map((p: any) => ({ id: p.id, title: p.title, amount: p.payout, date: p.completedAt || p.updatedAt }));
+    .map((p: any) => ({ id: p.id, title: p.title, amount: p.payout, date: (p as any).completedAt || p.updatedAt }));
 
   return (
     <div className="p-6 space-y-6">
