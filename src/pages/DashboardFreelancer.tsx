@@ -57,9 +57,20 @@ export default function DashboardFreelancer() {
       // refresh and show assigned banner
       check();
     };
+    const completedHandler = async () => {
+      // refresh when interview is completed
+      await fetchUser(); // refresh user data to get updated isInterviewed flag
+      check();
+    };
     window.addEventListener('interviewRequestCreated', reqHandler as EventListener);
     window.addEventListener('interviewAssigned', assignedHandler as EventListener);
-    return () => { mounted = false; window.removeEventListener('interviewRequestCreated', reqHandler as EventListener); window.removeEventListener('interviewAssigned', assignedHandler as EventListener); };
+    window.addEventListener('interviewCompleted', completedHandler as EventListener);
+    return () => { 
+      mounted = false; 
+      window.removeEventListener('interviewRequestCreated', reqHandler as EventListener); 
+      window.removeEventListener('interviewAssigned', assignedHandler as EventListener);
+      window.removeEventListener('interviewCompleted', completedHandler as EventListener);
+    };
   }, []);
 
   const [activeFeature, setActiveFeature] = useState("home");
@@ -129,7 +140,7 @@ export default function DashboardFreelancer() {
             </div>
           </div>
           {/* Interview status banner for freelancers */}
-          {user && user.userType === "freelancer" && user.freelancerDetails && (
+          {user && user.userType === "freelancer" && user.freelancerDetails && user.freelancerDetails.isInterviewed === false && (
             <>
               {hasAssignedInterview ? (
                 <div className="bg-green-50 border-l-4 border-green-500 text-green-800 px-6 py-3">
@@ -144,25 +155,23 @@ export default function DashboardFreelancer() {
                   </div>
                 </div>
               ) : (
-                user.freelancerDetails.isInterviewed === false && (
-                  <div className={`${hasPendingRequest ? 'bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800' : 'bg-red-50 border-l-4 border-red-500 text-red-800'} px-6 py-3`}>
-                    <div className="max-w-7xl mx-auto flex items-center justify-between">
-                      <div>
-                        <strong className="block">{hasPendingRequest ? "Interview request pending" : "Your profile hasn't been interviewed yet."}</strong>
-                        <div className="text-sm">{hasPendingRequest ? "We've received your request and the team will review it. You'll be notified when it's scheduled." : "You won't appear to clients until you complete an interview. Please schedule or complete your interview to get listed."}</div>
-                      </div>
-                      <div>
-                        <button onClick={() => {
-                          // switch to freelancer interviews view
-                          setActiveFeature('freelancer-interviews');
-                          if (!hasPendingRequest) {
-                            try { window.dispatchEvent(new CustomEvent('openInterviewRequest')); } catch (e) {}
-                          }
-                        }} className={`${hasPendingRequest ? 'px-3 py-2 bg-yellow-600 text-white rounded-md' : 'px-3 py-2 bg-red-600 text-white rounded-md'}`}>{hasPendingRequest ? 'View request' : 'Schedule interview'}</button>
-                      </div>
+                <div className={`${hasPendingRequest ? 'bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800' : 'bg-red-50 border-l-4 border-red-500 text-red-800'} px-6 py-3`}>
+                  <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <div>
+                      <strong className="block">{hasPendingRequest ? "Interview request pending" : "Your profile hasn't been interviewed yet."}</strong>
+                      <div className="text-sm">{hasPendingRequest ? "We've received your request and the team will review it. You'll be notified when it's scheduled." : "You won't appear to clients until you complete an interview. Please schedule or complete your interview to get listed."}</div>
+                    </div>
+                    <div>
+                      <button onClick={() => {
+                        // switch to freelancer interviews view
+                        setActiveFeature('freelancer-interviews');
+                        if (!hasPendingRequest) {
+                          try { window.dispatchEvent(new CustomEvent('openInterviewRequest')); } catch (e) {}
+                        }
+                      }} className={`${hasPendingRequest ? 'px-3 py-2 bg-yellow-600 text-white rounded-md' : 'px-3 py-2 bg-red-600 text-white rounded-md'}`}>{hasPendingRequest ? 'View request' : 'Schedule interview'}</button>
                     </div>
                   </div>
-                )
+                </div>
               )}
             </>
           )}

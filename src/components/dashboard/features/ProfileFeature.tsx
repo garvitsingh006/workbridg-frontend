@@ -310,6 +310,24 @@ export default function ProfileFeature() {
                             <div className="text-xs text-gray-600">Member since {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}</div>
                             <div className="text-xs text-gray-600">Role: {user.userType}</div>
                         </div>
+                        
+                        {isFreelancer && (
+                            <div className="p-3 rounded-lg border border-gray-200">
+                                <h3 className="font-medium text-gray-900 mb-2 text-sm">Performance</h3>
+                                {user.freelancerDetails?.isInterviewed ? (
+                                    <>
+                                        <div className="text-xs text-gray-600 mb-1">
+                                            Rating: {user.freelancerDetails?.rating ? `${user.freelancerDetails.rating.toFixed(1)}/5.0` : 'No rating yet'}
+                                        </div>
+                                        <div className="text-xs text-gray-600">
+                                            Projects Completed: {user.freelancerDetails?.completedProjects || 0}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="text-xs text-red-600 font-medium">Not Interviewed</div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

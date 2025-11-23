@@ -58,6 +58,38 @@ export default function EarningsFreelancer() {
   };
 
   const { totalEarnings, releasedEarnings, pendingEarnings } = calculateEarnings();
+  
+  // Calculate previous month data for percentage changes
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  
+  const prevMonthTotalEarnings = payments.reduce((sum, payment) => {
+    const freelancerAmount = payment.totalAmount - payment.platformFee.commissionFee;
+    const paymentDate = new Date(payment.createdAt);
+    if (paymentDate.getMonth() === prevMonth && paymentDate.getFullYear() === prevYear) {
+      return sum + freelancerAmount;
+    }
+    return sum;
+  }, 0);
+  
+  const prevMonthReleasedEarnings = payments.reduce((sum, payment) => {
+    if (payment.releaseStatus === 'released') {
+      const releaseDate = new Date(payment.updatedAt);
+      if (releaseDate.getMonth() === prevMonth && releaseDate.getFullYear() === prevYear) {
+        return sum + payment.releaseAmount;
+      }
+    }
+    return sum;
+  }, 0);
+  
+  const calculatePercentage = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? '+100%' : '0%';
+    const change = ((current - previous) / previous) * 100;
+    return change >= 0 ? `+${Math.round(change)}%` : `${Math.round(change)}%`;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -128,7 +160,7 @@ export default function EarningsFreelancer() {
             </div>
             <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
               <TrendingUp className="w-3 h-3 text-green-600" />
-              <span className="text-xs font-semibold text-green-600">+12%</span>
+              <span className="text-xs font-semibold text-green-600">{calculatePercentage(totalEarnings, prevMonthTotalEarnings)}</span>
             </div>
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-1">₹{totalEarnings.toLocaleString()}</h3>
@@ -143,7 +175,7 @@ export default function EarningsFreelancer() {
             </div>
             <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
               <TrendingUp className="w-3 h-3 text-green-600" />
-              <span className="text-xs font-semibold text-green-600">+8%</span>
+              <span className="text-xs font-semibold text-green-600">{calculatePercentage(releasedEarnings, prevMonthReleasedEarnings)}</span>
             </div>
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-1">₹{releasedEarnings.toLocaleString()}</h3>

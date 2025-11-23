@@ -80,7 +80,7 @@ export default function InterviewerAssigned() {
     setFeedback(prev => {
       const current = prev[id] || { ratingDetails: { technical: 0, communication: 0, professionalism: 0, speed: 0, pastWork: 0 }, rating: 0, comments: '' };
       const newRatingDetails = { ...current.ratingDetails, [field]: value };
-      const avgRating = Math.round((newRatingDetails.technical + newRatingDetails.communication + newRatingDetails.professionalism + newRatingDetails.speed + newRatingDetails.pastWork) / 5);
+      const avgRating = parseFloat(((newRatingDetails.technical + newRatingDetails.communication + newRatingDetails.professionalism + newRatingDetails.speed + newRatingDetails.pastWork) / 5).toFixed(1));
       return { ...prev, [id]: { ...current, ratingDetails: newRatingDetails, rating: avgRating } };
     });
   };
@@ -122,33 +122,33 @@ export default function InterviewerAssigned() {
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   <div>
                     <label className="text-xs text-gray-600">Technical (1-5)</label>
-                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                    <input type="number" min={1} max={5} step={0.1} className="border rounded-xl px-2 py-1 w-full" 
                       value={feedback[item._id]?.ratingDetails?.technical ?? ''}
-                      onChange={e => updateRatingDetail(item._id, 'technical', Number(e.target.value))} />
+                      onChange={e => updateRatingDetail(item._id, 'technical', parseFloat(e.target.value))} />
                   </div>
                   <div>
                     <label className="text-xs text-gray-600">Communication (1-5)</label>
-                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                    <input type="number" min={1} max={5} step={0.1} className="border rounded-xl px-2 py-1 w-full" 
                       value={feedback[item._id]?.ratingDetails?.communication ?? ''}
-                      onChange={e => updateRatingDetail(item._id, 'communication', Number(e.target.value))} />
+                      onChange={e => updateRatingDetail(item._id, 'communication', parseFloat(e.target.value))} />
                   </div>
                   <div>
                     <label className="text-xs text-gray-600">Professionalism (1-5)</label>
-                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                    <input type="number" min={1} max={5} step={0.1} className="border rounded-xl px-2 py-1 w-full" 
                       value={feedback[item._id]?.ratingDetails?.professionalism ?? ''}
-                      onChange={e => updateRatingDetail(item._id, 'professionalism', Number(e.target.value))} />
+                      onChange={e => updateRatingDetail(item._id, 'professionalism', parseFloat(e.target.value))} />
                   </div>
                   <div>
                     <label className="text-xs text-gray-600">Speed (1-5)</label>
-                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                    <input type="number" min={1} max={5} step={0.1} className="border rounded-xl px-2 py-1 w-full" 
                       value={feedback[item._id]?.ratingDetails?.speed ?? ''}
-                      onChange={e => updateRatingDetail(item._id, 'speed', Number(e.target.value))} />
+                      onChange={e => updateRatingDetail(item._id, 'speed', parseFloat(e.target.value))} />
                   </div>
                   <div className="col-span-2">
                     <label className="text-xs text-gray-600">Past Work (1-5)</label>
-                    <input type="number" min={1} max={5} className="border rounded-xl px-2 py-1 w-full" 
+                    <input type="number" min={1} max={5} step={0.1} className="border rounded-xl px-2 py-1 w-full" 
                       value={feedback[item._id]?.ratingDetails?.pastWork ?? ''}
-                      onChange={e => updateRatingDetail(item._id, 'pastWork', Number(e.target.value))} />
+                      onChange={e => updateRatingDetail(item._id, 'pastWork', parseFloat(e.target.value))} />
                   </div>
                 </div>
                 <div className="mb-2">
@@ -216,6 +216,7 @@ export default function InterviewerAssigned() {
                         }
                         await submitFeedback(id);
                         await updateStatus(id, 'completed');
+                        try { window.dispatchEvent(new CustomEvent('interviewCompleted')); } catch (e) {}
                       } else {
                         await updateStatus(id, 'cancelled');
                       }

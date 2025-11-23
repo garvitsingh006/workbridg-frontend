@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useInterviews } from "../../../contexts/InterviewContext";
+import { useUser } from "../../../contexts/UserContext";
 import {
     Video,
     Calendar,
@@ -9,6 +10,7 @@ import {
     FileText,
     RefreshCw,
     AlertCircle,
+    CheckCircle,
 } from "lucide-react";
 
 interface InterviewItem {
@@ -35,8 +37,11 @@ export default function FreelancerInterviews() {
     const [error, setError] = useState<string | null>(null);
     const [items, setItems] = useState<InterviewItem[]>([]);
 
+    const { user } = useUser();
     const { fetchPendingForFreelancer } = useInterviews();
     const { fetchAvailableSlots, createInterviewRequest } = useInterviews();
+
+    const isInterviewed = user?.freelancerDetails?.isInterviewed === true;
 
     const fetchUpcoming = async () => {
         try {
@@ -183,6 +188,26 @@ export default function FreelancerInterviews() {
         }
     };
 
+    // Show success message for interviewed freelancers
+    if (isInterviewed) {
+        return (
+            <div className="h-full flex items-center justify-center bg-white">
+                <div className="text-center max-w-md mx-auto px-6">
+                    <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle className="w-12 h-12 text-white" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-green-800 mb-4">
+                        Interview Successful!
+                    </h2>
+                    <p className="text-green-700 text-lg">
+                        Congratulations! You have successfully completed your interview. 
+                        You can now apply to projects and be hired by clients.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
@@ -223,7 +248,7 @@ export default function FreelancerInterviews() {
                     return (
                         <div
                             key={item._id}
-                            className={`bg-white rounded-2xl border p-6 hover:shadow-md transition-all ${
+                            className={`${item.status === "completed" ? "bg-white" : "bg-white"} rounded-2xl border p-6 hover:shadow-md transition-all ${
                                 isSoon
                                     ? "ring-2 ring-purple-500 border-purple-200"
                                     : "border-gray-100"

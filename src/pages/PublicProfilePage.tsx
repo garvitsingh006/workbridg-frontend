@@ -315,19 +315,69 @@ export default function PublicProfilePage() {
             )}
 
             {/* Stats */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Profile Stats</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="text-center">
-                  <div className="text-xl font-bold text-blue-600">4.9</div>
-                  <div className="text-xs text-gray-600">Rating</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xl font-bold text-green-600">98%</div>
-                  <div className="text-xs text-gray-600">Success Rate</div>
-                </div>
+            {isFreelancer && (
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Profile Stats</h3>
+                {data.isInterviewed ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-center">
+                        <div className="text-xl font-bold text-blue-600">
+                          {data.rating ? data.rating.toFixed(1) : 'No rating'}
+                        </div>
+                        <div className="text-xs text-gray-600">Overall Rating</div>
+                        {data.rating && <div className="text-xs text-gray-500">out of 5</div>}
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xl font-bold text-green-600">{data.completedProjects || 0}</div>
+                        <div className="text-xs text-gray-600">Projects</div>
+                      </div>
+                    </div>
+                    {data.ratingDetails && (
+                      <div className="border-t border-blue-200 pt-4">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Detailed Ratings</h4>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-600">Technical</span>
+                            <span className="text-sm font-medium text-blue-600">
+                              {data.ratingDetails.technical ? data.ratingDetails.technical.toFixed(1) : '0.0'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-600">Communication</span>
+                            <span className="text-sm font-medium text-blue-600">
+                              {data.ratingDetails.communication ? data.ratingDetails.communication.toFixed(1) : '0.0'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-600">Professionalism</span>
+                            <span className="text-sm font-medium text-blue-600">
+                              {data.ratingDetails.professionalism ? data.ratingDetails.professionalism.toFixed(1) : '0.0'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-600">Speed</span>
+                            <span className="text-sm font-medium text-blue-600">
+                              {data.ratingDetails.speed ? data.ratingDetails.speed.toFixed(1) : '0.0'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-600">Past Work</span>
+                            <span className="text-sm font-medium text-blue-600">
+                              {data.ratingDetails.pastWork ? data.ratingDetails.pastWork.toFixed(1) : '0.0'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-sm text-red-600 font-medium">Not Interviewed</div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

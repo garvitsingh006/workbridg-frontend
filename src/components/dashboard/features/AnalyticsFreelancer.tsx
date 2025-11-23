@@ -1,10 +1,17 @@
 import { useUser } from '../../../contexts/UserContext';
 import { useProject } from '../../../contexts/ProjectContext';
+import { usePayment } from '../../../contexts/PaymentContext';
 import { DollarSign, CircleCheck as CheckCircle, Clock, FolderOpen, Receipt, TrendingUp, ArrowUpRight } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function AnalyticsFreelancer() {
   const { user } = useUser();
   const { projects } = useProject();
+  const { payments, fetchUserPayments } = usePayment();
+
+  useEffect(() => {
+    fetchUserPayments();
+  }, [fetchUserPayments]);
 
   const myProjects = projects.filter(
     p =>
@@ -13,7 +20,49 @@ export default function AnalyticsFreelancer() {
   );
   const completed = myProjects.filter(p => p.status === 'completed').length;
   const inProgress = myProjects.filter(p => p.status === 'in-progress').length;
-  const earnings = myProjects.reduce((sum, p: any) => sum + (p.payout || 0), 0);
+  const earnings = payments.reduce((sum, payment) => {
+    return sum + (payment.releaseStatus === 'released' ? payment.releaseAmount : 0);
+  }, 0);
+  
+  // Calculate previous month data for percentage changes
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  
+  const prevMonthEarnings = payments.reduce((sum, payment) => {
+    if (payment.releaseStatus === 'released') {
+      const releaseDate = new Date(payment.updatedAt);
+      if (releaseDate.getMonth() === prevMonth && releaseDate.getFullYear() === prevYear) {
+        return sum + payment.releaseAmount;
+      }
+    }
+    return sum;
+  }, 0);
+  
+  const prevMonthCompleted = myProjects.filter(p => {
+    if (p.status === 'completed' && p.completedAt) {
+      const completedDate = new Date(p.completedAt);
+      return completedDate.getMonth() === prevMonth && completedDate.getFullYear() === prevYear;
+    }
+    return false;
+  }).length;
+  
+  const prevMonthAssigned = myProjects.filter(p => {
+    if (p.createdAt) {
+      const createdDate = new Date(p.createdAt);
+      return createdDate.getMonth() === prevMonth && createdDate.getFullYear() === prevYear;
+    }
+    return false;
+  }).length;
+  
+  const calculatePercentage = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? '+100%' : '0%';
+    const change = ((current - previous) / previous) * 100;
+    return change >= 0 ? `+${Math.round(change)}%` : `${Math.round(change)}%`;
+  };
+  
   const recentPaid = myProjects
     .filter((p: any) => (p.payout || 0) > 0)
     .slice(0, 5)
@@ -39,10 +88,10 @@ export default function AnalyticsFreelancer() {
             </div>
             <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
               <ArrowUpRight className="w-3 h-3 text-green-600" />
-              <span className="text-xs font-semibold text-green-600">+15%</span>
+              <span className="text-xs font-semibold text-green-600">{calculatePercentage(earnings, prevMonthEarnings)}</span>
             </div>
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-1">${Intl.NumberFormat().format(earnings)}</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-1">₹{Intl.NumberFormat().format(earnings)}</h3>
           <p className="text-sm text-gray-600 font-medium">Total Earnings</p>
         </div>
 
@@ -54,7 +103,7 @@ export default function AnalyticsFreelancer() {
             </div>
             <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
               <TrendingUp className="w-3 h-3 text-blue-600" />
-              <span className="text-xs font-semibold text-blue-600">+8%</span>
+              <span className="text-xs font-semibold text-blue-600">{calculatePercentage(completed, prevMonthCompleted)}</span>
             </div>
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-1">{completed}</h3>
@@ -84,7 +133,7 @@ export default function AnalyticsFreelancer() {
             </div>
             <div className="flex items-center gap-1 bg-purple-50 px-2 py-1 rounded-lg">
               <TrendingUp className="w-3 h-3 text-purple-600" />
-              <span className="text-xs font-semibold text-purple-600">+12%</span>
+              <span className="text-xs font-semibold text-purple-600">{calculatePercentage(myProjects.length, prevMonthAssigned)}</span>
             </div>
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-1">{myProjects.length}</h3>
@@ -109,21 +158,46 @@ export default function AnalyticsFreelancer() {
           </div>
           <div className="p-6">
             <div className="relative h-64 flex items-end justify-between gap-2">
-              {[30, 45, 35, 60, 50, 70].map((height, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <div
-                    className="w-full bg-gradient-to-t from-purple-500 to-purple-400 rounded-t-lg relative group cursor-pointer transition-all duration-300 hover:from-purple-600 hover:to-purple-500"
-                    style={{ height: `${height}%` }}
-                  >
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                      ${(height * 100).toFixed(0)}
+              {(() => {
+                const monthlyData = Array(6).fill(0);
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                const currentMonth = new Date().getMonth();
+                
+                payments.forEach(payment => {
+                  if (payment.releaseStatus === 'released') {
+                    const releaseDate = new Date(payment.updatedAt);
+                    const monthIndex = releaseDate.getMonth();
+                    if (monthIndex >= currentMonth - 5 && monthIndex <= currentMonth) {
+                      const dataIndex = monthIndex - (currentMonth - 5);
+                      if (dataIndex >= 0 && dataIndex < 6) {
+                        monthlyData[dataIndex] += payment.releaseAmount;
+                      }
+                    }
+                  }
+                });
+                
+                const maxAmount = Math.max(...monthlyData, 1);
+                
+                return monthlyData.map((amount, i) => {
+                  const height = maxAmount > 0 ? (amount / maxAmount) * 80 + 10 : 10;
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                      <div
+                        className="w-full bg-gradient-to-t from-purple-500 to-purple-400 rounded-t-lg relative group cursor-pointer transition-all duration-300 hover:from-purple-600 hover:to-purple-500"
+                        style={{ height: `${height}%` }}
+                      >
+                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          ₹{amount.toLocaleString()}
+                        </div>
+                      </div>
+                      <span className="text-xs text-gray-400">
+                        {monthNames[i]}
+                      </span>
                     </div>
-                  </div>
-                  <span className="text-xs text-gray-400">
-                    {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'][i]}
-                  </span>
-                </div>
-              ))}
+                  );
+                });
+              })()
+              }
             </div>
           </div>
         </div>
@@ -214,7 +288,7 @@ export default function AnalyticsFreelancer() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="font-semibold text-sm text-gray-900">
-                        ${Intl.NumberFormat().format(r.amount)}
+                        ₹{Intl.NumberFormat().format(r.amount)}
                       </div>
                     </td>
                     <td className="px-6 py-4">

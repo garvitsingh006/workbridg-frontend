@@ -21,6 +21,10 @@ export interface FreelancerDetails {
     resume?: string;
     bio?: string;
     isInterviewed?: boolean;
+    rating?: number;
+    ratingCount?: number;
+    completedProjects?: number;
+    earnings?: number;
 }
 
 export interface ClientDetails {
@@ -152,15 +156,19 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 ...(backendData.user.role === "freelancer" && {
                     freelancerDetails: {
                         location: backendData.location || "",
-                        workField: backendData.workField || "", // CORRECTED
-                        workExperience: backendData.workExperience || [], // CORRECTED
-                        skills: backendData.skills || [], // CORRECTED
+                        workField: backendData.workField || "",
+                        workExperience: backendData.workExperience || [],
+                        skills: backendData.skills || [],
                         linkedIn: backendData.linkedIn || "",
-                        github: backendData.github || "", // CORRECTED
-                        preferredRole: backendData.preferredRole || "", // CORRECTED
-                        bio: backendData.bio || "", // CORRECTED
-                        resume: backendData.resume || "", // CORRECTED
+                        github: backendData.github || "",
+                        preferredRole: backendData.preferredRole || "",
+                        bio: backendData.bio || "",
+                        resume: backendData.resume || "",
                         isInterviewed: backendData.isInterviewed ?? false,
+                        rating: backendData.rating || 0,
+                        ratingCount: backendData.ratingCount || 0,
+                        completedProjects: backendData.completedProjects || 0,
+                        earnings: backendData.earnings || 0,
                     },
                 }),
 

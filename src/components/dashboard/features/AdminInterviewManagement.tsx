@@ -116,11 +116,11 @@ export default function AdminInterviewManagement() {
       };
       const interview = await assignInterview(payload);
       // notify other parts of the app that an interview was assigned
-      try { window.dispatchEvent(new CustomEvent('interviewAssigned', { detail: { interviewId: interview?._id, freelancerId: interview?.freelancer } })); } catch (e) {}
+      try { window.dispatchEvent(new CustomEvent('interviewAssigned', { detail: { interviewId: interview?._id, freelancerId: form.freelancerId } })); } catch (e) {}
       // remove the assigned freelancer's request from requests list
       setRequests(prev => prev.filter((r: any) => r.freelancer?._id !== form.freelancerId));
       setShowModal(false);
-      setForm(prev => ({ ...prev, interviewerId: "", datetimeLocal: "", link: "", notes: "" }));
+      setForm(prev => ({ ...prev, freelancerId: "", interviewerId: "", datetimeLocal: "", link: "", notes: "" }));
       await fetchData();
     } catch (e: any) {
       setError(e?.response?.data?.message || e.message || "Failed to assign interview");
