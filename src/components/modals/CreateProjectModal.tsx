@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, FileText, User, DollarSign } from 'lucide-react';
+import { X, Calendar, FileText, User } from 'lucide-react';
 import { useProject } from '../../contexts/ProjectContext';
 import { useUser } from '../../contexts/UserContext';
 

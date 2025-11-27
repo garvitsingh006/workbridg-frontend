@@ -1,5 +1,5 @@
 import React from "react";
-import { FolderOpen, Plus, ListFilter as Filter, Search, MoreVertical, Calendar, DollarSign, Users, RefreshCw, Trash2 } from "lucide-react";
+import { FolderOpen, Plus, ListFilter as Filter, Search, MoreVertical, Calendar, Users, RefreshCw, Trash2 } from "lucide-react";
 import { useProject } from "../../../contexts/ProjectContext";
 import { useUser } from "../../../contexts/UserContext";
 import CreateProjectModal from "../../modals/CreateProjectModal";
@@ -423,9 +423,9 @@ export default function Projects() {
             <ApplyProjectModal
                 isOpen={applyOpen}
                 onClose={() => setApplyOpen(false)}
-                onSubmit={async ({ deadline, expectedPayment, proposalSummary, estimatedDelivery, addOns }) => {
+                onSubmit={async ({proposalSummary, estimatedDelivery, addOns, }) => {
                     if (!selectedProject) return;
-                    await applyToProject(selectedProject.id, { deadline, expectedPayment, proposalSummary, estimatedDelivery, addOns });
+                    await applyToProject(selectedProject.id, { proposalSummary, estimatedDelivery, addOns });
                 }}
             />
 

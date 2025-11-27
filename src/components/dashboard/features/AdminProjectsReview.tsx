@@ -256,16 +256,6 @@ export default function AdminProjectsReview() {
                                                     ).toLocaleString()}
                                                 </div>
                                             </div>
-                                            <div className="text-sm text-gray-700 mt-1">
-                                                Deadline:{" "}
-                                                {new Date(
-                                                    a.deadline
-                                                ).toLocaleDateString()}
-                                            </div>
-                                            <div className="text-sm text-gray-700">
-                                                Expected Payment: $
-                                                {a.expectedPayment.toLocaleString()}
-                                            </div>
                                             <div className="mt-2 flex items-center gap-2">
                                                 <button className="px-2 py-1 text-xs rounded border hover:bg-gray-50">
                                                     Shortlist
