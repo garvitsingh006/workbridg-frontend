@@ -1,16 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { type Chat, useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
-import { Search, MessageCircle, Users as UsersIcon } from 'lucide-react';
+import { Search, MessageCircle, Users as UsersIcon, X } from 'lucide-react';
 import axios from 'axios';
 
 interface ChatSidebarProps {
     chats: Chat[];
     activeChatId: string | null;
     onSelectChat: (chat: Chat) => void;
+    isOpen: boolean;
+    onToggle: () => void;
 }
 
-const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelectChat }) => {
+const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelectChat, isOpen, onToggle }) => {
     const { user } = useUser();
     const [isCreatingAdminChat, setIsCreatingAdminChat] = useState(false);
     const { initiateChat, createAdminChat } = useChat();
@@ -98,15 +100,27 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
     }, [allUsers, searchQuery]);
 
     return (
-        <aside className="w-80 border-r border-gray-200 h-[70vh] sm:h-[80vh] overflow-visible bg-white flex flex-col relative z-20">
+        <>
+            {/* Overlay for mobile */}
+            {isOpen && (
+                <div 
+                    className="lg:hidden fixed inset-0 bg-white bg-opacity-50 z-40"
+                    onClick={onToggle}
+                />
+            )}
+
+            <aside className={`fixed lg:relative inset-y-0 left-0 z-50 lg:z-0 w-80 border-r border-gray-200 h-[70vh] sm:h-[80vh] overflow-visible bg-white flex flex-col transform lg:transform-none transition-all duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
             {/* Header */}
             <div className="px-4 py-4 border-b border-gray-100">
-                {/* <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
-          <button className="w-8 h-8 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-all duration-300">
-            <Plus className="w-4 h-4 text-white" />
-          </button>
-        </div> */}
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
+                    <button 
+                        onClick={onToggle}
+                        className="lg:hidden p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                        <X className="w-5 h-5 text-gray-600" />
+                    </button>
+                </div>
 
                 {/* Search */}
                 <div className="relative">
@@ -194,6 +208,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                             )}
 
                         {filteredChats.map((chat) => {
+                            console.log('Chat data:', { type: chat.type, project: chat.project, participants: chat.participants.length });
                             const isActive = chat._id === activeChatId;
                             const otherParticipants = chat.participants.filter(p => p._id !== (user?.id || ''));
                             let titleRaw;
@@ -201,6 +216,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                 titleRaw = chat.project.title;
                             } else if (chat.type === 'group') {
                                 titleRaw = chat.project?.title || `Group (${chat.participants.length})`;
+                                console.log('Group chat title:', titleRaw, 'project:', chat.project);
                             } else {
                                 titleRaw = otherParticipants[0]?.username || 'Chat';
                             }
@@ -234,17 +250,17 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                     type="button"
                                     onClick={() => onSelectChat(chat)}
                                     className={`w-full text-left p-3 rounded-xl mb-1 transition-all duration-300 ${isActive
-                                        ? (isAdminChat ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg' : 'bg-black text-white shadow-md')
+                                        ? (isAdminChat ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg' : 'bg-white border-2 border-gray-900 shadow-md')
                                         : (isAdminChat ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 hover:from-blue-100 hover:to-indigo-100' : 'hover:bg-gray-50')
                                         }`}
                                 >
                                     <div className="flex items-start gap-2">
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isActive
-                                            ? (isAdminChat ? 'bg-white/20' : 'bg-white/20')
+                                            ? (isAdminChat ? 'bg-white/20' : 'bg-gray-900')
                                             : (isAdminChat ? 'bg-blue-600' : 'bg-gray-100')
                                             }`}>
                                             <span className={`text-xs font-bold ${isActive
-                                                ? 'text-white'
+                                                ? (isAdminChat ? 'text-white' : 'text-white')
                                                 : (isAdminChat ? 'text-white' : 'text-gray-700')
                                                 }`}>
                                                 {isAdminChat ? '👤' : title.charAt(0).toUpperCase()}
@@ -253,7 +269,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-1">
                                                 <h3 className={`font-medium text-sm truncate ${isActive
-                                                    ? 'text-white'
+                                                    ? (isAdminChat ? 'text-white' : 'text-gray-900')
                                                     : (isAdminChat ? 'text-blue-900' : 'text-gray-900')
                                                     }`}>
                                                     {title}
@@ -266,7 +282,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                             </div>
                                             {subtitle && (
                                                 <div className={`text-[10px] mb-1 ${isActive
-                                                    ? 'text-white/70'
+                                                    ? (isAdminChat ? 'text-white/70' : 'text-gray-500')
                                                     : (isAdminChat ? 'text-blue-700' : 'text-gray-500')
                                                     }`}>
                                                     {subtitle}
@@ -274,7 +290,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                             )}
                                             {lastMessage && (
                                                 <div className={`text-[10px] truncate ${isActive
-                                                    ? 'text-white/70'
+                                                    ? (isAdminChat ? 'text-white/70' : 'text-gray-500')
                                                     : (isAdminChat ? 'text-blue-600' : 'text-gray-500')
                                                     }`}>
                                                     {lastMessage.type === 'system' ? lastMessage.content : `${lastSenderName}: ${lastMessage.content}`}
@@ -354,6 +370,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                 )}
             </div>
         </aside>
+        </>
     );
 };
 

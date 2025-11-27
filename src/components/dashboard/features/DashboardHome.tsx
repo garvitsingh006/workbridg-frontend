@@ -2,6 +2,7 @@ import { useProject } from '../../../contexts/ProjectContext';
 import { useUser } from '../../../contexts/UserContext';
 import { usePayment } from '../../../contexts/PaymentContext';
 import { TrendingUp, DollarSign, FolderOpen, CircleCheck as CheckCircle, Users, Search, Bell } from 'lucide-react';
+import ProjectDetailsModal from '../../modals/ProjectDetailsModal';
 import { useState, useEffect } from 'react';
 
 type DashboardHomeProps = {
@@ -9,15 +10,18 @@ type DashboardHomeProps = {
 };
 
 export default function DashboardHome({}: DashboardHomeProps) {
-  const { projects } = useProject();
+  const { projects, fetchProjects } = useProject();
   const { user } = useUser();
   const { payments, fetchUserPayments } = usePayment();
   const [, setIsVisible] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
     fetchUserPayments();
-  }, [fetchUserPayments]);
+    fetchProjects();
+  }, [fetchUserPayments, fetchProjects]);
 
   const availableProjects = projects.filter(p => p.status !== 'completed').length;
   const isFreelancer = user?.userType === 'freelancer';
@@ -106,9 +110,9 @@ export default function DashboardHome({}: DashboardHomeProps) {
   const recentProjects = projects.slice(0, 3).map(project => ({
     id: project.id,
     name: project.title,
-    client: project.createdBy.fullName,
+    client: project.createdBy?.fullName || 'Unknown Client',
     category: 'Development',
-    price: project.payment ? `$${project.payment.amount.toLocaleString()}` : 'TBD',
+    price: project.budget ? `₹${project.budget.toLocaleString()}` : '₹0',
     image: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=200',
     status: project.createdAt ? new Date(project.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) : '-',
     deadline: project.deadline ? new Date(project.deadline).toLocaleDateString() : "No deadline",
@@ -249,6 +253,13 @@ export default function DashboardHome({}: DashboardHomeProps) {
             {recentProjects.map((project) => (
               <div
                 key={project.id}
+                onClick={() => {
+                  const originalProject = projects.find(p => p.id === project.id);
+                  if (originalProject) {
+                    setSelectedProject(originalProject);
+                    setDetailsModalOpen(true);
+                  }
+                }}
                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-all cursor-pointer border border-transparent hover:border-purple-100"
               >
                 <img
@@ -270,6 +281,16 @@ export default function DashboardHome({}: DashboardHomeProps) {
       </div>
 
 
+        {/* Project Details Modal */}
+        <ProjectDetailsModal
+          isOpen={detailsModalOpen}
+          onClose={() => {
+            setDetailsModalOpen(false);
+            setSelectedProject(null);
+          }}
+          project={selectedProject}
+          onEdit={() => {}}
+        />
     </div>
   );
 }

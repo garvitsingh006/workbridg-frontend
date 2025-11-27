@@ -1,5 +1,5 @@
 import React from "react";
-import { FolderOpen, Plus, ListFilter as Filter, Search, MoreVertical, Calendar, DollarSign, Users } from "lucide-react";
+import { FolderOpen, Plus, ListFilter as Filter, Search, MoreVertical, Calendar, DollarSign, Users, RefreshCw, Trash2 } from "lucide-react";
 import { useProject } from "../../../contexts/ProjectContext";
 import { useUser } from "../../../contexts/UserContext";
 import CreateProjectModal from "../../modals/CreateProjectModal";
@@ -12,7 +12,7 @@ import type { Project } from "../../../contexts/ProjectContext";
 export default function Projects() {
     const [searchTerm, setSearchTerm] = React.useState("");
     const [filterStatus, setFilterStatus] = React.useState("all");
-    const { projects, applyToProject, fetchProjects } = useProject();
+    const { projects, applyToProject, fetchProjects, deleteProject } = useProject();
     React.useEffect(() => {
         fetchProjects();
     }, []);
@@ -24,6 +24,9 @@ export default function Projects() {
     const [selectedProject, setSelectedProject] =
         React.useState<Project | null>(null);
     const [applyOpen, setApplyOpen] = React.useState(false);
+    const [dropdownOpen, setDropdownOpen] = React.useState<string | null>(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
+    const [projectToDelete, setProjectToDelete] = React.useState<Project | null>(null);
 
     const displayProjects = projects
         .filter((project) => {
@@ -55,9 +58,9 @@ export default function Projects() {
             deadline: project.deadline
                 ? new Date(project.deadline).toLocaleDateString()
                 : "No deadline",
-            budget: project.payment
-                ? `$${project.payment.amount.toLocaleString()}`
-                : "TBD",
+            budget: project.budget
+                ? `₹${project.budget.toLocaleString()}`
+                : "₹0",
             progress:
                 project.status === "completed"
                     ? 100
@@ -102,15 +105,24 @@ export default function Projects() {
                         Manage and track all your freelance projects
                     </p>
                 </div>
-                {user?.userType === 'client' && (
+                <div className="flex items-center gap-3">
                     <button
-                        onClick={() => setCreateModalOpen(true)}
-                        className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2.5 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30"
+                        onClick={fetchProjects}
+                        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                     >
-                        <Plus className="w-4 h-4" />
-                        <span>Add New Project</span>
+                        <RefreshCw className="w-4 h-4" />
+                        <span>Refresh</span>
                     </button>
-                )}
+                    {user?.userType === 'client' && (
+                        <button
+                            onClick={() => setCreateModalOpen(true)}
+                            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2.5 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Add New Project</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Filters Bar */}
@@ -184,9 +196,6 @@ export default function Projects() {
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" />
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Project
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -209,9 +218,6 @@ export default function Projects() {
                         <tbody className="divide-y divide-gray-100">
                             {displayProjects.map((project) => (
                                 <tr key={project.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" />
-                                    </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <img
@@ -248,8 +254,8 @@ export default function Projects() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-1 font-semibold text-sm text-gray-900">
-                                            <DollarSign className="w-3.5 h-3.5 text-gray-400" />
-                                            {project.budget}
+                                            <span className="text-gray-400 font-medium">₹</span>
+                                            {project.budget.replace('₹', '')}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
@@ -296,9 +302,34 @@ export default function Projects() {
                                                     Edit
                                                 </button>
                                             )}
-                                            <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-                                                <MoreVertical className="w-4 h-4 text-gray-500" />
-                                            </button>
+                                            <div className="relative">
+                                                <button 
+                                                    onClick={() => setDropdownOpen(dropdownOpen === project.id ? null : project.id)}
+                                                    className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                                                >
+                                                    <MoreVertical className="w-4 h-4 text-gray-500" />
+                                                </button>
+                                                {dropdownOpen === project.id && (
+                                                    <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-32">
+                                                        {user?.userType === 'client' && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    const originalProject = projects.find(p => p.id === project.id);
+                                                                    if (originalProject) {
+                                                                        setProjectToDelete(originalProject);
+                                                                        setDeleteConfirmOpen(true);
+                                                                        setDropdownOpen(null);
+                                                                    }
+                                                                }}
+                                                                className="w-full flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 transition-colors text-sm"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                                Delete
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -392,11 +423,57 @@ export default function Projects() {
             <ApplyProjectModal
                 isOpen={applyOpen}
                 onClose={() => setApplyOpen(false)}
-                onSubmit={async ({ deadline, expectedPayment }) => {
+                onSubmit={async ({ deadline, expectedPayment, proposalSummary, estimatedDelivery, addOns }) => {
                     if (!selectedProject) return;
-                    await applyToProject(selectedProject.id, { deadline, expectedPayment });
+                    await applyToProject(selectedProject.id, { deadline, expectedPayment, proposalSummary, estimatedDelivery, addOns });
                 }}
             />
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirmOpen && projectToDelete && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Project</h3>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to delete "{projectToDelete.title}"? This action cannot be undone.
+                        </p>
+                        <div className="flex items-center justify-end space-x-3">
+                            <button
+                                onClick={() => {
+                                    setDeleteConfirmOpen(false);
+                                    setProjectToDelete(null);
+                                }}
+                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        await deleteProject(projectToDelete.id);
+                                        await fetchProjects();
+                                    } catch (error) {
+                                        console.error('Error deleting project:', error);
+                                    }
+                                    setDeleteConfirmOpen(false);
+                                    setProjectToDelete(null);
+                                }}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Click outside to close dropdown */}
+            {dropdownOpen && (
+                <div 
+                    className="fixed inset-0 z-5" 
+                    onClick={() => setDropdownOpen(null)}
+                />
+            )}
         </div>
     );
 }

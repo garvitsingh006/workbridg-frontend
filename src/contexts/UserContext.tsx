@@ -149,7 +149,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             const User = {
                 id: backendData.user._id,
                 username: backendData.user.username,
-                email: backendData.user.email || "",
+                email: backendData.user.email || email || "",
                 fullName: backendData.user.fullName,
                 userType: backendData.user.role, // "freelancer" | "client" | "admin" | "interviewer"
                 isVerified: backendData.user.isVerified ?? true,

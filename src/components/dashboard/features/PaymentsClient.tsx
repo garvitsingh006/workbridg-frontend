@@ -184,7 +184,7 @@ export default function PaymentsClient() {
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{payment.projectId.title}</h3>
+                    <h3 className="font-semibold text-gray-900">{payment.projectId?.title || 'Unknown Project'}</h3>
                     <p className="text-sm text-gray-600">
                       Project: ₹{payment.totalAmount.toLocaleString()} + Service Charge (5%): ₹{payment.platformFee.serviceCharge.toLocaleString()} = Total: ₹{(payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}
                     </p>

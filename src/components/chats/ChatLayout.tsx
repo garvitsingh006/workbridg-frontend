@@ -1,13 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useChat, type Chat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import ChatSidebar from './ChatSidebar';
 import ChatThread from './ChatThread';
 import ChatEmptyState from './ChatEmptyState';
+import { Menu } from 'lucide-react';
 
 const ChatLayout: React.FC = () => {
     const { chats, activeChat, setActiveChat, fetchChats, loading, error } = useChat();
     const { user } = useUser();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+
+
+    // Close sidebar on mobile when selecting a chat
+    const handleSelectChatWithToggle = (chat: Chat) => {
+        handleSelectChat(chat);
+        setSidebarOpen(false);
+    };
 
     useEffect(() => {
         fetchChats();
@@ -48,10 +58,19 @@ const ChatLayout: React.FC = () => {
             <ChatSidebar
                 chats={chats}
                 activeChatId={activeChat?._id || null}
-                onSelectChat={handleSelectChat}
+                onSelectChat={handleSelectChatWithToggle}
+                isOpen={sidebarOpen}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <div className="flex-1 min-w-0 h-[70vh] sm:h-[80vh] bg-gray-50/50">
+            <div className="flex-1 min-w-0 h-[70vh] sm:h-[80vh] bg-gray-50/50 relative">
+                {/* Mobile toggle button when sidebar is hidden */}
+                <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="lg:hidden absolute top-4 left-4 z-10 p-2 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                    <Menu className="w-5 h-5 text-gray-600" />
+                </button>
                 {loading && (
                     <div className="h-full flex items-center justify-center">
                         <div className="text-center">
@@ -70,8 +89,8 @@ const ChatLayout: React.FC = () => {
                         </div>
                     </div>
                 )}
-                {!loading && !error && !activeChat && <ChatEmptyState userRole={user?.userType || 'freelancer'} />}
-                {!loading && !error && activeChat && <ChatThread chat={activeChat} />}
+                {!loading && !error && !activeChat && <ChatEmptyState userRole={user?.userType || 'freelancer'} onToggleSidebar={() => setSidebarOpen(true)} />}
+                {!loading && !error && activeChat && <ChatThread chat={activeChat} onToggleSidebar={() => setSidebarOpen(true)} />}
             </div>
         </div>
     );

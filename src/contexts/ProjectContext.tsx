@@ -31,6 +31,7 @@ export interface Project {
         | "completed"
         | "cancelled";
     deadline: Date;
+    budget?: number;
     remarks: Remark[];
     payment?: Payment;
     totalAmount?: number; // Total project amount for payment system
@@ -40,8 +41,9 @@ export interface Project {
 
 export interface ProjectApplication {
     fullName: string;
-    deadline: string;
-    expectedPayment: number;
+    proposalSummary: string;
+    estimatedDelivery: string;
+    addOns?: string;
     appliedAt: string;
     applicantId?: string;
 }
@@ -65,7 +67,7 @@ interface ProjectContextType {
     loading: boolean;
     error: string | null;
     fetchProjects: () => Promise<void>;
-    applyToProject: (projectId: string, payload: { deadline: string; expectedPayment: number }) => Promise<void>;
+    applyToProject: (projectId: string, payload: { proposalSummary: string; estimatedDelivery: string; addOns: string }) => Promise<void>;
     getProjectApplications: (projectId: string) => Promise<ProjectApplication[]>;
     getChosenApplications: (projectId: string) => Promise<ProjectApplication[]>;
     chooseApplicationByClient: (projectId: string, userId: string) => Promise<void>;
@@ -169,7 +171,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
 
     const applyToProject = async (
         projectId: string,
-        payload: { deadline: string; expectedPayment: number }
+        payload: { proposalSummary: string; estimatedDelivery: string; addOns: string }
       ): Promise<void> => {
         try {
           setError(null);
@@ -197,8 +199,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
             // Normalize and include applicantId from populated applicant
             return (Array.isArray(raw) ? raw : []).map((app: any) => ({
                 fullName: app.fullName || app.applicant?.fullName,
-                deadline: app.deadline,
-                expectedPayment: app.expectedPayment,
+                proposalSummary: app.proposalSummary,
+                estimatedDelivery: app.estimatedDelivery,
+                addOns: app.addOns,
                 appliedAt: app.appliedAt,
                 applicantId: app.applicant?._id || app.applicantId || app.userId || undefined,
             }));
@@ -223,8 +226,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
             const raw = res.data?.data || [];
             return (Array.isArray(raw) ? raw : []).map((app: any) => ({
                 fullName: app.fullName || app.applicant?.fullName,
-                deadline: app.deadline,
-                expectedPayment: app.expectedPayment,
+                proposalSummary: app.proposalSummary,
+                estimatedDelivery: app.estimatedDelivery,
+                addOns: app.addOns,
                 appliedAt: app.appliedAt,
                 applicantId: app.applicant?._id || app.applicantId || app.userId || undefined,
             }));

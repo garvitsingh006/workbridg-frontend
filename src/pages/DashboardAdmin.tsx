@@ -7,6 +7,7 @@ import AdminApplications from "../components/dashboard/features/AdminApplication
 import AdminInterviewManagement from "../components/dashboard/features/AdminInterviewManagement";
 import PaymentsAdmin from "../components/dashboard/features/PaymentsAdmin";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
+import HelpPage from "../components/dashboard/features/HelpPage";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
@@ -41,6 +42,7 @@ export default function DashboardAdmin() {
       interviews: 'Interview Management',
       analytics: 'Analytics & Reporting',
       'account-settings': 'Account Settings',
+      'help': 'Help & Support',
     };
     return titles[activeFeature] || 'Dashboard';
   };
@@ -57,6 +59,8 @@ export default function DashboardAdmin() {
         return <AdminInterviewManagement />;
       case "account-settings":
         return <AccountSettings />;
+      case "help":
+        return <HelpPage />;
       case "escrow":
         return <PaymentsAdmin />;
       case "agreements":

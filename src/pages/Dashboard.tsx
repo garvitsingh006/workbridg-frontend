@@ -6,6 +6,7 @@ import Feature2 from "../components/dashboard/features/Feature2";
 import Feature3 from "../components/dashboard/features/Feature3";
 import MessagesFeature from "../components/dashboard/features/MessageFeature";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
+import HelpPage from "../components/dashboard/features/HelpPage";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
@@ -53,6 +54,7 @@ export default function Dashboard() {
             profile: 'Profile',
             settings: 'Settings',
             'account-settings': 'Account Settings',
+            'help': 'Help & Support',
         };
         return titles[activeFeature] || 'Dashboard';
     };
@@ -71,6 +73,8 @@ export default function Dashboard() {
                 return <Feature3 />;
             case "account-settings":
                 return <AccountSettings />;
+            case "help":
+                return <HelpPage />;
             case "calendar":
                 return (
                     <div className="p-6">

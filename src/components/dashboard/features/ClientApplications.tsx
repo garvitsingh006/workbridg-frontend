@@ -41,13 +41,13 @@ export default function ClientApplications() {
 
           if (chosenApps.length > 0) {
             const chosenApp = chosenApps[0];
-            const uid = (chosenApp as any).applicantId || (chosenApp as any).userId;
+            const uid = (chosenApp as any).applicantId;
             let rating = 0;
 
             if (uid) {
               try {
-                const userRes = await axios.get(`${import.meta.env.VITE_SERVER}/users/${uid}`, { withCredentials: true });
-                rating = userRes.data?.data?.rating || userRes.data?.rating || 0;
+                const profileRes = await axios.get(`${import.meta.env.VITE_SERVER}/profiles/user/${uid}`, { withCredentials: true });
+                rating = profileRes.data?.data?.rating || profileRes.data?.rating || 0;
               } catch (err) {
                 console.error('Failed to fetch user rating', err);
               }
@@ -61,16 +61,15 @@ export default function ClientApplications() {
           }
         } else {
           const apps = await getProjectApplications(selectedProjectId);
-
           const appsWithRating = await Promise.all(
             apps.map(async (app) => {
-              const uid = (app as any).applicantId || (app as any).userId;
+              const uid = (app as any).applicantId;
               let rating = 0;
 
               if (uid) {
                 try {
-                  const userRes = await axios.get(`${import.meta.env.VITE_SERVER}/users/${uid}`, { withCredentials: true });
-                  rating = userRes.data?.data?.rating || userRes.data?.rating || 0;
+                  const profileRes = await axios.get(`${import.meta.env.VITE_SERVER}/profiles/user/${uid}`, { withCredentials: true });
+                  rating = profileRes.data?.data?.rating || profileRes.data?.rating || 0;
                 } catch (err) {
                   console.error('Failed to fetch user rating', err);
                 }
@@ -79,7 +78,6 @@ export default function ClientApplications() {
               return { ...app, rating };
             })
           );
-
           setApplications(appsWithRating);
         }
       } finally {
@@ -117,10 +115,10 @@ export default function ClientApplications() {
   };
 
   const confirmChooseApplication = async () => {
-    if (!selectedApplication || !selectedProjectId) return;
+    if (!selectedApplication || !selectedProjectId || !selectedApplication.applicantId) return;
 
     try {
-      await chooseApplicationByClient(selectedProjectId, selectedApplication.applicantId!);
+      await chooseApplicationByClient(selectedProjectId, selectedApplication.applicantId);
       toast.success('Application chosen successfully! Your project is now pending admin approval.');
       setShowConfirmModal(false);
       await fetchProjects();
@@ -133,15 +131,15 @@ export default function ClientApplications() {
   };
 
   return (
-    <div className="p-4 space-y-3">
+    <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
       <div>
-        <h2 className="text-xl font-bold">Project Applications</h2>
-        <p className="text-sm text-gray-600">View and choose applications for your projects</p>
+        <h2 className="text-lg sm:text-xl font-bold">Project Applications</h2>
+        <p className="text-xs sm:text-sm text-gray-600">View and choose applications for your projects</p>
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
         <select
-          className="border rounded-md px-2 py-1.5 text-sm"
+          className="w-full sm:w-auto border rounded-md px-2 py-1.5 text-sm"
           value={selectedProjectId || ''}
           onChange={(e) => {
             setSelectedProjectId(e.target.value || null);
@@ -209,23 +207,54 @@ export default function ClientApplications() {
                   </div>
                 );
               }
-            })()
-            }
-            <div className="border rounded p-3 bg-green-50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="font-medium text-sm">{chosenApplication.fullName}</div>
-                  {chosenApplication.rating !== undefined && (
-                    <div className="flex items-center gap-1 px-2 py-0.5 bg-white rounded text-xs">
-                      <span className="text-yellow-600">★</span>
-                      <span className="font-medium">{chosenApplication.rating.toFixed(1)}</span>
-                    </div>
-                  )}
+            })()}
+            <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center">
+                    <span className="text-green-700 font-semibold text-sm">{chosenApplication.fullName?.charAt(0) || 'U'}</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-green-900">{chosenApplication.fullName}</div>
+                    {chosenApplication.rating !== undefined && (
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className="text-yellow-500">★</span>
+                        <span className="text-sm font-medium text-green-700">{chosenApplication.rating.toFixed(1)}</span>
+                        <span className="text-xs text-green-600">rating</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500">Applied: {new Date(chosenApplication.appliedAt).toLocaleString()}</div>
+                <div className="text-xs text-green-600">
+                  Applied {new Date(chosenApplication.appliedAt).toLocaleDateString()}
+                </div>
               </div>
-              <div className="text-xs text-gray-700 mt-1">Deadline: {new Date(chosenApplication.deadline).toLocaleDateString()}</div>
-              <div className="text-xs text-gray-700">Expected Payment: ${chosenApplication.expectedPayment.toLocaleString()}</div>
+              
+              <div className="space-y-2">
+                {chosenApplication.proposalSummary && (
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs font-medium text-green-700 mb-1">💡 Proposal Summary</div>
+                    <div className="text-sm text-gray-800">{chosenApplication.proposalSummary}</div>
+                  </div>
+                )}
+                
+                {chosenApplication.estimatedDelivery && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-500">⏱️</span>
+                    <div>
+                      <div className="text-xs text-green-700">Delivery Time</div>
+                      <div className="text-sm font-medium text-gray-800">{chosenApplication.estimatedDelivery}</div>
+                    </div>
+                  </div>
+                )}
+                
+                {chosenApplication.addOns && (
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs font-medium text-green-700 mb-1">✨ Additional Services</div>
+                    <div className="text-sm text-gray-800">{chosenApplication.addOns}</div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -237,24 +266,59 @@ export default function ClientApplications() {
           <ul className="space-y-2">
             {sortedApplications.map((a, idx) => {
               return (
-                <li key={idx} className="border rounded p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="font-medium text-sm">{a.fullName}</div>
-                      {a.rating !== undefined && (
-                        <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded text-xs">
-                          <span className="text-yellow-600">★</span>
-                          <span className="font-medium">{a.rating.toFixed(1)}</span>
+                <li key={idx} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                        <span className="text-purple-600 font-semibold text-sm">{a.fullName?.charAt(0) || 'U'}</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">{a.fullName}</div>
+                        {a.rating !== undefined && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className="text-yellow-500">★</span>
+                            <span className="text-sm font-medium text-gray-700">{a.rating.toFixed(1)}</span>
+                            <span className="text-xs text-gray-500">rating</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Applied {new Date(a.appliedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    {a.proposalSummary && (
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="text-xs font-medium text-gray-600 mb-1">💡 Proposal Summary</div>
+                        <div className="text-sm text-gray-800">{a.proposalSummary}</div>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {a.estimatedDelivery && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-blue-500">⏱️</span>
+                          <div>
+                            <div className="text-xs text-gray-600">Delivery Time</div>
+                            <div className="text-sm font-medium text-gray-800">{a.estimatedDelivery}</div>
+                          </div>
                         </div>
                       )}
                     </div>
-                    <div className="text-xs text-gray-500">Applied: {new Date(a.appliedAt).toLocaleString()}</div>
+                    
+                    {a.addOns && (
+                      <div className="bg-green-50 rounded-lg p-3">
+                        <div className="text-xs font-medium text-green-700 mb-1">✨ Additional Services</div>
+                        <div className="text-sm text-green-800">{a.addOns}</div>
+                      </div>
+                    )}
                   </div>
-                  <div className="text-xs text-gray-700 mt-1">Deadline: {new Date(a.deadline).toLocaleDateString()}</div>
-                  <div className="text-xs text-gray-700">Expected Payment: ${a.expectedPayment.toLocaleString()}</div>
-                  <div className="mt-2 flex items-center gap-1">
+                  
+                  <div className="flex justify-end">
                     <button
-                      className="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700"
+                      className="px-4 py-2 text-sm font-medium rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
                       onClick={() => handleChooseApplication(a)}
                     >
                       Choose This Application
@@ -283,7 +347,15 @@ export default function ClientApplications() {
                     <span className="text-xs font-medium">{selectedApplication.rating.toFixed(1)}</span>
                   </div>
                 )}
-                <div className="text-xs text-gray-700 mt-1">Expected Payment: ${selectedApplication.expectedPayment.toLocaleString()}</div>
+                {selectedApplication.proposalSummary && (
+                  <div className="text-xs text-gray-700 mt-1">Proposal: {selectedApplication.proposalSummary}</div>
+                )}
+                {selectedApplication.estimatedDelivery && (
+                  <div className="text-xs text-gray-700">Estimated Delivery: {selectedApplication.estimatedDelivery}</div>
+                )}
+                {selectedApplication.addOns && (
+                  <div className="text-xs text-gray-700">Add-ons: {selectedApplication.addOns}</div>
+                )}
               </div>
             )}
             <div className="flex gap-2 justify-end">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageCircle, Sparkles } from 'lucide-react';
+import { MessageCircle, Sparkles, Menu } from 'lucide-react';
 
 const roleHint: Record<string, string> = {
   freelancer: 'You can chat with admin. Project chats open after approval.',
@@ -7,9 +7,18 @@ const roleHint: Record<string, string> = {
   admin: 'Select or create a chat with clients or freelancers.',
 };
 
-const ChatEmptyState: React.FC<{ userRole: string }> = ({ userRole }) => {
+const ChatEmptyState: React.FC<{ userRole: string; onToggleSidebar?: () => void }> = ({ userRole, onToggleSidebar }) => {
   return (
-    <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-gradient-to-br from-gray-50 to-white">
+    <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-gradient-to-br from-gray-50 to-white relative">
+      {/* Mobile sidebar toggle */}
+      {onToggleSidebar && (
+        <button
+          onClick={onToggleSidebar}
+          className="lg:hidden absolute top-4 left-4 p-2 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
       <div className="relative mb-8">
         <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
           <MessageCircle className="w-12 h-12 text-white" />

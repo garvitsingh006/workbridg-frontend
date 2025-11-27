@@ -8,6 +8,7 @@ import AnalyticsFreelancer from "../components/dashboard/features/AnalyticsFreel
 import EarningsFreelancer from "../components/dashboard/features/EarningsFreelancer";
 import FreelancerInterviews from "../components/dashboard/features/FreelancerInterviews";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
+import HelpPage from "../components/dashboard/features/HelpPage";
 import { useUser } from "../contexts/UserContext";
 import { useInterviews } from "../contexts/InterviewContext";
 import { useNavigate } from "react-router-dom";
@@ -86,6 +87,7 @@ export default function DashboardFreelancer() {
       'freelancer-interviews': 'Interviews',
       profile: 'Profile',
       'account-settings': 'Account Settings',
+      'help': 'Help & Support',
     };
     return titles[activeFeature] || 'Dashboard';
   };
@@ -108,6 +110,8 @@ export default function DashboardFreelancer() {
         return <ProfileFeature />;
       case "account-settings":
         return <AccountSettings />;
+      case "help":
+        return <HelpPage />;
       default:
         return <DashboardHome onViewAllProjects={() => setActiveFeature("projects")} />;
     }

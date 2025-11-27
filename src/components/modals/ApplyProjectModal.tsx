@@ -1,22 +1,24 @@
 import React from 'react';
-import { X, Calendar, DollarSign } from 'lucide-react';
+import { X, FileText, Clock } from 'lucide-react';
 
 interface ApplyProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (payload: { deadline: string; expectedPayment: number }) => Promise<void> | void;
+  onSubmit: (payload: { proposalSummary: string; estimatedDelivery: string; addOns: string }) => Promise<void> | void;
 }
 
 const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, onSubmit }) => {
-  const [deadline, setDeadline] = React.useState('');
-  const [expectedPayment, setExpectedPayment] = React.useState<string>('');
+  const [proposalSummary, setProposalSummary] = React.useState('');
+  const [estimatedDelivery, setEstimatedDelivery] = React.useState('');
+  const [addOns, setAddOns] = React.useState('');
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!isOpen) {
-      setDeadline('');
-      setExpectedPayment('');
+      setProposalSummary('');
+      setEstimatedDelivery('');
+      setAddOns('');
       setError(null);
     }
   }, [isOpen]);
@@ -26,14 +28,17 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const amount = Number(expectedPayment);
-    if (!deadline.trim() || !expectedPayment.trim() || isNaN(amount)) {
-      setError('Please enter a valid deadline and expected payment.');
+    if (!proposalSummary.trim() || !estimatedDelivery.trim()) {
+      setError('Please fill in all required fields.');
       return;
     }
     try {
       setSubmitting(true);
-      await onSubmit({ deadline: deadline.trim(), expectedPayment: amount });
+      await onSubmit({ 
+        proposalSummary: proposalSummary.trim(),
+        estimatedDelivery: estimatedDelivery.trim(),
+        addOns: addOns.trim()
+      });
       onClose();
     } catch (e: any) {
       setError(e?.message || 'Failed to apply');
@@ -60,29 +65,41 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Calendar className="w-4 h-4 inline-block mr-1" />
-              Proposed Deadline
+              <FileText className="w-4 h-4 inline-block mr-1" />
+              Proposal Summary *
             </label>
-            <input
-              type="text"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              placeholder="e.g., 2025-10-15 or End of Oct"
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
+            <textarea
+              value={proposalSummary}
+              onChange={(e) => setProposalSummary(e.target.value)}
+              placeholder="2-3 sentences on how you will solve this project"
+              rows={3}
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm resize-none"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <DollarSign className="w-4 h-4 inline-block mr-1" />
-              Expected Payment (USD)
+              <Clock className="w-4 h-4 inline-block mr-1" />
+              Estimated Delivery Time *
             </label>
             <input
-              type="number"
-              value={expectedPayment}
-              onChange={(e) => setExpectedPayment(e.target.value)}
-              placeholder="e.g., 1200"
+              type="text"
+              value={estimatedDelivery}
+              onChange={(e) => setEstimatedDelivery(e.target.value)}
+              placeholder="e.g., 5 days, 1 week, 3-4 days"
               className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
-              min={0}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Add-Ons (Optional)
+            </label>
+            <textarea
+              value={addOns}
+              onChange={(e) => setAddOns(e.target.value)}
+              placeholder="e.g., Can also provide documentation, Free bug fixes for 7 days after delivery, Can deploy it for you if needed"
+              rows={3}
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm resize-none"
             />
           </div>
           {error && (

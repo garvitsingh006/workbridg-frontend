@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, FileText, User } from 'lucide-react';
+import { X, Calendar, FileText, User, DollarSign } from 'lucide-react';
 import { useProject } from '../../contexts/ProjectContext';
 import { useUser } from '../../contexts/UserContext';
 
@@ -16,6 +16,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     title: '',
     description: '',
     deadline: '',
+    budget: '',
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -32,12 +33,13 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         title: formData.title,
         description: formData.description,
         deadline: new Date(formData.deadline),
+        budget: parseFloat(formData.budget),
         createdBy: user,
         status: 'unassigned',
       });
       
       // Reset form and close modal
-      setFormData({ title: '', description: '', deadline: '' });
+      setFormData({ title: '', description: '', deadline: '', budget: '' });
       onClose();
     } catch (error) {
       console.error('Error creating project:', error);
@@ -46,7 +48,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     }
   };
 
-  const canSubmit = formData.title.trim() && formData.description.trim() && formData.deadline;
+  const canSubmit = formData.title.trim() && formData.description.trim() && formData.deadline && formData.budget;
 
   if (!isOpen) return null;
 
@@ -110,7 +112,27 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
                 value={formData.deadline}
                 onChange={(e) => handleInputChange('deadline', e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
+                max="2040-12-31"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Budget *
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">₹</span>
+              <input
+                type="number"
+                value={formData.budget}
+                onChange={(e) => handleInputChange('budget', e.target.value)}
+                placeholder="Enter project budget"
+                min="0"
+                step="1"
+                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 required
               />
             </div>

@@ -7,6 +7,7 @@ import DashboardHomeClient from "../components/dashboard/features/DashboardHomeC
 import AnalyticsClient from "../components/dashboard/features/AnalyticsClient";
 import PaymentsClient from "../components/dashboard/features/PaymentsClient";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
+import HelpPage from "../components/dashboard/features/HelpPage";
 import ClientApplications from "../components/dashboard/features/ClientApplications";
 import BrowseFreelancers from "../components/dashboard/features/BrowseFreelancers";
 import { useUser } from "../contexts/UserContext";
@@ -43,6 +44,7 @@ export default function DashboardClient() {
       payments: 'Payments',
       profile: 'Profile',
       'account-settings': 'Account Settings',
+      'help': 'Help & Support',
     };
     return titles[activeFeature] || 'Dashboard';
   };
@@ -67,6 +69,8 @@ export default function DashboardClient() {
         return <ProfileFeature />;
       case "account-settings":
         return <AccountSettings />;
+      case "help":
+        return <HelpPage />;
       default:
         return <DashboardHomeClient onViewAllProjects={() => setActiveFeature("projects")} />;
     }
@@ -74,7 +78,7 @@ export default function DashboardClient() {
 
   return (
     <div className="h-screen bg-gray-50">
-      <div className="flex h-full lg:h-screen">
+      <div className="flex h-full">
         <DashboardSidebar
           activeFeature={activeFeature}
           onFeatureSelect={setActiveFeature}
@@ -82,15 +86,15 @@ export default function DashboardClient() {
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="h-16 bg-white border-b border-gray-200 px-6 flex items-center flex-shrink-0">
-            <div className="flex items-center gap-4">
+          <div className="h-16 bg-white border-b border-gray-200 px-4 lg:px-6 flex items-center flex-shrink-0">
+            <div className="flex items-center gap-3 lg:gap-4">
               <button
                 onClick={() => setIsMobileSidebarOpen(true)}
                 className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-lg lg:text-xl font-semibold text-gray-900 truncate">
                 {getFeatureTitle()}
               </h1>
             </div>

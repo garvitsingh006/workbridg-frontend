@@ -75,8 +75,15 @@ export default function AdminApplications() {
                     <div className="font-medium text-sm">{a.fullName}</div>
                     <div className="text-xs text-gray-500">Applied: {new Date(a.appliedAt).toLocaleString()}</div>
                   </div>
-                  <div className="text-xs text-gray-700 mt-1">Deadline: {new Date(a.deadline).toLocaleDateString()}</div>
-                  <div className="text-xs text-gray-700">Expected Payment: ${a.expectedPayment.toLocaleString()}</div>
+                  {a.proposalSummary && (
+                    <div className="text-xs text-gray-700 mt-1">Proposal: {a.proposalSummary}</div>
+                  )}
+                  {a.estimatedDelivery && (
+                    <div className="text-xs text-gray-700">Estimated Delivery: {a.estimatedDelivery}</div>
+                  )}
+                  {a.addOns && (
+                    <div className="text-xs text-gray-700">Add-ons: {a.addOns}</div>
+                  )}
                   
                   {/* Total Amount Input for Approval */}
                   <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">

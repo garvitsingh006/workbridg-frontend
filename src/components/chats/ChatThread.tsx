@@ -3,14 +3,15 @@ import { type Chat } from '../../contexts/ChatContext';
 import { useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import MessageInput from './MessageInput';
-import { CircleCheck as CheckCircle2, Users, Phone, Video } from 'lucide-react';
+import { CircleCheck as CheckCircle2, Users, Phone, Video, Menu } from 'lucide-react';
 import GroupChatInfo from './GroupChatInfo';
 
 interface ChatThreadProps {
   chat: Chat;
+  onToggleSidebar?: () => void;
 }
 
-const ChatThread: React.FC<ChatThreadProps> = ({ chat }) => {
+const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
   const { addMessage, markMessagesRead, getChatParticipants } = useChat();
   const { user } = useUser();
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -72,6 +73,15 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat }) => {
       <div className="px-4 py-3 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
+            {/* Mobile sidebar toggle */}
+            {onToggleSidebar && (
+              <button
+                onClick={onToggleSidebar}
+                className="lg:hidden p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <Menu className="w-5 h-5 text-gray-600" />
+              </button>
+            )}
             <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <span className="text-white font-medium text-xs">
                 {title.charAt(0).toUpperCase()}

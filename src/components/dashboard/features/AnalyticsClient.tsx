@@ -1,13 +1,20 @@
 import { useUser } from '../../../contexts/UserContext';
 import { useProject } from '../../../contexts/ProjectContext';
+import { usePayment } from '../../../contexts/PaymentContext';
 import { BarChart3, TrendingUp, Users, DollarSign, Clock } from 'lucide-react';
 
 export default function AnalyticsClient() {
   const { user } = useUser();
   const { projects } = useProject();
+  const { payments } = usePayment();
 
   const myProjects = projects.filter(p => p.createdBy?.id === user?.id);
-  const spendEstimate = myProjects.reduce((sum, p: any) => sum + (p.budget || 0), 0);
+  const totalPaid = payments.reduce((sum, payment) => {
+    if (payment.total.status === 'paid') {
+      return sum + (payment.totalAmount + payment.platformFee.serviceCharge);
+    }
+    return sum;
+  }, 0);
   const open = myProjects.filter(p => p.status === 'pending').length;
   const inProgress = myProjects.filter(p => p.status === 'in-progress').length;
   const completed = myProjects.filter(p => p.status === 'completed').length;
@@ -23,7 +30,7 @@ export default function AnalyticsClient() {
         <Card title="Total Posted" value={myProjects.length.toString()} icon={TrendingUp} color="text-blue-600" bg="bg-blue-100" />
         <Card title="Open Projects" value={open.toString()} icon={Clock} color="text-amber-600" bg="bg-amber-100" />
         <Card title="In Progress" value={inProgress.toString()} icon={Users} color="text-purple-600" bg="bg-purple-100" />
-        <Card title="Estimated Spend" value={`$${Intl.NumberFormat().format(spendEstimate)}`} icon={DollarSign} color="text-green-600" bg="bg-green-100" />
+        <Card title="Total Paid" value={`₹${totalPaid.toLocaleString()}`} icon={DollarSign} color="text-green-600" bg="bg-green-100" />
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-6">

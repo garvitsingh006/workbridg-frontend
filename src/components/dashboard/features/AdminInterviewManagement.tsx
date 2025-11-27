@@ -175,8 +175,6 @@ export default function AdminInterviewManagement() {
               <tr>
                 <th className="text-left p-3">Full Name</th>
                 <th className="text-left p-3">Email</th>
-                <th className="text-left p-3">Skills</th>
-                <th className="text-left p-3">Experience</th>
                 <th className="text-left p-3">Registration</th>
                 <th className="text-left p-3">Status</th>
                 <th className="text-left p-3">Action</th>
@@ -185,7 +183,7 @@ export default function AdminInterviewManagement() {
             <tbody>
               {freelancers.length === 0 && (
                 <tr>
-                  <td className="p-4 text-gray-500" colSpan={7}>No pending freelancers.</td>
+                  <td className="p-4 text-gray-500" colSpan={5}>No pending freelancers.</td>
                 </tr>
               )}
               {freelancers
@@ -198,8 +196,6 @@ export default function AdminInterviewManagement() {
                 <tr key={f._id} className="border-t border-gray-100">
                   <td className="p-3 font-medium">{f.fullName}</td>
                   <td className="p-3">{f.email}</td>
-                  <td className="p-3">{(f.skills || []).join(", ")}</td>
-                  <td className="p-3">{f.experience || "-"}</td>
                   <td className="p-3">{new Date(f.createdAt).toLocaleDateString()}</td>
                   <td className="p-3">
                     {f.latestInterview?.status ? (

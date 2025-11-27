@@ -35,24 +35,24 @@ export default function DashboardHomeClient({ onViewAllProjects }: DashboardHome
   ];
 
   return (
-    <div className="p-4 space-y-3">
+    <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-3 text-white">
-        <h2 className="text-lg font-bold mb-1">Welcome back, {user?.fullName?.split(' ')[0] || 'Client'}! 👋</h2>
-        <p className="text-blue-100 text-xs">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-3 sm:p-4 text-white">
+        <h2 className="text-base sm:text-lg font-bold mb-1">Welcome back, {user?.fullName?.split(' ')[0] || 'Client'}! 👋</h2>
+        <p className="text-blue-100 text-xs sm:text-sm">
           You have {unreadMessages} unread messages and {openProjects} open projects.
         </p>
       </div>
 
       {/* Client-focused KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <StatCard title="Projects Posted" value={postedProjects.toString()} icon={FolderOpen} color="text-blue-600" bg="bg-blue-100" />
         <StatCard title="Open Projects" value={openProjects.toString()} icon={ClipboardList} color="text-amber-600" bg="bg-amber-100" />
         <StatCard title="In Progress" value={inProgressProjects.toString()} icon={BadgeCheck} color="text-purple-600" bg="bg-purple-100" />
         <StatCard title="Preferred Budget" value={formatBudget(preferredBudget)} icon={DollarSign} color="text-green-600" bg="bg-green-100" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
         {/* Your Open Projects */}
         <div className="bg-white rounded-lg border border-gray-200">
           <div className="p-3 border-b border-gray-200">
@@ -119,26 +119,26 @@ export default function DashboardHomeClient({ onViewAllProjects }: DashboardHome
 
 function StatCard({ title, value, icon: Icon, color, bg }: { title: string; value: string; icon: any; color: string; bg: string; }) {
   return (
-    <div className="bg-white rounded-lg p-3 border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-2">
-        <div className={`p-1.5 rounded-lg ${bg}`}>
-          <Icon className={`w-4 h-4 ${color}`} />
+    <div className="bg-white rounded-lg p-2 sm:p-3 border border-gray-200 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-1 sm:mb-2">
+        <div className={`p-1 sm:p-1.5 rounded-lg ${bg}`}>
+          <Icon className={`w-3 h-3 sm:w-4 sm:h-4 ${color}`} />
         </div>
       </div>
-      <h3 className="text-lg font-bold text-gray-900 mb-1">{value}</h3>
-      <p className="text-gray-600 text-xs">{title}</p>
+      <h3 className="text-sm sm:text-lg font-bold text-gray-900 mb-0.5 sm:mb-1">{value}</h3>
+      <p className="text-gray-600 text-[10px] sm:text-xs leading-tight">{title}</p>
     </div>
   );
 }
 
 function formatBudget(key: string) {
   switch (key) {
-    case 'under-1000': return 'Under $1,000';
-    case '1000-5000': return '$1,000 - $5,000';
-    case '5000-10000': return '$5,000 - $10,000';
-    case '10000-25000': return '$10,000 - $25,000';
-    case '25000-50000': return '$25,000 - $50,000';
-    case '50000+': return '$50,000+';
+    case 'under-1000': return 'Under ₹1,000';
+    case '1000-5000': return '₹1,000 - ₹5,000';
+    case '5000-10000': return '₹5,000 - ₹10,000';
+    case '10000-25000': return '₹10,000 - ₹25,000';
+    case '25000-50000': return '₹25,000 - ₹50,000';
+    case '50000+': return '₹50,000+';
     default: return '-';
   }
 }

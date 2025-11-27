@@ -125,10 +125,10 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit }
                     <div className="mt-1 flex items-center space-x-2">
                       <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-medium">
-                          {project.createdBy.fullName.charAt(0)}
+                          {project.createdBy?.fullName?.charAt(0) || 'U'}
                         </span>
                       </div>
-                      <span className="text-gray-900">{project.createdBy.fullName}</span>
+                      <span className="text-gray-900">{project.createdBy?.fullName || 'Unknown User'}</span>
                     </div>
                   </div>
 
@@ -138,10 +138,10 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit }
                       <div className="mt-1 flex items-center space-x-2">
                         <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
                           <span className="text-white text-sm font-medium">
-                            {project.assignedTo.fullName.charAt(0)}
+                            {project.assignedTo?.fullName?.charAt(0) || 'U'}
                           </span>
                         </div>
-                        <span className="text-gray-900">{project.assignedTo.fullName}</span>
+                        <span className="text-gray-900">{project.assignedTo?.fullName || 'Unknown User'}</span>
                       </div>
                     </div>
                   )}
@@ -163,6 +163,16 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit }
                       <span className="text-gray-900">{project.createdAt ? new Date(project.createdAt).toLocaleDateString() : ""}</span>
                     </div>
                   </div>
+
+                  {project.budget && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Budget</label>
+                      <div className="mt-1 flex items-center space-x-2">
+                        <span className="text-gray-400 font-medium">₹</span>
+                        <span className="text-gray-900">{project.budget.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )}
 
                   {project.payment && (
                     <div>
@@ -205,12 +215,12 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit }
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-white text-sm font-medium">
-                          {remark.by.fullName.charAt(0)}
+                          {remark.by?.fullName?.charAt(0) || 'U'}
                         </span>
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium text-gray-900">{remark.by.fullName}</span>
+                          <span className="font-medium text-gray-900">{remark.by?.fullName || 'Unknown User'}</span>
                           <span className="text-sm text-gray-500">
                             {remark.createdAt.toLocaleDateString()}
                           </span>

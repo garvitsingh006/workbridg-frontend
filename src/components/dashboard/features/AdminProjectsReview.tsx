@@ -55,9 +55,9 @@ export default function AdminProjectsReview() {
                 deadline: project.deadline
                     ? new Date(project.deadline).toLocaleDateString()
                     : "No deadline",
-                budget: project.payment
-                    ? `$${project.payment.amount.toLocaleString()}`
-                    : "TBD",
+                budget: project.budget
+                    ? `₹${project.budget.toLocaleString()}`
+                    : "₹0",
                 progress:
                     project.status === "completed"
                         ? 100

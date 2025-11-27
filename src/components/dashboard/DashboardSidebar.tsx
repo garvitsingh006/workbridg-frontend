@@ -153,6 +153,10 @@ export default function DashboardSidebar({
                 <div className="p-3 border-t border-gray-200 space-y-1">
                     <div className="relative group">
                         <button
+                            onClick={() => {
+                                onFeatureSelect("help");
+                                onCloseMobile();
+                            }}
                             className="w-full flex items-center justify-center p-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-xl transition-all duration-200"
                             title="Help"
                         >

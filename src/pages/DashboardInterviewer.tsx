@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import InterviewerAssigned from "../components/dashboard/features/InterviewerAssigned";
 import MessagesFeature from "../components/dashboard/features/MessageFeature";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
+import HelpPage from "../components/dashboard/features/HelpPage";
 import { Menu } from "lucide-react";
 
 export default function DashboardInterviewer() {
@@ -31,6 +32,7 @@ export default function DashboardInterviewer() {
       'assigned-interviews': 'Assigned Interviews',
       messages: 'Messages',
       'account-settings': 'Account Settings',
+      'help': 'Help & Support',
     };
     return titles[activeFeature] || 'Dashboard';
   };
@@ -43,6 +45,8 @@ export default function DashboardInterviewer() {
         return <MessagesFeature />;
       case "account-settings":
         return <AccountSettings />;
+      case "help":
+        return <HelpPage />;
       default:
         return <InterviewerAssigned />;
     }

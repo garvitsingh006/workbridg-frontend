@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { useUser } from "../../../contexts/UserContext";
 import { Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../../../api";
 
 export default function AccountSettings() {
   const { user } = useUser();
+  const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const getInitials = () => {
     if (!user?.fullName) return "U";
@@ -15,9 +21,23 @@ export default function AccountSettings() {
     return user.fullName.charAt(0).toUpperCase();
   };
 
-  const handleDeleteAccount = () => {
-    console.log("Delete account requested");
-    setShowDeleteConfirm(false);
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      toast.error('Please type DELETE to confirm');
+      return;
+    }
+    
+    setIsDeleting(true);
+    try {
+      await api.delete('/users/delete-account');
+      localStorage.removeItem('token');
+      toast.success('Account deleted successfully');
+      navigate('/login');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to delete account');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -113,17 +133,28 @@ export default function AccountSettings() {
           ) : (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-800 font-medium mb-3">
-                Are you absolutely sure? This action cannot be undone.
+                Type <strong>DELETE</strong> to confirm account deletion:
               </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE here"
+                className="w-full px-3 py-2 border border-red-300 rounded-lg mb-3 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+              />
               <div className="flex gap-2">
                 <button
                   onClick={handleDeleteAccount}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                  disabled={deleteConfirmText !== 'DELETE' || isDeleting}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Yes, delete my account
+                  {isDeleting ? 'Deleting...' : 'Delete Account'}
                 </button>
                 <button
-                  onClick={() => setShowDeleteConfirm(false)}
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setDeleteConfirmText('');
+                  }}
                   className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
                 >
                   Cancel
