@@ -1,5 +1,5 @@
 import React from "react";
-import { FolderOpen, Plus, ListFilter as Filter, Search, MoreVertical, Calendar, Users, RefreshCw, Trash2 } from "lucide-react";
+import { FolderOpen, Plus, ListFilter as Calendar, RefreshCw } from "lucide-react";
 import { useProject } from "../../../contexts/ProjectContext";
 import { useUser } from "../../../contexts/UserContext";
 import CreateProjectModal from "../../modals/CreateProjectModal";
@@ -10,8 +10,8 @@ import ApplyProjectModal from "../../modals/ApplyProjectModal";
 import type { Project } from "../../../contexts/ProjectContext";
 
 export default function Projects() {
-    const [searchTerm, setSearchTerm] = React.useState("");
-    const [filterStatus, setFilterStatus] = React.useState("all");
+    const [searchTerm,] = React.useState("");
+    // const [filterStatus, setFilterStatus] = React.useState("all");
     const [projectName, setProjectName] = React.useState("");
     const [budgetMin, setBudgetMin] = React.useState("");
     const [budgetMax, setBudgetMax] = React.useState("");
@@ -28,7 +28,7 @@ export default function Projects() {
     const [selectedProject, setSelectedProject] =
         React.useState<Project | null>(null);
     const [applyOpen, setApplyOpen] = React.useState(false);
-    const [dropdownOpen, setDropdownOpen] = React.useState<string | null>(null);
+    // const [dropdownOpen, setDropdownOpen] = React.useState<string | null>(null);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
     const [projectToDelete, setProjectToDelete] = React.useState<Project | null>(null);
 
@@ -123,12 +123,12 @@ export default function Projects() {
         }
     };
 
-    const statusCounts = {
-        all: projects.length,
-        'in-progress': projects.filter(p => p.status === 'in-progress').length,
-        pending: projects.filter(p => p.status === 'pending').length,
-        completed: projects.filter(p => p.status === 'completed').length,
-    };
+    // const statusCounts = {
+    //     all: projects.length,
+    //     'in-progress': projects.filter(p => p.status === 'in-progress').length,
+    //     pending: projects.filter(p => p.status === 'pending').length,
+    //     completed: projects.filter(p => p.status === 'completed').length,
+    // };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -278,7 +278,7 @@ export default function Projects() {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setSelectedProject(originalProject);
+                                            setSelectedProject(originalProject || null);
                                             setApplyOpen(true);
                                         }}
                                         className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-md hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
