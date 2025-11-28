@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { X, Calendar, User, MessageSquare, DollarSign, Clock, Edit3, Tag } from 'lucide-react';
+import { X, Calendar, DollarSign, Clock, Edit3, Tag } from 'lucide-react';
 import type { Project } from '../../contexts/ProjectContext';
 
 interface ProjectDetailsModalProps {
@@ -13,7 +12,6 @@ interface ProjectDetailsModalProps {
 import { useUser } from '../../contexts/UserContext';
 
 export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, onApply }: ProjectDetailsModalProps) {
-  const [activeTab, setActiveTab] = useState<'details' | 'remarks'>('details');
   const { user } = useUser();
 
   if (!isOpen || !project) return null;
