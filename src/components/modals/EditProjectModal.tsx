@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, FileText, Save} from 'lucide-react';
+import { X, Calendar, FileText, Save, Tag} from 'lucide-react';
 import { useProject, type Project } from '../../contexts/ProjectContext';
 
 interface EditProjectModalProps {
@@ -16,7 +16,21 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
     description: '',
     deadline: '',
     budget: '',
+    category: '',
   });
+
+  const categories = [
+    'Development',
+    'Design', 
+    'Writing',
+    'Marketing',
+    'Video & Animation',
+    'Audio & Music',
+    'Business & Consulting',
+    'Data & AI',
+    'Support & Admin',
+    'Other'
+  ];
 
   useEffect(() => {
     if (project) {
@@ -33,6 +47,7 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
         description: project.description,
         deadline: deadlineValue,
         budget: project.budget ? project.budget.toString() : '',
+        category: project.category || '',
       });
     }
   }, [project]);
@@ -52,6 +67,7 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
         description: formData.description,
         deadline: new Date(formData.deadline),
         budget: parseFloat(formData.budget),
+        category: formData.category,
       });
       
       onClose();
@@ -62,15 +78,15 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
     }
   };
 
-  const canSubmit = formData.title.trim() && formData.description.trim() && formData.deadline && formData.budget;
+  const canSubmit = formData.title.trim() && formData.description.trim() && formData.deadline && formData.budget && formData.category;
 
   if (!isOpen || !project) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+        {/* Fixed Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-blue-100 rounded-lg">
               <FileText className="w-5 h-5 text-blue-600" />
@@ -79,14 +95,14 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {/* Scrollable Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1" style={{scrollBehavior: 'smooth'}}>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Project Title *
@@ -146,9 +162,31 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
                 placeholder="Enter project budget"
                 min="0"
                 step="1"
-                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-one transition-all"
+                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 required
               />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category *
+            </label>
+            <div className="relative">
+              <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <select
+                value={formData.category}
+                onChange={(e) => handleInputChange('category', e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none bg-white"
+                required
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -157,7 +195,7 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -166,7 +204,7 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
               disabled={!canSubmit || isSubmitting}
               className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-colors ${
                 canSubmit && !isSubmitting
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >

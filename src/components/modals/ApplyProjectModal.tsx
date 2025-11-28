@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, FileText, Clock } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 interface ApplyProjectModalProps {
   isOpen: boolean;
@@ -39,6 +40,7 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
         estimatedDelivery: estimatedDelivery.trim(),
         addOns: addOns.trim()
       });
+      toast.success('Application submitted successfully! 🎉');
       onClose();
     } catch (e: any) {
       setError(e?.message || 'Failed to apply');
@@ -49,20 +51,22 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fadeIn">
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col animate-fadeIn">
+        {/* Fixed Header */}
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Apply to Project</h3>
             <p className="text-sm text-gray-500 mt-0.5">Submit your proposal details</p>
           </div>
           <button
             onClick={() => { setError(null); onClose(); }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        {/* Scrollable Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1" style={{scrollBehavior: 'smooth'}}>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <FileText className="w-4 h-4 inline-block mr-1" />
@@ -111,14 +115,14 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors font-medium text-sm"
+              className="px-4 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors font-medium text-sm cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 transition-all font-medium text-sm shadow-lg shadow-purple-500/30"
+              className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
             >
               {submitting ? 'Submitting...' : 'Submit Application'}
             </button>

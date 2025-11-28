@@ -32,6 +32,7 @@ export interface Project {
         | "cancelled";
     deadline: Date;
     budget?: number;
+    category: string;
     remarks: Remark[];
     payment?: Payment;
     totalAmount?: number; // Total project amount for payment system

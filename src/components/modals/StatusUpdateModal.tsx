@@ -104,9 +104,9 @@ export default function StatusUpdateModal({ isOpen, onClose, project }: StatusUp
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+        {/* Fixed Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-blue-100 rounded-lg">
               <CheckCircle className="w-5 h-5 text-blue-600" />
@@ -124,6 +124,8 @@ export default function StatusUpdateModal({ isOpen, onClose, project }: StatusUp
           </button>
         </div>
 
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto flex-1" style={{scrollBehavior: 'smooth'}}>
         {/* Current Status */}
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-sm font-medium text-gray-700 mb-3">Current Status</h3>
@@ -235,6 +237,7 @@ export default function StatusUpdateModal({ isOpen, onClose, project }: StatusUp
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

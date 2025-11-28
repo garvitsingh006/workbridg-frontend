@@ -51,24 +51,24 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
+                {/* Fixed Header */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
                     <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                         <CreditCard className="w-5 h-5 text-blue-600" />
                         Payment Details
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                     >
                         <X className="w-5 h-5 text-gray-500" />
                     </button>
                 </div>
 
-                {/* Content */}
-                <div className="p-6 space-y-6">
+                {/* Scrollable Content */}
+                <div className="p-6 space-y-6 overflow-y-auto flex-1" style={{scrollBehavior: 'smooth'}}>
                     {/* Project & Users Info */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
@@ -266,7 +266,7 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
                 <div className="border-t border-gray-200 p-6">
                     <button
                         onClick={onClose}
-                        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+                        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors cursor-pointer"
                     >
                         Close
                     </button>

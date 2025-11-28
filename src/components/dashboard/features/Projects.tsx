@@ -12,6 +12,10 @@ import type { Project } from "../../../contexts/ProjectContext";
 export default function Projects() {
     const [searchTerm, setSearchTerm] = React.useState("");
     const [filterStatus, setFilterStatus] = React.useState("all");
+    const [projectName, setProjectName] = React.useState("");
+    const [budgetMin, setBudgetMin] = React.useState("");
+    const [budgetMax, setBudgetMax] = React.useState("");
+    const [category, setCategory] = React.useState("");
     const { projects, applyToProject, fetchProjects, deleteProject } = useProject();
     React.useEffect(() => {
         fetchProjects();
@@ -28,22 +32,55 @@ export default function Projects() {
     const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
     const [projectToDelete, setProjectToDelete] = React.useState<Project | null>(null);
 
+    const categories = [
+        'Development',
+        'Design', 
+        'Writing',
+        'Marketing',
+        'Video & Animation',
+        'Audio & Music',
+        'Business & Consulting',
+        'Data & AI',
+        'Support & Admin',
+        'Other'
+    ];
+
+    const applyFilters = () => {
+        // Filters are applied in displayProjects calculation
+    };
+
+    const resetFilters = () => {
+        setProjectName('');
+        setBudgetMin('');
+        setBudgetMax('');
+        setCategory('');
+    };
+
     const displayProjects = projects
         .filter((project) => {
-            const matchesSearch =
-                project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (project.createdBy?.fullName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                (project.status && project.status.toLowerCase().includes(searchTerm.toLowerCase()));
+            // Project name filter
+            const nameMatch = !projectName || project.title.toLowerCase().includes(projectName.toLowerCase());
+            
+            // Budget filter
+            const budget = project.budget || 0;
+            const minBudget = budgetMin ? parseFloat(budgetMin) : 0;
+            const maxBudget = budgetMax ? parseFloat(budgetMax) : Infinity;
+            const budgetMatch = budget >= minBudget && budget <= maxBudget;
+            
+            // Category filter
+            const categoryMatch = !category || project.category === category;
 
-            const matchesFilter = filterStatus === "all" || project.status === filterStatus;
+            // For freelancers, only show unassigned projects (Starting Soon)
+            const freelancerFilter = user?.userType === 'freelancer' ? project.status === 'unassigned' : true;
 
-            return matchesSearch && matchesFilter;
+            return nameMatch && budgetMatch && categoryMatch && freelancerFilter;
         })
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .map((project) => ({
             id: project.id,
             name: project.title,
             client: project.createdBy?.fullName || 'Unknown Client',
-            category: "Development",
+            category: project.category || "Other",
             image: "https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=200",
             status:
                     project.status === "in-progress"
@@ -74,15 +111,15 @@ export default function Projects() {
     const getStatusColor = (status: string) => {
         switch (status) {
             case "In Progress":
-                return "bg-purple-100 text-purple-800";
+                return "bg-blue-50 text-blue-700";
             case "Review":
-                return "bg-yellow-100 text-yellow-800";
+                return "bg-amber-50 text-amber-700";
             case "Starting Soon":
-                return "bg-blue-100 text-blue-800";
+                return "bg-indigo-50 text-indigo-700";
             case "Completed":
-                return "bg-green-100 text-green-800";
+                return "bg-emerald-50 text-emerald-700";
             default:
-                return "bg-gray-100 text-gray-800";
+                return "bg-gray-50 text-gray-700";
         }
     };
 
@@ -94,9 +131,10 @@ export default function Projects() {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="min-h-screen bg-gray-50">
+        <div className="p-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">
                         Projects
@@ -108,7 +146,7 @@ export default function Projects() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={fetchProjects}
-                        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                        className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors text-sm cursor-pointer"
                     >
                         <RefreshCw className="w-4 h-4" />
                         <span>Refresh</span>
@@ -116,7 +154,7 @@ export default function Projects() {
                     {user?.userType === 'client' && (
                         <button
                             onClick={() => setCreateModalOpen(true)}
-                            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2.5 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30"
+                            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-md hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
                         >
                             <Plus className="w-4 h-4" />
                             <span>Add New Project</span>
@@ -125,246 +163,154 @@ export default function Projects() {
                 </div>
             </div>
 
-            {/* Filters Bar */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div className="flex items-center gap-3 overflow-x-auto pb-2 lg:pb-0">
-                        <button
-                            onClick={() => setFilterStatus("all")}
-                            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
-                                filterStatus === "all"
-                                    ? "bg-purple-600 text-white shadow-lg shadow-purple-500/30"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                        >
-                            All Projects ({statusCounts.all})
-                        </button>
-                        <button
-                            onClick={() => setFilterStatus("in-progress")}
-                            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
-                                filterStatus === "in-progress"
-                                    ? "bg-purple-600 text-white shadow-lg shadow-purple-500/30"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                        >
-                            In Progress ({statusCounts['in-progress']})
-                        </button>
-                        <button
-                            onClick={() => setFilterStatus("pending")}
-                            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
-                                filterStatus === "pending"
-                                    ? "bg-purple-600 text-white shadow-lg shadow-purple-500/30"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                        >
-                            Pending ({statusCounts.pending})
-                        </button>
-                        <button
-                            onClick={() => setFilterStatus("completed")}
-                            className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
-                                filterStatus === "completed"
-                                    ? "bg-purple-600 text-white shadow-lg shadow-purple-500/30"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                        >
-                            Completed ({statusCounts.completed})
-                        </button>
+            {/* Filters */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Project Name</label>
+                        <input
+                            type="text"
+                            placeholder="Enter project name"
+                            value={projectName}
+                            onChange={(e) => setProjectName(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm"
+                        />
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="relative flex-1 lg:flex-initial">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search projects..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full lg:w-64 pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-sm"
-                            />
-                        </div>
-                        <button className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                            <Filter className="w-4 h-4" />
-                            <span className="hidden sm:inline">Filter</span>
-                        </button>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Min Budget (₹)</label>
+                        <input
+                            type="number"
+                            placeholder="0"
+                            value={budgetMin}
+                            onChange={(e) => setBudgetMin(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm"
+                        />
                     </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Max Budget (₹)</label>
+                        <input
+                            type="number"
+                            placeholder="No limit"
+                            value={budgetMax}
+                            onChange={(e) => setBudgetMax(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Category</label>
+                        <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white text-sm"
+                        >
+                            <option value="">All Categories</option>
+                            {categories.map((cat) => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                <div className="flex gap-3">
+                    <button
+                        onClick={applyFilters}
+                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-md hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
+                    >
+                        Apply Filters
+                    </button>
+                    <button
+                        onClick={resetFilters}
+                        className="px-4 py-2 border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium text-sm cursor-pointer"
+                    >
+                        Reset
+                    </button>
                 </div>
             </div>
 
-            {/* Projects Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Project
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Category
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Deadline
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Budget
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {displayProjects.map((project) => (
-                                <tr key={project.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <img
-                                                src={project.image}
-                                                alt={project.name}
-                                                className="w-12 h-12 rounded-lg object-cover"
-                                            />
-                                            <div>
-                                                <div className="font-medium text-sm text-gray-900">{project.name}</div>
-                                                <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                                                    <Users className="w-3 h-3" />
-                                                    {project.client}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium">
-                                            {project.category}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span
-                                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}
-                                        >
-                                            {project.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-1 text-sm text-gray-700">
-                                            <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                                            {project.deadline}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-1 font-semibold text-sm text-gray-900">
-                                            <span className="text-gray-400 font-medium">₹</span>
-                                            {project.budget.replace('₹', '')}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => {
-                                                    const originalProject = projects.find(
-                                                        (p) => p.id === project.id
-                                                    );
-                                                    if (originalProject) {
-                                                        setSelectedProject(originalProject);
-                                                        setDetailsModalOpen(true);
-                                                    }
-                                                }}
-                                                className="px-3 py-1.5 text-xs bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors font-medium"
-                                            >
-                                                View
-                                            </button>
-                                            {user?.userType === 'freelancer' && (
-                                                <button
-                                                    onClick={() => {
-                                                        const originalProject = projects.find((p) => p.id === project.id) || null;
-                                                        setSelectedProject(originalProject);
-                                                        setApplyOpen(true);
-                                                    }}
-                                                    className="px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-                                                >
-                                                    Apply
-                                                </button>
-                                            )}
-                                            {user?.userType !== 'admin' && user?.userType !== "freelancer" && (
-                                                <button
-                                                    onClick={() => {
-                                                        const originalProject = projects.find(
-                                                            (p) => p.id === project.id
-                                                        );
-                                                        if (originalProject) {
-                                                            setSelectedProject(originalProject);
-                                                            setEditModalOpen(true);
-                                                        }
-                                                    }}
-                                                    className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                                                >
-                                                    Edit
-                                                </button>
-                                            )}
-                                            <div className="relative">
-                                                <button 
-                                                    onClick={() => setDropdownOpen(dropdownOpen === project.id ? null : project.id)}
-                                                    className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                                                >
-                                                    <MoreVertical className="w-4 h-4 text-gray-500" />
-                                                </button>
-                                                {dropdownOpen === project.id && (
-                                                    <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-32">
-                                                        {user?.userType === 'client' && (
-                                                            <button
-                                                                onClick={() => {
-                                                                    const originalProject = projects.find(p => p.id === project.id);
-                                                                    if (originalProject) {
-                                                                        setProjectToDelete(originalProject);
-                                                                        setDeleteConfirmOpen(true);
-                                                                        setDropdownOpen(null);
-                                                                    }
-                                                                }}
-                                                                className="w-full flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 transition-colors text-sm"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                                Delete
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+            {/* Projects Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {displayProjects.map((project) => {
+                    const originalProject = projects.find((p) => p.id === project.id);
+                    const description = originalProject?.description || '';
+                    
+                    return (
+                        <div
+                            key={project.id}
+                            onClick={() => {
+                                if (originalProject) {
+                                    setSelectedProject(originalProject);
+                                    setDetailsModalOpen(true);
+                                }
+                            }}
+                            className="bg-white rounded-lg border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200 cursor-pointer group"
+                        >
+                            {/* Header */}
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                    <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-1">
+                                        {project.name}
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed">
+                                        {description ? (description.split(' ').length > 100 ? description.split(' ').slice(0, 100).join(' ') + '...' : description) : 'No description provided'}
+                                    </p>
+                                </div>
+                                <span className="px-2 py-1 bg-gray-50 text-gray-700 rounded border text-xs font-medium ml-3 flex-shrink-0">
+                                    {project.category}
+                                </span>
+                            </div>
 
-                {/* Pagination */}
-                <div className="p-4 border-t border-gray-100 flex items-center justify-between">
-                    <div className="text-sm text-gray-600">
-                        Showing 1 to {displayProjects.length} of {projects.length} results
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                            Previous
-                        </button>
-                        <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
-                            1
-                        </button>
-                        <button className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                            2
-                        </button>
-                        <button className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                            Next
-                        </button>
-                    </div>
-                </div>
+                            {/* Status and Deadline */}
+                            <div className="flex items-center justify-between mb-4">
+                                <span className={`px-2 py-1 rounded-md text-xs font-medium ${getStatusColor(project.status)}`}>
+                                    {project.status}
+                                </span>
+                                <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                                    <Calendar className="w-4 h-4 text-gray-400" />
+                                    <span className="text-xs">{project.deadline}</span>
+                                </div>
+                            </div>
+
+                            {/* Budget and Actions */}
+                            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                <div className="text-lg font-semibold text-gray-900">
+                                    {project.budget}
+                                </div>
+                                {user?.userType === 'freelancer' && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedProject(originalProject);
+                                            setApplyOpen(true);
+                                        }}
+                                        className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-md hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
+                                    >
+                                        Apply
+                                    </button>
+                                )}
+                                {user?.userType !== 'admin' && user?.userType !== "freelancer" && originalProject?.status === 'unassigned' && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (originalProject) {
+                                                setSelectedProject(originalProject);
+                                                setEditModalOpen(true);
+                                            }
+                                        }}
+                                        className="px-3 py-1.5 border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium text-sm cursor-pointer"
+                                    >
+                                        Edit
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Empty State */}
             {displayProjects.length === 0 && (
-                <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-                    <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <FolderOpen className="w-8 h-8 text-purple-600" />
+                <div className="col-span-full bg-white rounded-lg border border-gray-200 p-12 text-center">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <FolderOpen className="w-6 h-6 text-gray-600" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                         No projects found
@@ -375,7 +321,7 @@ export default function Projects() {
                     {user?.userType === 'client' && !searchTerm && (
                         <button
                             onClick={() => setCreateModalOpen(true)}
-                            className="bg-purple-600 text-white px-6 py-2.5 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                            className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-2.5 rounded-md hover:from-purple-700 hover:to-purple-800 transition-all text-sm font-medium shadow-lg shadow-purple-500/30 cursor-pointer"
                         >
                             Create Your First Project
                         </button>
@@ -400,6 +346,11 @@ export default function Projects() {
                     setDetailsModalOpen(false);
                     setSelectedProject(project);
                     setEditModalOpen(true);
+                }}
+                onApply={(project) => {
+                    setDetailsModalOpen(false);
+                    setSelectedProject(project);
+                    setApplyOpen(true);
                 }}
             />
 
@@ -443,7 +394,7 @@ export default function Projects() {
                                     setDeleteConfirmOpen(false);
                                     setProjectToDelete(null);
                                 }}
-                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
@@ -458,7 +409,7 @@ export default function Projects() {
                                     setDeleteConfirmOpen(false);
                                     setProjectToDelete(null);
                                 }}
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
                             >
                                 Delete
                             </button>
@@ -467,13 +418,8 @@ export default function Projects() {
                 </div>
             )}
 
-            {/* Click outside to close dropdown */}
-            {dropdownOpen && (
-                <div 
-                    className="fixed inset-0 z-5" 
-                    onClick={() => setDropdownOpen(null)}
-                />
-            )}
+
+        </div>
         </div>
     );
 }

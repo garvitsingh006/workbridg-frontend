@@ -4,6 +4,7 @@ import { usePayment, type Payment } from '../../../contexts/PaymentContext';
 import { useUser } from '../../../contexts/UserContext';
 import PaymentModal from '../../payment/PaymentModal';
 import PaymentStatusBadge from '../../payment/PaymentStatusBadge';
+import { toast } from 'react-toastify';
 
 export default function PaymentsClient() {
   const { user } = useUser();
@@ -57,23 +58,23 @@ export default function PaymentsClient() {
             // Refresh payments
             await fetchUserPayments();
             
-            alert('Payment successful!');
+            toast.success('Payment successful! 🎉');
           } catch (error) {
             console.error('Payment verification failed:', error);
-            alert('Payment verification failed. Please contact support.');
+            toast.error('Payment verification failed. Please contact support.');
           } finally {
             setProcessingPayment(null);
           }
         },
         (error: any) => {
           console.error('Payment failed:', error);
-          alert(error.message || 'Payment failed. Please try again.');
+          toast.error(error.message || 'Payment failed. Please try again.');
           setProcessingPayment(null);
         }
       );
     } catch (error) {
       console.error('Failed to initiate payment:', error);
-      alert('Failed to initiate payment. Please try again.');
+      toast.error('Failed to initiate payment. Please try again.');
       setProcessingPayment(null);
     }
   };

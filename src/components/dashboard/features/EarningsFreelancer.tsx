@@ -239,7 +239,7 @@ export default function EarningsFreelancer() {
                     <tr key={payment._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div>
-                          <div className="font-medium text-sm text-gray-900">{payment.projectId.title}</div>
+                          <div className="font-medium text-sm text-gray-900">{payment.projectId?.title || 'Unknown Project'}</div>
                           <div className="text-xs text-gray-500 mt-0.5">
                             Project: ₹{payment.totalAmount.toLocaleString()} - Fee: ₹{payment.platformFee.commissionFee.toLocaleString()}
                           </div>
