@@ -269,8 +269,8 @@ export default function ClientApplications() {
                 <li key={idx} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <span className="text-purple-600 font-semibold text-sm">{a.fullName?.charAt(0) || 'U'}</span>
+                      <div className="w-10 h-10 bg-[#f72585]/10 rounded-full flex items-center justify-center">
+                        <span className="text-[#f72585] font-semibold text-sm">{a.fullName?.charAt(0) || 'U'}</span>
                       </div>
                       <div>
                         <div className="font-semibold text-gray-900">{a.fullName}</div>
@@ -318,7 +318,7 @@ export default function ClientApplications() {
                   
                   <div className="flex justify-end">
                     <button
-                      className="px-4 py-2 text-sm font-medium rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                      className="px-4 py-2 text-sm font-medium rounded-lg bg-[#f72585] text-white hover:bg-[#f72585]/90 transition-colors"
                       onClick={() => handleChooseApplication(a)}
                     >
                       Choose This Application

@@ -48,17 +48,17 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, 
     <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-[650px] max-h-[90vh] flex flex-col shadow-3xl" style={{boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'}}>
         {/* Fixed Header */}
-        <div className="p-6 pb-4 border-b border-gray-100 flex-shrink-0">
+        <div className="p-6 pb-4 border-b border-gray-100 shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-900 mb-1">{project.title}</h2>
               <p className="text-gray-500">Project Details</p>
             </div>
             <div className="flex items-center space-x-3">
-              {user?.userType === 'client' && (
+              {user?.userType === 'client' && project.status === 'unassigned' && (
                 <button
                   onClick={() => onEdit(project)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium cursor-pointer"
+                  className="flex items-center space-x-2 px-4 py-2 bg-[#f72585] text-white rounded-xl hover:bg-[#f72585]/90 transition-colors font-medium cursor-pointer"
                 >
                   <Edit3 className="w-4 h-4" />
                   <span>Edit</span>
@@ -89,7 +89,7 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, 
                 <div>
                   <label className="text-sm font-medium text-gray-500 mb-2 block">Category</label>
                   <div className="flex items-center space-x-2">
-                    <Tag className="w-4 h-4 text-purple-500" />
+                    <Tag className="w-4 h-4 text-[#f72585]" />
                     <span className="text-gray-900 font-medium">{project.category}</span>
                   </div>
                 </div>
@@ -97,7 +97,7 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, 
                 <div>
                   <label className="text-sm font-medium text-gray-500 mb-2 block">Created By</label>
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-[#f72585] rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-medium">
                         {project.createdBy?.fullName?.charAt(0) || 'U'}
                       </span>
@@ -177,7 +177,7 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, 
                   {project.remarks.map((remark, index) => (
                     <div key={index} className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 bg-[#f72585] rounded-full flex items-center justify-center shrink-0">
                           <span className="text-white text-sm font-medium">
                             {remark.by?.fullName?.charAt(0) || 'U'}
                           </span>
@@ -208,7 +208,7 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, 
                     onApply(project);
                   }
                 }}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all font-semibold shadow-lg shadow-purple-500/30 cursor-pointer"
+                className="px-6 py-3 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-xl hover:from-[#f72585] hover:to-[#f72585] transition-all font-semibold shadow-lg shadow-[#f72585]/30 cursor-pointer"
               >
                 Apply to Project
               </button>

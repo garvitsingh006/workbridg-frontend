@@ -223,7 +223,7 @@ export default function FreelancerInterviews() {
                 <button
                     onClick={fetchUpcoming}
                     disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-linear-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30"
                 >
                     <RefreshCw
                         className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
@@ -257,7 +257,7 @@ export default function FreelancerInterviews() {
                             {/* Header */}
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
+                                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
                                         {String(
                                             item.interviewer?.fullName || "T"
                                         ).charAt(0)}
@@ -389,7 +389,7 @@ export default function FreelancerInterviews() {
                             {/* Action Button(s) depending on status */}
                             <div className="mt-4 pt-4 border-t border-gray-100">
                                 {item.status === "scheduled" && isSoon && (
-                                    <button className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30">
+                                    <button className="w-full py-2.5 bg-linear-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30">
                                         Join Interview
                                     </button>
                                 )}

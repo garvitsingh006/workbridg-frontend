@@ -37,7 +37,7 @@ export default function DashboardHomeClient({ onViewAllProjects }: DashboardHome
   return (
     <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-3 sm:p-4 text-white">
+      <div className="bg-linear-to-r from-blue-600 to-blue-700 rounded-lg p-3 sm:p-4 text-white">
         <h2 className="text-base sm:text-lg font-bold mb-1">Welcome back, {user?.fullName?.split(' ')[0] || 'Client'}! 👋</h2>
         <p className="text-blue-100 text-xs sm:text-sm">
           You have {unreadMessages} unread messages and {openProjects} open projects.
@@ -48,7 +48,7 @@ export default function DashboardHomeClient({ onViewAllProjects }: DashboardHome
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <StatCard title="Projects Posted" value={postedProjects.toString()} icon={FolderOpen} color="text-blue-600" bg="bg-blue-100" />
         <StatCard title="Open Projects" value={openProjects.toString()} icon={ClipboardList} color="text-amber-600" bg="bg-amber-100" />
-        <StatCard title="In Progress" value={inProgressProjects.toString()} icon={BadgeCheck} color="text-purple-600" bg="bg-purple-100" />
+        <StatCard title="In Progress" value={inProgressProjects.toString()} icon={BadgeCheck} color="text-[#f72585]" bg="bg-[#f72585]/10" />
         <StatCard title="Preferred Budget" value={formatBudget(preferredBudget)} icon={DollarSign} color="text-green-600" bg="bg-green-100" />
       </div>
 
@@ -167,7 +167,7 @@ function renderRecentMessages(chats: any[], userId: string) {
 
   return items.map((message) => (
     <div key={message.id} className="flex items-start space-x-2 p-1.5 rounded-lg hover:bg-gray-50 transition-colors">
-      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
         <span className="text-white text-xs font-medium">
           {(message.sender || 'U').charAt(0)}
         </span>

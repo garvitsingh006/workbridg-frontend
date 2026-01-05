@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../../api";
 import { Star, MapPin, CheckCircle } from "lucide-react";
+import { useUser } from "../../../contexts/UserContext";
+import Joyride, {type CallBackProps, STATUS, type Step, type Placement } from 'react-joyride';
 
 function truncate(str: string, n: number) {
   if (!str) return "";
@@ -49,7 +51,7 @@ function FreelancerCard({ profile }: { profile: any }) {
       title={`View ${name} profile`}
     >
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-lg font-semibold text-gray-600 overflow-hidden flex-shrink-0">
+        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-lg font-semibold text-gray-600 overflow-hidden shrink-0">
           {photo ? <img src={photo} alt={name} className="w-full h-full object-cover rounded-lg" /> : String(name).charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
@@ -111,9 +113,11 @@ function FreelancerCard({ profile }: { profile: any }) {
 }
 
 export default function BrowseFreelancers() {
+  const { user, updateUser } = useUser();
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [runTour, setRunTour] = useState(false);
 
   // Filters & pagination
   const [searchInput, setSearchInput] = useState(''); // for skills
@@ -157,6 +161,34 @@ export default function BrowseFreelancers() {
   useEffect(() => {
     fetchList({ page: 1 });
   }, []);
+
+  // Tour setup
+  useEffect(() => {
+    if (user?.userType === 'client' && user?.hasSeenBrowseFreelancersOnboarding === false && !runTour) {
+      const timer = setTimeout(() => {
+        setRunTour(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, runTour]);
+
+  const handleJoyrideCallback = (data: CallBackProps) => {
+    const { status } = data;
+    const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
+    
+    if (finishedStatuses.includes(status)) {
+      setRunTour(false);
+      markOnboardingComplete();
+    }
+  };
+
+  const markOnboardingComplete = async () => {
+    try {
+      await updateUser({ hasSeenBrowseFreelancersOnboarding: true });
+    } catch (error) {
+      console.error('Failed to update onboarding status:', error);
+    }
+  };
 
   useEffect(() => {
     if (page === 1) {
@@ -219,6 +251,59 @@ export default function BrowseFreelancers() {
 
   const totalPages = Math.max(1, Math.ceil((total || 0) / limit));
 
+  const tourSteps: Step[] = [
+    {
+      target: 'body',
+      content: (
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome to Browse Freelancers! 🔍</h2>
+          <p className="text-gray-600">Discover talented freelancers for your projects. Let me show you how to find the perfect match for your needs.</p>
+        </div>
+      ),
+      placement: 'center' as Placement
+    },
+    {
+      target: '[data-intro="filters"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Search & Filter</h3>
+          <p className="text-gray-600">Use these filters to find freelancers by skills, name, location, work field, and rating. Narrow down your search to find exactly what you need.</p>
+        </div>
+      ),
+      placement: 'bottom' as Placement
+    },
+    {
+      target: '[data-intro="freelancer-card"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Freelancer Profiles</h3>
+          <p className="text-gray-600">Each card shows key information: rating, experience, skills, hourly rate, and verification status. Click on any card to view the full profile.</p>
+        </div>
+      ),
+      placement: 'top' as Placement
+    },
+    {
+      target: '[data-intro="pagination"]',
+      content: (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Browse More</h3>
+          <p className="text-gray-600">Use pagination controls to browse through all available freelancers. Adjust results per page to see more or fewer profiles at once.</p>
+        </div>
+      ),
+      placement: 'top' as Placement
+    },
+    {
+      target: 'body',
+      content: (
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Ready to Hire! 🎯</h2>
+          <p className="text-gray-600">You now know how to find and evaluate freelancers. Click on profiles to learn more and start building your dream team!</p>
+        </div>
+      ),
+      placement: 'center' as Placement
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="p-6">
@@ -228,7 +313,7 @@ export default function BrowseFreelancers() {
             <p className="text-gray-600 mt-1 text-sm">Discover vetted freelancers. Use the filters to narrow results by skills, rating, location or experience.</p>
           </header>
 
-          <section className="bg-white rounded-lg border border-gray-200 p-5 mb-6">
+          <section data-intro="filters" className="bg-white rounded-lg border border-gray-200 p-5 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Skills</label>
@@ -287,11 +372,13 @@ export default function BrowseFreelancers() {
             )}
 
             {displayProfiles.map((p: any, idx: number) => (
-              <FreelancerCard key={p.user?.username || idx} profile={p} />
+              <div key={p.user?.username || idx} data-intro={idx === 0 ? "freelancer-card" : undefined}>
+                <FreelancerCard profile={p} />
+              </div>
             ))}
           </div>
 
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
+          <div data-intro="pagination" className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <div className="text-sm text-gray-600">
               Showing page {page} of {totalPages} — {total} results
             </div>
@@ -342,6 +429,81 @@ export default function BrowseFreelancers() {
           </div>
         </div>
       </div>
+
+      {/* Tour Component */}
+      <Joyride
+        steps={tourSteps}
+        run={runTour}
+        continuous
+        showProgress
+        showSkipButton
+        callback={handleJoyrideCallback}
+        scrollToFirstStep
+        scrollOffset={100}
+        disableOverlayClose
+        spotlightClicks
+        floaterProps={{
+          disableAnimation: false,
+          styles: {
+            floater: {
+              transition: 'opacity 2s ease-in-out, transform 2s ease-in-out'
+            }
+          }
+        }}
+        styles={{
+          overlay: {
+            transition: 'all 2s ease-in-out'
+          },
+          spotlight: {
+            borderRadius: 8,
+            transition: 'all 2s ease-in-out'
+          },
+          tooltip: {
+            borderRadius: 12,
+            padding: 20,
+            fontSize: 14,
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+            border: '1px solid #e5e7eb',
+            transition: 'all 2s ease-in-out',
+            backgroundColor: '#ffffff',
+            color: '#374151'
+          },
+          tooltipContainer: {
+            textAlign: 'left'
+          },
+          buttonNext: {
+            backgroundColor: '#f72585',
+            borderRadius: 8,
+            padding: '8px 16px',
+            fontSize: 14,
+            fontWeight: 500,
+            border: 'none',
+            boxShadow: '0 2px 4px rgba(247, 37, 133, 0.2)'
+          },
+          buttonBack: {
+            color: '#6b7280',
+            marginRight: 10,
+            fontSize: 14,
+            fontWeight: 500,
+            border: 'none',
+            backgroundColor: 'transparent'
+          },
+          buttonSkip: {
+            color: '#6b7280',
+            fontSize: 14,
+            fontWeight: 500,
+            border: 'none',
+            backgroundColor: 'transparent'
+          }
+        }}
+        locale={{
+          back: '← Back',
+          close: 'Close',
+          last: 'Got it!',
+          next: 'Next →',
+          skip: 'Skip tour'
+        }}
+      />
     </div>
   );
 }

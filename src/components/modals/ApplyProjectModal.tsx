@@ -53,7 +53,7 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col animate-fadeIn">
         {/* Fixed Header */}
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between -0">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Apply to Project</h3>
             <p className="text-sm text-gray-500 mt-0.5">Submit your proposal details</p>
@@ -77,7 +77,7 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
               onChange={(e) => setProposalSummary(e.target.value)}
               placeholder="2-3 sentences on how you will solve this project"
               rows={3}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm resize-none"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#f72585] focus:border-transparent transition-all text-sm resize-none"
             />
           </div>
           <div>
@@ -90,7 +90,7 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
               value={estimatedDelivery}
               onChange={(e) => setEstimatedDelivery(e.target.value)}
               placeholder="e.g., 5 days, 1 week, 3-4 days"
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#f72585] focus:border-transparent transition-all text-sm"
             />
           </div>
 
@@ -103,7 +103,7 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
               onChange={(e) => setAddOns(e.target.value)}
               placeholder="e.g., Can also provide documentation, Free bug fixes for 7 days after delivery, Can deploy it for you if needed"
               rows={3}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm resize-none"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#f72585] focus:border-transparent transition-all text-sm resize-none"
             />
           </div>
           {error && (
@@ -122,7 +122,7 @@ const ApplyProjectModal: React.FC<ApplyProjectModalProps> = ({ isOpen, onClose, 
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#f72585] to-[#f72585] text-white hover:from-[#f72585] hover:to-[#f72585] disabled:opacity-50 transition-all font-medium text-sm shadow-lg shadow-[#f72585]/30 cursor-pointer"
             >
               {submitting ? 'Submitting...' : 'Submit Application'}
             </button>

@@ -80,7 +80,7 @@ export default function DashboardSidebar({
                 }}
                 className={`w-full flex items-center justify-center p-3 text-left rounded-xl transition-all duration-200 relative ${
                     activeFeature === item.id
-                        ? "bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-lg"
+                        ? "bg-linear-to-br from-[#f72585] to-[#f72585] text-white shadow-lg"
                         : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 }`}
                 title={item.label}
@@ -136,8 +136,8 @@ export default function DashboardSidebar({
                 `}
             >
                 {/* Sidebar Header - Logo */}
-                <div className="h-16 border-b border-gray-200 flex items-center justify-center flex-shrink-0">
-                    <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center cursor-pointer hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg">
+                <div className="h-16 border-b border-gray-200 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 bg-linear-to-br from-[#f72585] to-[#f72585] rounded-xl flex items-center justify-center cursor-pointer hover:from-[#f72585] hover:to-[#f72585] transition-all shadow-lg">
                         <span className="text-white font-bold text-base">W</span>
                     </div>
                 </div>

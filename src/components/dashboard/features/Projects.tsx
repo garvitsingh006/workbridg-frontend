@@ -8,6 +8,7 @@ import EditProjectModal from "../../modals/EditProjectModal";
 import StatusUpdateModal from "../../modals/StatusUpdateModal";
 import ApplyProjectModal from "../../modals/ApplyProjectModal";
 import type { Project } from "../../../contexts/ProjectContext";
+import Joyride, {type CallBackProps, STATUS, type Step, type Placement } from 'react-joyride';
 
 export default function Projects() {
     const [searchTerm,] = React.useState("");
@@ -17,10 +18,40 @@ export default function Projects() {
     const [budgetMax, setBudgetMax] = React.useState("");
     const [category, setCategory] = React.useState("");
     const { projects, applyToProject, fetchProjects, deleteProject } = useProject();
+    const { user, updateUser } = useUser();
+    
     React.useEffect(() => {
         fetchProjects();
     }, []);
-    const { user } = useUser();
+    
+    const [runTour, setRunTour] = React.useState(false);
+    
+    React.useEffect(() => {
+        if (user?.userType === 'client' && user?.hasSeenProjectsOnboarding === false && !runTour) {
+            const timer = setTimeout(() => {
+                setRunTour(true);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [user, runTour]);
+    
+    const handleJoyrideCallback = (data: CallBackProps) => {
+        const { status } = data;
+        const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
+        
+        if (finishedStatuses.includes(status)) {
+            setRunTour(false);
+            markOnboardingComplete();
+        }
+    };
+    
+    const markOnboardingComplete = async () => {
+        try {
+            await updateUser({ hasSeenProjectsOnboarding: true });
+        } catch (error) {
+            console.error('Failed to update onboarding status:', error);
+        }
+    };
     const [createModalOpen, setCreateModalOpen] = React.useState(false);
     const [detailsModalOpen, setDetailsModalOpen] = React.useState(false);
     const [editModalOpen, setEditModalOpen] = React.useState(false);
@@ -108,6 +139,69 @@ export default function Projects() {
                         : 0,
         }));
 
+    const tourSteps: Step[] = [
+        {
+            target: 'body',
+            content: (
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome to Projects! 🚀</h2>
+                    <p className="text-gray-600">Let me show you around your project management dashboard. This is where you can create, manage, and track all your projects.</p>
+                </div>
+            ),
+            placement: 'center' as Placement
+        },
+        {
+            target: '[data-intro="add-project"]',
+            content: (
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Create New Projects</h3>
+                    <p className="text-gray-600">Click here to create a new project. You can set the title, description, budget, deadline, and category for your project.</p>
+                </div>
+            ),
+            placement: 'bottom' as Placement
+        },
+        {
+            target: '[data-intro="filters"]',
+            content: (
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Filter & Search</h3>
+                    <p className="text-gray-600">Use these filters to search and organize your projects by name, budget range, or category.</p>
+                </div>
+            ),
+            placement: 'bottom' as Placement
+        },
+        {
+            target: '[data-intro="project-card"]',
+            content: (
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Cards</h3>
+                    <p className="text-gray-600">Each project is displayed as a card showing key information like status, budget, deadline, and description. Click on any card to view full details.</p>
+                </div>
+            ),
+            placement: 'top' as Placement
+        },
+        // ...(user?.userType === 'client' && displayProjects.some(p => projects.find(orig => orig.id === p.id)?.status === 'unassigned') ? [{
+        //     target: '[data-intro="edit-delete"]',
+        //     content: (
+        //         <div>
+        //             <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage Projects</h3>
+        //             <p className="text-gray-600">For unassigned projects, you can edit project details or delete the project entirely. Once a project is assigned to a freelancer, editing is restricted.</p>
+        //         </div>
+        //     ),
+        //     placement: 'top' as Placement
+        // }] : []),
+        {
+            target: 'body',
+            content: (
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">You're All Set! 🎉</h2>
+                    <p className="text-gray-600">You now know how to manage your projects effectively. Start by creating your first project and watch freelancers apply to work with you!</p>
+                </div>
+            ),
+            placement: 'center' as Placement
+        }
+    ];
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case "In Progress":
@@ -122,13 +216,6 @@ export default function Projects() {
                 return "bg-gray-50 text-gray-700";
         }
     };
-
-    // const statusCounts = {
-    //     all: projects.length,
-    //     'in-progress': projects.filter(p => p.status === 'in-progress').length,
-    //     pending: projects.filter(p => p.status === 'pending').length,
-    //     completed: projects.filter(p => p.status === 'completed').length,
-    // };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -153,8 +240,9 @@ export default function Projects() {
                     </button>
                     {user?.userType === 'client' && (
                         <button
+                            data-intro="add-project"
                             onClick={() => setCreateModalOpen(true)}
-                            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 rounded-md hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
+                            className="flex items-center gap-2 bg-linear-to-r from-[#f72585] to-[#f72585] text-white px-4 py-2 rounded-md hover:from-[#f72585] hover:to-[#f72585] transition-all font-medium text-sm shadow-lg shadow-[#f72585]/30 cursor-pointer"
                         >
                             <Plus className="w-4 h-4" />
                             <span>Add New Project</span>
@@ -164,7 +252,7 @@ export default function Projects() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5 mb-6">
+            <div data-intro="filters" className="bg-white rounded-lg border border-gray-200 p-5 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div>
                         <label className="text-sm font-medium text-gray-700 mb-1.5 block">Project Name</label>
@@ -213,7 +301,7 @@ export default function Projects() {
                 <div className="flex gap-3">
                     <button
                         onClick={applyFilters}
-                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-md hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
+                        className="px-4 py-2 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-md hover:from-[#f72585] hover:to-[#f72585] transition-all font-medium text-sm shadow-lg shadow-[#f72585]/30 cursor-pointer"
                     >
                         Apply Filters
                     </button>
@@ -228,13 +316,14 @@ export default function Projects() {
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {displayProjects.map((project) => {
+                {displayProjects.map((project, index) => {
                     const originalProject = projects.find((p) => p.id === project.id);
                     const description = originalProject?.description || '';
                     
                     return (
                         <div
                             key={project.id}
+                            data-intro={index === 0 ? "project-card" : undefined}
                             onClick={() => {
                                 if (originalProject) {
                                     setSelectedProject(originalProject);
@@ -253,7 +342,7 @@ export default function Projects() {
                                         {description ? (description.split(' ').length > 100 ? description.split(' ').slice(0, 100).join(' ') + '...' : description) : 'No description provided'}
                                     </p>
                                 </div>
-                                <span className="px-2 py-1 bg-gray-50 text-gray-700 rounded border text-xs font-medium ml-3 flex-shrink-0">
+                                <span className="px-2 py-1 bg-gray-50 text-gray-700 rounded border text-xs font-medium ml-3 shrink-0">
                                     {project.category}
                                 </span>
                             </div>
@@ -281,24 +370,41 @@ export default function Projects() {
                                             setSelectedProject(originalProject || null);
                                             setApplyOpen(true);
                                         }}
-                                        className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-md hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30 cursor-pointer"
+                                        className="px-3 py-1.5 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-md hover:from-[#f72585] hover:to-[#f72585] transition-all font-medium text-sm shadow-lg shadow-[#f72585]/30 cursor-pointer"
                                     >
                                         Apply
                                     </button>
                                 )}
                                 {user?.userType !== 'admin' && user?.userType !== "freelancer" && originalProject?.status === 'unassigned' && (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (originalProject) {
-                                                setSelectedProject(originalProject);
-                                                setEditModalOpen(true);
-                                            }
-                                        }}
-                                        className="px-3 py-1.5 border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium text-sm cursor-pointer"
+                                    <div 
+                                        data-intro={index === 0 ? "edit-delete" : undefined} 
+                                        className="flex gap-2 p-2 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
                                     >
-                                        Edit
-                                    </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (originalProject) {
+                                                    setSelectedProject(originalProject);
+                                                    setEditModalOpen(true);
+                                                }
+                                            }}
+                                            className="px-3 py-1.5 border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium text-sm cursor-pointer"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (originalProject) {
+                                                    setProjectToDelete(originalProject);
+                                                    setDeleteConfirmOpen(true);
+                                                }
+                                            }}
+                                            className="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -321,13 +427,89 @@ export default function Projects() {
                     {user?.userType === 'client' && !searchTerm && (
                         <button
                             onClick={() => setCreateModalOpen(true)}
-                            className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-2.5 rounded-md hover:from-purple-700 hover:to-purple-800 transition-all text-sm font-medium shadow-lg shadow-purple-500/30 cursor-pointer"
+                            className="bg-linear-to-r from-[#f72585] to-[#f72585] text-white px-6 py-2.5 rounded-md hover:from-[#f72585] hover:to-[#f72585] transition-all text-sm font-medium shadow-lg shadow-[#f72585]/30 cursor-pointer"
                         >
                             Create Your First Project
                         </button>
                     )}
                 </div>
             )}
+
+            {/* Tour Component */}
+            <Joyride
+                steps={tourSteps}
+                run={runTour}
+                continuous
+                showProgress
+                showSkipButton
+                callback={handleJoyrideCallback}
+                scrollToFirstStep
+                scrollOffset={100}
+                disableOverlayClose
+                spotlightClicks
+                floaterProps={{
+                    disableAnimation: false,
+                    styles: {
+                        floater: {
+                            transition: 'opacity 400ms ease-out'
+                        }
+                    }
+                }}
+                styles={{
+                    overlay: {
+                        transition: 'all 2s ease-in-out'
+                    },
+                    spotlight: {
+                        borderRadius: 8,
+                        transition: 'opacity 1s ease-in-out',
+                        opacity: 0.7
+                    },
+                    tooltip: {
+                        borderRadius: 12,
+                        padding: 20,
+                        fontSize: 14,
+                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                        border: '1px solid #e5e7eb',
+                        transition: 'all 2s ease-in-out',
+                        backgroundColor: '#ffffff',
+                        color: '#374151'
+                    },
+                    tooltipContainer: {
+                        textAlign: 'left'
+                    },
+                    buttonNext: {
+                        backgroundColor: '#f72585',
+                        borderRadius: 8,
+                        padding: '8px 16px',
+                        fontSize: 14,
+                        fontWeight: 500,
+                        border: 'none',
+                        boxShadow: '0 2px 4px rgba(247, 37, 133, 0.2)'
+                    },
+                    buttonBack: {
+                        color: '#6b7280',
+                        marginRight: 10,
+                        fontSize: 14,
+                        fontWeight: 500,
+                        border: 'none',
+                        backgroundColor: 'transparent'
+                    },
+                    buttonSkip: {
+                        color: '#6b7280',
+                        fontSize: 14,
+                        fontWeight: 500,
+                        border: 'none',
+                        backgroundColor: 'transparent'
+                    }
+                }}
+                locale={{
+                    back: '← Back',
+                    close: 'Close',
+                    last: 'Got it!',
+                    next: 'Next →',
+                    skip: 'Skip tour'
+                }}
+            />
 
             {/* Modals */}
             <CreateProjectModal
@@ -382,8 +564,8 @@ export default function Projects() {
 
             {/* Delete Confirmation Modal */}
             {deleteConfirmOpen && projectToDelete && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-md w-full p-6">
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Project</h3>
                         <p className="text-gray-600 mb-6">
                             Are you sure you want to delete "{projectToDelete.title}"? This action cannot be undone.

@@ -143,7 +143,7 @@ export default function EarningsFreelancer() {
           >
             <RefreshCw className={`w-5 h-5 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all font-medium text-sm shadow-lg shadow-purple-500/30">
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-lg hover:from-[#f72585] hover:to-[#f72585] transition-all font-medium text-sm shadow-lg shadow-[#f72585]/30">
             <Download className="w-4 h-4" />
             Export
           </button>
@@ -153,9 +153,9 @@ export default function EarningsFreelancer() {
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-[#f72585]/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
           <div className="flex items-start justify-between mb-4 relative z-10">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg">
+            <div className="p-3 rounded-xl bg-linear-to-br from-[#f72585] to-[#f72585] shadow-lg">
               <Wallet className="w-6 h-6 text-white" />
             </div>
             <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
@@ -168,9 +168,9 @@ export default function EarningsFreelancer() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-green-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
           <div className="flex items-start justify-between mb-4 relative z-10">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
+            <div className="p-3 rounded-xl bg-linear-to-br from-green-500 to-green-600 shadow-lg">
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
             <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
@@ -183,9 +183,9 @@ export default function EarningsFreelancer() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-yellow-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
           <div className="flex items-start justify-between mb-4 relative z-10">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-lg">
+            <div className="p-3 rounded-xl bg-linear-to-br from-yellow-500 to-yellow-600 shadow-lg">
               <Clock className="w-6 h-6 text-white" />
             </div>
             <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
@@ -201,8 +201,8 @@ export default function EarningsFreelancer() {
       {/* Project Payments Table */}
       {payments.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Receipt className="w-8 h-8 text-purple-600" />
+          <div className="w-16 h-16 bg-[#f72585]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Receipt className="w-8 h-8 text-[#f72585]" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No earnings yet</h3>
           <p className="text-gray-600 max-w-md mx-auto">Your earnings will appear here once you start working on projects.</p>
@@ -212,7 +212,7 @@ export default function EarningsFreelancer() {
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-purple-600" />
+                <Receipt className="w-5 h-5 text-[#f72585]" />
                 Project Earnings
               </h3>
               <div className="text-sm text-gray-600">
@@ -285,7 +285,7 @@ export default function EarningsFreelancer() {
               <button className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                 Previous
               </button>
-              <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+              <button className="px-3 py-1.5 bg-[#f72585] text-white rounded-lg hover:bg-[#f72585]/90 transition-colors text-sm">
                 1
               </button>
               <button className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">

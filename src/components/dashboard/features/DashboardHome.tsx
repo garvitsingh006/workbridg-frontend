@@ -69,9 +69,9 @@ export default function DashboardHome({}: DashboardHomeProps) {
       change: calculatePercentage(releasedEarnings, prevMonthEarnings),
       trend: `Update: ${new Date().toLocaleDateString()}`,
       icon: DollarSign,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-500',
-      gradient: 'from-purple-500 to-purple-600'
+      color: 'text-[#f72585]',
+      bgColor: 'bg-[#f72585]',
+      gradient: 'from-[#f72585] to-[#f72585]'
     },
     {
       title: 'Completed Projects',
@@ -91,9 +91,9 @@ export default function DashboardHome({}: DashboardHomeProps) {
       change: '',
       trend: `Update: ${new Date().toLocaleDateString()}`,
       icon: CheckCircle,
-      color: 'text-pink-600',
-      bgColor: 'bg-pink-500',
-      gradient: 'from-pink-500 to-pink-600'
+      color: 'text-[#f72585]',
+      bgColor: 'bg-[#f72585]',
+      gradient: 'from-[#f72585] to-[#f72585]'
     },
     {
       title: 'Available Projects',
@@ -132,14 +132,14 @@ export default function DashboardHome({}: DashboardHomeProps) {
             <input
               type="text"
               placeholder="Search"
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#f72585] focus:border-transparent outline-none transition-all text-sm"
             />
           </div>
         </div>
         <div className="flex items-center gap-3">
           <button className="p-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors relative">
             <Bell className="w-5 h-5 text-gray-600" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-purple-500 rounded-full"></span>
+            <span className="absolute top-1 right-1 w-2 h-2 bg-[#f72585] rounded-full"></span>
           </button>
         </div>
       </div>
@@ -152,9 +152,9 @@ export default function DashboardHome({}: DashboardHomeProps) {
             className={`bg-white rounded-2xl p-5 border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group`}
             style={{ animationDelay: `${index * 0.1}s` }}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-5 rounded-full translate-x-12 -translate-y-12 group-hover:scale-150 transition-transform duration-500" style={{background: `linear-gradient(135deg, ${stat.bgColor} 0%, transparent 100%)`}}></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br opacity-5 rounded-full translate-x-12 -translate-y-12 group-hover:scale-150 transition-transform duration-500" style={{background: `linear-gradient(135deg, ${stat.bgColor} 0%, transparent 100%)`}}></div>
             <div className="flex items-start justify-between mb-4 relative z-10">
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+              <div className={`p-3 rounded-xl bg-linear-to-br ${stat.gradient} shadow-lg`}>
                 <stat.icon className="w-6 h-6 text-white" />
               </div>
               <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
@@ -212,7 +212,7 @@ export default function DashboardHome({}: DashboardHomeProps) {
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-2">
                       <div
-                        className="w-full bg-gradient-to-t from-purple-500 to-purple-400 rounded-t-lg relative group cursor-pointer transition-all duration-300 hover:from-purple-600 hover:to-purple-500"
+                        className="w-full bg-linear-to-t from-[#f72585] to-[#f72585] rounded-t-lg relative group cursor-pointer transition-all duration-300 hover:from-[#f72585] hover:to-[#f72585]"
                         style={{ height: `${height}%` }}
                       >
                         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
@@ -236,7 +236,7 @@ export default function DashboardHome({}: DashboardHomeProps) {
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">All Services</h3>
-              <button className="text-sm text-purple-600 hover:text-purple-700 font-medium">See All</button>
+              <button className="text-sm text-[#f72585] hover:text-[#f72585] font-medium">See All</button>
             </div>
             <div className="mt-3">
               <div className="relative">
@@ -244,7 +244,7 @@ export default function DashboardHome({}: DashboardHomeProps) {
                 <input
                   type="text"
                   placeholder="Search"
-                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-sm"
+                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#f72585] focus:border-transparent outline-none transition-all text-sm"
                 />
               </div>
             </div>
@@ -260,7 +260,7 @@ export default function DashboardHome({}: DashboardHomeProps) {
                     setDetailsModalOpen(true);
                   }
                 }}
-                className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-all cursor-pointer border border-transparent hover:border-purple-100"
+                className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-all cursor-pointer border border-transparent hover:border-[#f72585]/20"
               >
                 <img
                   src={project.image}

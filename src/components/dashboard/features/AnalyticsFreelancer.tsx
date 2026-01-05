@@ -81,9 +81,9 @@ export default function AnalyticsFreelancer() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-green-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
           <div className="flex items-start justify-between mb-4 relative z-10">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
+            <div className="p-3 rounded-xl bg-linear-to-br from-green-500 to-green-600 shadow-lg">
               <DollarSign className="w-6 h-6 text-white" />
             </div>
             <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
@@ -96,9 +96,9 @@ export default function AnalyticsFreelancer() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-blue-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
           <div className="flex items-start justify-between mb-4 relative z-10">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+            <div className="p-3 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 shadow-lg">
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
             <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
@@ -111,9 +111,9 @@ export default function AnalyticsFreelancer() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-yellow-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
           <div className="flex items-start justify-between mb-4 relative z-10">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-lg">
+            <div className="p-3 rounded-xl bg-linear-to-br from-yellow-500 to-yellow-600 shadow-lg">
               <Clock className="w-6 h-6 text-white" />
             </div>
             <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg">
@@ -126,14 +126,14 @@ export default function AnalyticsFreelancer() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-[#f72585]/10 to-transparent rounded-full translate-x-12 -translate-y-12"></div>
           <div className="flex items-start justify-between mb-4 relative z-10">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg">
+            <div className="p-3 rounded-xl bg-linear-to-br from-[#f72585] to-[#f72585] shadow-lg">
               <FolderOpen className="w-6 h-6 text-white" />
             </div>
-            <div className="flex items-center gap-1 bg-purple-50 px-2 py-1 rounded-lg">
-              <TrendingUp className="w-3 h-3 text-purple-600" />
-              <span className="text-xs font-semibold text-purple-600">{calculatePercentage(myProjects.length, prevMonthAssigned)}</span>
+            <div className="flex items-center gap-1 bg-[#f72585]/10 px-2 py-1 rounded-lg">
+              <TrendingUp className="w-3 h-3 text-[#f72585]" />
+              <span className="text-xs font-semibold text-[#f72585]">{calculatePercentage(myProjects.length, prevMonthAssigned)}</span>
             </div>
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-1">{myProjects.length}</h3>
@@ -183,7 +183,7 @@ export default function AnalyticsFreelancer() {
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-2">
                       <div
-                        className="w-full bg-gradient-to-t from-purple-500 to-purple-400 rounded-t-lg relative group cursor-pointer transition-all duration-300 hover:from-purple-600 hover:to-purple-500"
+                        className="w-full bg-linear-to-t from-[#f72585] to-[#f72585] rounded-t-lg relative group cursor-pointer transition-all duration-300 hover:from-[#f72585] hover:to-[#f72585]"
                         style={{ height: `${height}%` }}
                       >
                         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
@@ -217,7 +217,7 @@ export default function AnalyticsFreelancer() {
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full"
+                    className="bg-linear-to-r from-green-500 to-green-600 h-2 rounded-full"
                     style={{ width: `${myProjects.length ? (completed / myProjects.length) * 100 : 0}%` }}
                   ></div>
                 </div>
@@ -229,7 +229,7 @@ export default function AnalyticsFreelancer() {
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
+                    className="bg-linear-to-r from-blue-500 to-blue-600 h-2 rounded-full"
                     style={{ width: `${myProjects.length ? (inProgress / myProjects.length) * 100 : 0}%` }}
                   ></div>
                 </div>
@@ -243,7 +243,7 @@ export default function AnalyticsFreelancer() {
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-gradient-to-r from-yellow-500 to-yellow-600 h-2 rounded-full"
+                    className="bg-linear-to-r from-yellow-500 to-yellow-600 h-2 rounded-full"
                     style={{
                       width: `${myProjects.length ? ((myProjects.length - completed - inProgress) / myProjects.length) * 100 : 0}%`
                     }}
@@ -259,14 +259,14 @@ export default function AnalyticsFreelancer() {
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         <div className="p-6 border-b border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-purple-600" />
+            <Receipt className="w-5 h-5 text-[#f72585]" />
             Recent Payouts
           </h3>
         </div>
         {recentPaid.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Receipt className="w-8 h-8 text-purple-600" />
+            <div className="w-16 h-16 bg-[#f72585]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Receipt className="w-8 h-8 text-[#f72585]" />
             </div>
             <p className="text-sm text-gray-600">No payouts yet</p>
           </div>

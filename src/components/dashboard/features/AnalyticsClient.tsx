@@ -29,7 +29,7 @@ export default function AnalyticsClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card title="Total Posted" value={myProjects.length.toString()} icon={TrendingUp} color="text-blue-600" bg="bg-blue-100" />
         <Card title="Open Projects" value={open.toString()} icon={Clock} color="text-amber-600" bg="bg-amber-100" />
-        <Card title="In Progress" value={inProgress.toString()} icon={Users} color="text-purple-600" bg="bg-purple-100" />
+        <Card title="In Progress" value={inProgress.toString()} icon={Users} color="text-[#f72585]" bg="bg-[#f72585]/10" />
         <Card title="Total Paid" value={`₹${totalPaid.toLocaleString()}`} icon={DollarSign} color="text-green-600" bg="bg-green-100" />
       </div>
 

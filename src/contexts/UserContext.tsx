@@ -50,6 +50,9 @@ export interface User {
     isVerified?: boolean;
     freelancerDetails?: FreelancerDetails;
     clientDetails?: ClientDetails;
+    hasSeenProjectsOnboarding?: boolean;
+    hasSeenBrowseFreelancersOnboarding?: boolean;
+    hasSeenPaymentsOnboarding?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -136,6 +139,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                     fullName,
                     userType: role as any,
                     isVerified: true,
+                    hasSeenProjectsOnboarding: false,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 };
@@ -188,6 +192,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                         linkedIn: backendData.linkedIn || "",
                     },
                 }),
+                hasSeenProjectsOnboarding: backendData.hasSeenProjectsOnboarding ?? false,
                 createdAt: new Date(backendData.createdAt),
                 updatedAt: new Date(backendData.updatedAt),
             };
@@ -208,19 +213,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         try {
             setError(null);
 
-            // TODO: Replace with actual API call
-            // const response = await fetch('/api/user/profile', {
-            //   method: 'PUT',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //     'Authorization': `Bearer ${localStorage.getItem('token')}`
-            //   },
-            //   body: JSON.stringify(userData)
-            // });
-            // const updatedUser = await response.json();
-
-            // Mock update for development
+            // Update profile via API
             if (user) {
+                await api.put('/profiles/me', userData);
                 const updatedUser = {
                     ...user,
                     ...userData,
