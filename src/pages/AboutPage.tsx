@@ -129,7 +129,7 @@ const AboutPage: React.FC = () => {
             </div>
 
             <div className="relative">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-12 h-96 flex items-center justify-center">
+              <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-3xl p-12 h-96 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
                     <TrendingUp className="w-12 h-12 text-blue-600" />
@@ -204,7 +204,7 @@ const AboutPage: React.FC = () => {
                 key={index}
                 className="group bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
               >
-                <div className={`w-16 h-16 bg-gradient-to-br ${value.bgGradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-16 h-16 bg-linear-to-br ${value.bgGradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <value.icon className={`w-8 h-8 ${value.color.split(' ')[1]}`} />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">{value.title}</h3>
@@ -217,7 +217,7 @@ const AboutPage: React.FC = () => {
 
       {/* CTA Section */}
       <section className="py-24 bg-gray-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600/20 to-purple-600/20"></div>
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
             Find design patterns
