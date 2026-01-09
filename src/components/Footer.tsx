@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, Mail, Phone, MapPin, ArrowRight, Heart } from 'lucide-react';
+import { Briefcase, Mail, MapPin, ArrowRight, Heart } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -41,9 +41,9 @@ const Footer: React.FC = () => {
             <div className="space-y-4">
               {[
                 { to: "/how-it-works", label: "How it works" },
-                { to: "/freelancers", label: "For Freelancers" },
-                { to: "/clients", label: "For Clients" },
-                { to: "/pricing", label: "Pricing" }
+                { to: "/about", label: "About" },
+                // { to: "/clients", label: "For Clients" },
+                // { to: "/pricing", label: "Pricing" }
               ].map((link) => (
                 <Link 
                   key={link.to}
@@ -96,17 +96,17 @@ const Footer: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-sm text-gray-400">Email</div>
-                    <div className="font-medium">support@workbridg.com</div>
+                    <div className="font-medium">workbridg.team@gmail.com</div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-300">
-                  <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+                  {/* <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
                     <Phone className="h-4 w-4" />
-                  </div>
-                  <div>
+                  </div> */}
+                  {/* <div>
                     <div className="text-sm text-gray-400">Phone</div>
                     <div className="font-medium">+1 (555) 123-4567</div>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex items-center space-x-3 text-gray-300">
                   <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
@@ -114,14 +114,14 @@ const Footer: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-sm text-gray-400">Location</div>
-                    <div className="font-medium">San Francisco, CA</div>
+                    <div className="font-medium">Delhi, India</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Newsletter Signup */}
-            <div className="lg:col-span-2">
+            {/* <div className="lg:col-span-2">
               <h3 className="font-bold text-white mb-6 text-lg">Stay Updated</h3>
               <p className="text-gray-300 mb-4">
                 Get the latest updates on new features and opportunities.
@@ -136,7 +136,7 @@ const Footer: React.FC = () => {
                   Subscribe
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
         

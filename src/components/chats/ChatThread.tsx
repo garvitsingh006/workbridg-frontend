@@ -3,8 +3,10 @@ import { type Chat } from '../../contexts/ChatContext';
 import { useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import MessageInput from './MessageInput';
-import { CircleCheck as CheckCircle2, Users, Phone, Video, Menu } from 'lucide-react';
+import { CircleCheck as CheckCircle2, Users, Menu } from 'lucide-react';
 import GroupChatInfo from './GroupChatInfo';
+import DateSeparator from './DateSeparator';
+import { isSameDay } from '../../utils/dateUtils';
 
 interface ChatThreadProps {
   chat: Chat;
@@ -82,7 +84,7 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
                 <Menu className="w-5 h-5 text-gray-600" />
               </button>
             )}
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+            <div className="w-9 h-9 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <span className="text-white font-medium text-xs">
                 {title.charAt(0).toUpperCase()}
               </span>
@@ -94,14 +96,6 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
           </div>
           
           <div className="flex items-center gap-2">
-            {/* Action buttons */}
-            <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-              <Phone className="w-4 h-4 text-gray-600" />
-            </button>
-            <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-              <Video className="w-4 h-4 text-gray-600" />
-            </button>
-            
             {/* Group info button for group/project chats */}
             {(chat.type === 'group' || chat.type === 'project') && (
               <button
@@ -118,10 +112,6 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
             {user?.userType === 'admin' && (
               <AdminActions chatId={chat._id} status={chat.status} />
             )}
-            
-            {/* <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-              <MoreVertical className="w-4 h-4 text-gray-600" />
-            </button> */}
           </div>
         </div>
       </div>
@@ -131,44 +121,53 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
         {chat.messages.map((m, idx) => {
           const isMine = m.sender._id === (user?.id || '');
           const isSystemMessage = m.type === 'system';
-          
-          if (isSystemMessage) {
-            return (
-              <div key={idx} className="flex justify-center">
-                <div className="bg-white/80 backdrop-blur-sm text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium shadow-sm border border-gray-200">
-                  {m.content}
-                </div>
-              </div>
-            );
-          }
+          const currentMessageDate = new Date(m.timestamp);
+          const previousMessageDate = idx > 0 ? new Date(chat.messages[idx - 1].timestamp) : null;
+          const showDateSeparator = !previousMessageDate || !isSameDay(currentMessageDate, previousMessageDate);
           
           return (
-            <div key={idx} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[70%] ${isMine ? 'order-2' : 'order-1'}`}>
-                {!isMine && (
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-medium text-gray-600">
-                        {(m.sender.username?.toLowerCase() === 'admin' ? 'Admin' : m.sender.username).charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <span className="text-xs font-medium text-gray-600">
-                      {m.sender.username?.toLowerCase() === 'admin' ? 'Admin' : m.sender.username}
-                    </span>
-                  </div>
-                )}
-                <div className={`rounded-2xl px-3 py-2 shadow-sm ${
-                  isMine 
-                    ? 'bg-black text-white' 
-                    : 'bg-white border border-gray-200'
-                }`}>
-                  <div className="text-xs leading-relaxed">{m.content}</div>
-                  <div className={`text-xs mt-1 ${isMine ? 'text-white/60' : 'text-gray-400'}`}>
-                    {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            <React.Fragment key={idx}>
+              {/* Date Separator */}
+              {showDateSeparator && (
+                <DateSeparator date={currentMessageDate} />
+              )}
+              
+              {/* Message */}
+              {isSystemMessage ? (
+                <div className="flex justify-center">
+                  <div className="bg-white/80 backdrop-blur-sm text-gray-600 px-3 py-1.5 rounded-full text-xs font-medium shadow-sm border border-gray-200">
+                    {m.content}
                   </div>
                 </div>
-              </div>
-            </div>
+              ) : (
+                <div className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[70%] ${isMine ? 'order-2' : 'order-1'}`}>
+                    {!isMine && (
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-medium text-gray-600">
+                            {(m.sender.username?.toLowerCase() === 'admin' ? 'Admin' : m.sender.username).charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <span className="text-xs font-medium text-gray-600">
+                          {m.sender.username?.toLowerCase() === 'admin' ? 'Admin' : m.sender.username}
+                        </span>
+                      </div>
+                    )}
+                    <div className={`rounded-2xl px-3 py-2 shadow-sm ${
+                      isMine 
+                        ? 'bg-black text-white' 
+                        : 'bg-white border border-gray-200'
+                    }`}>
+                      <div className="text-xs leading-relaxed">{m.content}</div>
+                      <div className={`text-xs mt-1 ${isMine ? 'text-white/60' : 'text-gray-400'}`}>
+                        {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
         <div ref={endRef} />

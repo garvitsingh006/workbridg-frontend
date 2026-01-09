@@ -11,8 +11,6 @@ import type { Project } from "../../../contexts/ProjectContext";
 import Joyride, {type CallBackProps, STATUS, type Step, type Placement } from 'react-joyride';
 
 export default function Projects() {
-    const [searchTerm,] = React.useState("");
-    // const [filterStatus, setFilterStatus] = React.useState("all");
     const [projectName, setProjectName] = React.useState("");
     const [budgetMin, setBudgetMin] = React.useState("");
     const [budgetMax, setBudgetMax] = React.useState("");
@@ -422,9 +420,9 @@ export default function Projects() {
                         No projects found
                     </h3>
                     <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto">
-                        {searchTerm ? "Try adjusting your search or filters" : "Start your freelancing journey by creating your first project"}
+                        {projectName ? "Try adjusting your search or filters" : "Start your freelancing journey by creating your first project"}
                     </p>
-                    {user?.userType === 'client' && !searchTerm && (
+                    {user?.userType === 'client' && !projectName && (
                         <button
                             onClick={() => setCreateModalOpen(true)}
                             className="bg-linear-to-r from-[#f72585] to-[#f72585] text-white px-6 py-2.5 rounded-md hover:from-[#f72585] hover:to-[#f72585] transition-all text-sm font-medium shadow-lg shadow-[#f72585]/30 cursor-pointer"

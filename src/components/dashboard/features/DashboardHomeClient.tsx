@@ -1,6 +1,7 @@
 import { useUser } from '../../../contexts/UserContext';
 import { useProject } from '../../../contexts/ProjectContext';
 import { useChat } from '../../../contexts/ChatContext';
+import { usePayment } from '../../../contexts/PaymentContext';
 import {
   FolderOpen,
   DollarSign,
@@ -17,17 +18,22 @@ export default function DashboardHomeClient({ onViewAllProjects }: DashboardHome
   const { user } = useUser();
   const { projects } = useProject();
   const { chats } = useChat();
+  const { payments } = usePayment();
 
   const unreadMessages = chats.reduce((total, chat) => {
     return total + (user ? chat.messages.filter(msg => !msg.read && msg.sender._id !== user.id).length : 0);
   }, 0);
 
   const postedProjects = projects.filter(p => p.createdBy?.id === user?.id).length;
-  const openProjects = projects.filter(p => p.status === 'pending' && p.createdBy?.id === user?.id).length;
+  const unassignedProjects = projects.filter(p => p.status === 'unassigned' && p.createdBy?.id === user?.id).length;
   const inProgressProjects = projects.filter(p => p.status === 'in-progress' && p.createdBy?.id === user?.id).length;
 
-  const prefs = user?.clientDetails;
-  const preferredBudget = prefs?.budgetRange || '-';
+  const totalPaid = payments.reduce((sum, payment) => {
+    if (payment.total.status === 'paid') {
+      return sum + (payment.totalAmount + payment.platformFee.serviceCharge);
+    }
+    return sum;
+  }, 0);
 
   const quickActions = [
     { title: 'Post a Project', icon: FolderOpen, onClick: onViewAllProjects },
@@ -37,19 +43,19 @@ export default function DashboardHomeClient({ onViewAllProjects }: DashboardHome
   return (
     <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
       {/* Welcome Section */}
-      <div className="bg-linear-to-r from-blue-600 to-blue-700 rounded-lg p-3 sm:p-4 text-white">
+      <div className="bg-linear-to-r from-pink-500 to-pink-600 rounded-lg p-3 sm:p-4 text-white">
         <h2 className="text-base sm:text-lg font-bold mb-1">Welcome back, {user?.fullName?.split(' ')[0] || 'Client'}! 👋</h2>
-        <p className="text-blue-100 text-xs sm:text-sm">
-          You have {unreadMessages} unread messages and {openProjects} open projects.
+        <p className="text-pink-100 text-xs sm:text-sm">
+          You have {unreadMessages} unread messages and {unassignedProjects} unassigned projects.
         </p>
       </div>
 
       {/* Client-focused KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Projects Posted" value={postedProjects.toString()} icon={FolderOpen} color="text-blue-600" bg="bg-blue-100" />
-        <StatCard title="Open Projects" value={openProjects.toString()} icon={ClipboardList} color="text-amber-600" bg="bg-amber-100" />
+        <StatCard title="Unassigned" value={unassignedProjects.toString()} icon={ClipboardList} color="text-amber-600" bg="bg-amber-100" />
         <StatCard title="In Progress" value={inProgressProjects.toString()} icon={BadgeCheck} color="text-[#f72585]" bg="bg-[#f72585]/10" />
-        <StatCard title="Preferred Budget" value={formatBudget(preferredBudget)} icon={DollarSign} color="text-green-600" bg="bg-green-100" />
+        <StatCard title="Total Paid" value={`₹${totalPaid.toLocaleString()}`} icon={DollarSign} color="text-green-600" bg="bg-green-100" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
@@ -119,29 +125,19 @@ export default function DashboardHomeClient({ onViewAllProjects }: DashboardHome
 
 function StatCard({ title, value, icon: Icon, color, bg }: { title: string; value: string; icon: any; color: string; bg: string; }) {
   return (
-    <div className="bg-white rounded-lg p-2 sm:p-3 border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-1 sm:mb-2">
-        <div className={`p-1 sm:p-1.5 rounded-lg ${bg}`}>
-          <Icon className={`w-3 h-3 sm:w-4 sm:h-4 ${color}`} />
+    <div className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-4">
+        <div className={`p-3 rounded-lg ${bg}`}>
+          <Icon className={`w-6 h-6 ${color}`} />
         </div>
       </div>
-      <h3 className="text-sm sm:text-lg font-bold text-gray-900 mb-0.5 sm:mb-1">{value}</h3>
-      <p className="text-gray-600 text-[10px] sm:text-xs leading-tight">{title}</p>
+      <h3 className="text-2xl font-bold text-gray-900 mb-1">{value}</h3>
+      <p className="text-gray-600 text-sm">{title}</p>
     </div>
   );
 }
 
-function formatBudget(key: string) {
-  switch (key) {
-    case 'under-1000': return 'Under ₹1,000';
-    case '1000-5000': return '₹1,000 - ₹5,000';
-    case '5000-10000': return '₹5,000 - ₹10,000';
-    case '10000-25000': return '₹10,000 - ₹25,000';
-    case '25000-50000': return '₹25,000 - ₹50,000';
-    case '50000+': return '₹50,000+';
-    default: return '-';
-  }
-}
+
 
 function renderRecentMessages(chats: any[], userId: string) {
   const items = chats

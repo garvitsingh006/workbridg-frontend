@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, UserMinus, Shield, User, Briefcase } from 'lucide-react';
+// import { useNavigate } from 'react-router-dom';
 import { useChat, type Chat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 
@@ -16,8 +17,9 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
   onClose, 
   onParticipantAdded 
 }) => {
-  const { removeParticipantFromChat, addAdminToChat } = useChat();
+  const { removeParticipantFromChat, addAdminToChat, fetchChats } = useChat();
   const { user } = useUser();
+//   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const isAdmin = user?.userType === 'admin';
@@ -83,6 +85,7 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
       setLoading(true);
       if (!user) throw new Error("User not found");
       await removeParticipantFromChat(chat._id, user.id);
+      await fetchChats(); // Reload components after exiting group
       onParticipantAdded();
       onClose();
     } catch (error) {
@@ -133,11 +136,14 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
                     </span>
                   </div>
                   <div>
-                    <div className="font-medium text-xs text-gray-900">
+                    <button
+                      onClick={() => window.open(`/profile/${participant.username}`, '_blank')}
+                      className="font-medium text-xs text-gray-900 hover:text-blue-600 transition-colors cursor-pointer"
+                    >
                       {participant.username?.toLowerCase() === 'admin' 
                         ? 'Admin' 
                         : participant.fullName || participant.username}
-                    </div>
+                    </button>
                     <div className="flex items-center gap-1 text-xs text-gray-500">
                       {getRoleIcon(participant)}
                       {getRoleLabel(participant)}

@@ -12,7 +12,6 @@ import HelpPage from "../components/dashboard/features/HelpPage";
 import { useUser } from "../contexts/UserContext";
 import { useInterviews } from "../contexts/InterviewContext";
 import { useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
 
 export default function DashboardFreelancer() {
   const navigate = useNavigate();
@@ -77,21 +76,6 @@ export default function DashboardFreelancer() {
   const [activeFeature, setActiveFeature] = useState("home");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  const getFeatureTitle = () => {
-    const titles: { [key: string]: string } = {
-      home: 'Dashboard',
-      projects: 'Projects',
-      messages: 'Messages',
-      analytics: 'Analytics',
-      earnings: 'Earnings',
-      'freelancer-interviews': 'Interviews',
-      profile: 'Profile',
-      'account-settings': 'Account Settings',
-      'help': 'Help & Support',
-    };
-    return titles[activeFeature] || 'Dashboard';
-  };
-
   const renderFeature = () => {
     switch (activeFeature) {
       case "home":
@@ -118,7 +102,7 @@ export default function DashboardFreelancer() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-blue-50/20">
+    <div className="h-screen bg-linear-to-br from-gray-50 via-purple-50/30 to-blue-50/20">
       <div className="flex h-full lg:h-screen">
         <DashboardSidebar
           activeFeature={activeFeature}
@@ -127,22 +111,6 @@ export default function DashboardFreelancer() {
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsMobileSidebarOpen(true)}
-                className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              <h1 className="text-xl font-semibold text-gray-900">
-                {getFeatureTitle()}
-              </h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-sm text-gray-600">July 2025</div>
-            </div>
-          </div>
           {/* Interview status banner for freelancers */}
           {user && user.userType === "freelancer" && user.freelancerDetails && user.freelancerDetails.isInterviewed === false && (
             <>

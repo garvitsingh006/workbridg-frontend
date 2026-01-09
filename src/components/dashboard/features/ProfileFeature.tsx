@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useUser } from "../../../contexts/UserContext";
-import { Pencil, Check, X, Linkedin, Github, MapPin, Briefcase, Building2, Globe, Users, DollarSign, FileText, Download, Upload, Eye } from "lucide-react";
+import { Pencil, Check, X, Linkedin, Github, MapPin, Briefcase, Building2, Globe, FileText, Download, Upload, Eye } from "lucide-react";
 import api from "../../../api";
 import { useFileUpload } from "../../../hooks/useFileUpload";
 import FileUpload from "../../common/FileUpload";
@@ -51,8 +51,6 @@ export default function ProfileFeature() {
         website: user?.clientDetails?.website || "",
         linkedIn: user?.clientDetails?.linkedIn || "",
         projectTypes: user?.clientDetails?.projectTypes || [],
-        budgetRange: user?.clientDetails?.budgetRange || "",
-        preferredCommunication: user?.clientDetails?.preferredCommunication || "",
         companyDescription: user?.clientDetails?.companyDescription || "",
     }), [user?.clientDetails]);
 
@@ -127,33 +125,64 @@ export default function ProfileFeature() {
     };
 
     return (
-        <div className="p-4">
-            <div className="bg-white rounded-lg shadow border border-gray-200">
-                <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-900">Your Profile</h2>
-                        <p className="text-sm text-gray-500">{user.fullName} • @{user.username} • {user.email}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {isEditing ? (
-                            <>
-                                <button onClick={onCancel} className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs">
-                                    <X className="w-3 h-3" /> Cancel
-                                </button>
-                                <button onClick={onSave} disabled={saving} className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-lg ${saving ? "bg-gray-300" : "bg-blue-600 hover:bg-blue-700"} text-white text-xs`}>
-                                    <Check className="w-3 h-3" /> {saving ? "Saving…" : "Save"}
-                                </button>
-                            </>
-                        ) : (
-                            <button onClick={() => setIsEditing(true)} className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs">
-                                <Pencil className="w-3 h-3" /> Edit
-                            </button>
-                        )}
+        <div className="min-h-screen bg-slate-50">
+            <div className="max-w-5xl mx-auto px-6 py-8">
+                {/* Profile Header */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 mb-8">
+                    <div className="p-8">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                            <div className="flex items-center gap-6">
+                                <div className="w-20 h-20 bg-linear-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                    <span className="text-2xl font-bold text-white">
+                                        {user.fullName?.charAt(0)?.toUpperCase() || 'U'}
+                                    </span>
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-slate-900 mb-1">{user.fullName}</h1>
+                                    <div className="flex items-center gap-3 text-slate-600 mb-2">
+                                        <span className="text-sm font-medium capitalize">{user.userType}</span>
+                                        <span className="w-1 h-1 bg-slate-400 rounded-full"></span>
+                                        <span className="text-sm">@{user.username}</span>
+                                    </div>
+                                    <p className="text-slate-700">{user.email}</p>
+                                </div>
+                            </div>
+                            <div>
+                                {isEditing ? (
+                                    <div className="flex items-center gap-3">
+                                        <button 
+                                            onClick={onCancel} 
+                                            className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            onClick={onSave} 
+                                            disabled={saving} 
+                                            className="px-6 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 disabled:opacity-50 transition-colors font-medium flex items-center gap-2"
+                                        >
+                                            <Check className="w-4 h-4" />
+                                            {saving ? "Saving..." : "Save Changes"}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button 
+                                        onClick={() => setIsEditing(true)} 
+                                        className="px-6 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors font-medium flex items-center gap-2"
+                                    >
+                                        <Pencil className="w-4 h-4" />
+                                        Edit Profile
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div className="lg:col-span-2 space-y-4">
+                {/* Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    {/* Main Content */}
+                    <div className="lg:col-span-3 space-y-6">
                         {isFreelancer ? (
                             <>
                                 <Section title="Basics" description="General information about you">
@@ -254,44 +283,13 @@ export default function ProfileFeature() {
                                     <Field icon={<MapPin className="w-4 h-4 text-gray-500" />} label="Location" value={clientForm.location} editing={isEditing} onChange={v => handleChange("location", v)} placeholder="City, Country" />
                                 </Section>
 
-                                <Section title="Preferences" description="How you work with freelancers">
+                                <Section title="Preferences" description="Types of projects you work on">
                                     <Chips
                                         items={clientForm.projectTypes}
                                         placeholder="Add a project type"
                                         editing={isEditing}
                                         onAdd={v => addChip("projectTypes", v)}
                                         onRemove={v => removeChip("projectTypes", v)}
-                                    />
-                                    <SelectField
-                                        icon={<DollarSign className="w-4 h-4 text-gray-500" />}
-                                        label="Budget Range"
-                                        value={clientForm.budgetRange}
-                                        editing={isEditing}
-                                        onChange={v => handleChange("budgetRange", v)}
-                                        options={[
-                                            { value: "", label: "Select budget range" },
-                                            { value: "under-1000", label: "Under $1,000" },
-                                            { value: "1000-5000", label: "$1,000 - $5,000" },
-                                            { value: "5000-10000", label: "$5,000 - $10,000" },
-                                            { value: "10000-25000", label: "$10,000 - $25,000" },
-                                            { value: "25000-50000", label: "$25,000 - $50,000" },
-                                            { value: "50000+", label: "$50,000+" },
-                                        ]}
-                                    />
-                                    <SelectField
-                                        icon={<Users className="w-4 h-4 text-gray-500" />}
-                                        label="Preferred Communication"
-                                        value={clientForm.preferredCommunication}
-                                        editing={isEditing}
-                                        onChange={v => handleChange("preferredCommunication", v)}
-                                        options={[
-                                            { value: "", label: "Select communication preference" },
-                                            { value: "daily-updates", label: "Daily updates and check-ins" },
-                                            { value: "weekly-updates", label: "Weekly progress reports" },
-                                            { value: "milestone-based", label: "Milestone-based communication" },
-                                            { value: "as-needed", label: "As needed basis" },
-                                            { value: "scheduled-meetings", label: "Regular scheduled meetings" },
-                                        ]}
                                     />
                                 </Section>
 
@@ -304,27 +302,49 @@ export default function ProfileFeature() {
                         )}
                     </div>
 
-                    <div className="space-y-3">
-                        <div className="p-3 rounded-lg border border-gray-200">
-                            <h3 className="font-medium text-gray-900 mb-2 text-sm">Account</h3>
-                            <div className="text-xs text-gray-600">Member since {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}</div>
-                            <div className="text-xs text-gray-600">Role: {user.userType}</div>
+                    {/* Sidebar */}
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                            <h3 className="font-semibold text-slate-900 mb-4">Account Info</h3>
+                            <div className="space-y-3">
+                                <div>
+                                    <div className="text-sm text-slate-600">Member since</div>
+                                    <div className="font-medium text-slate-900">
+                                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                        }) : "—"}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-sm text-slate-600">Account type</div>
+                                    <div className="font-medium text-slate-900 capitalize">{user.userType}</div>
+                                </div>
+                            </div>
                         </div>
                         
                         {isFreelancer && (
-                            <div className="p-3 rounded-lg border border-gray-200">
-                                <h3 className="font-medium text-gray-900 mb-2 text-sm">Performance</h3>
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                                <h3 className="font-semibold text-slate-900 mb-4">Performance</h3>
                                 {user.freelancerDetails?.isInterviewed ? (
-                                    <>
-                                        <div className="text-xs text-gray-600 mb-1">
-                                            Rating: {user.freelancerDetails?.rating ? `${user.freelancerDetails.rating.toFixed(1)}/5.0` : 'No rating yet'}
+                                    <div className="space-y-3">
+                                        <div>
+                                            <div className="text-sm text-slate-600">Overall rating</div>
+                                            <div className="font-medium text-slate-900">
+                                                {user.freelancerDetails?.rating ? `${user.freelancerDetails.rating.toFixed(1)}/5.0` : 'No rating yet'}
+                                            </div>
                                         </div>
-                                        <div className="text-xs text-gray-600">
-                                            Projects Completed: {user.freelancerDetails?.completedProjects || 0}
+                                        <div>
+                                            <div className="text-sm text-slate-600">Projects completed</div>
+                                            <div className="font-medium text-slate-900">{user.freelancerDetails?.completedProjects || 0}</div>
                                         </div>
-                                    </>
+                                    </div>
                                 ) : (
-                                    <div className="text-xs text-red-600 font-medium">Not Interviewed</div>
+                                    <div className="text-center py-4">
+                                        <div className="text-amber-600 font-medium mb-1">Interview Pending</div>
+                                        <div className="text-sm text-slate-600">Complete your interview to start receiving projects</div>
+                                    </div>
                                 )}
                             </div>
                         )}
@@ -337,12 +357,12 @@ export default function ProfileFeature() {
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
     return (
-        <div className="p-4 rounded-lg border border-gray-200">
-            <div className="mb-3">
-                <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-                {description ? <p className="text-xs text-gray-500">{description}</p> : null}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold text-slate-900 mb-1">{title}</h2>
+                {description && <p className="text-slate-600">{description}</p>}
             </div>
-            <div className="space-y-3">{children}</div>
+            <div className="space-y-4">{children}</div>
         </div>
     );
 }
@@ -350,22 +370,22 @@ function Section({ title, description, children }: { title: string; description?
 function Field({ label, value, onChange, editing, placeholder, icon }: { label: string; value: string; onChange: (v: string) => void; editing: boolean; placeholder?: string; icon?: React.ReactNode }) {
     return (
         <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
+            <label className="block text-sm text-slate-600 mb-2">{label}</label>
             {editing ? (
                 <div className="relative">
-                    {icon ? <div className="absolute left-2 top-1/2 -translate-y-1/2">{icon}</div> : null}
+                    {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{icon}</div>}
                     <input
                         type="text"
                         value={value}
                         onChange={e => onChange(e.target.value)}
                         placeholder={placeholder}
-                        className={`w-full ${icon ? "pl-8" : "pl-2"} pr-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-xs`}
+                        className={`w-full ${icon ? "pl-10" : "pl-3"} pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all`}
                     />
                 </div>
             ) : (
-                <div className="flex items-center gap-2 text-gray-800 text-xs">
-                    {icon}
-                    <span>{value || "—"}</span>
+                <div className="flex items-center gap-3 text-slate-900 font-medium">
+                    {icon && <span className="text-slate-400">{icon}</span>}
+                    <span>{value || "Not specified"}</span>
                 </div>
             )}
         </div>
@@ -375,14 +395,14 @@ function Field({ label, value, onChange, editing, placeholder, icon }: { label: 
 function SelectField({ label, value, onChange, editing, options, icon }: { label: string; value: string; onChange: (v: string) => void; editing: boolean; options: Array<{ value: string; label: string }>; icon?: React.ReactNode }) {
     return (
         <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
+            <label className="block text-sm text-slate-600 mb-2">{label}</label>
             {editing ? (
                 <div className="relative">
-                    {icon ? <div className="absolute left-2 top-1/2 -translate-y-1/2">{icon}</div> : null}
+                    {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{icon}</div>}
                     <select
                         value={value}
                         onChange={e => onChange(e.target.value)}
-                        className={`w-full ${icon ? "pl-8" : "pl-2"} pr-6 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-xs`}
+                        className={`w-full ${icon ? "pl-10" : "pl-3"} pr-8 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all`}
                     >
                         {options.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -390,9 +410,9 @@ function SelectField({ label, value, onChange, editing, options, icon }: { label
                     </select>
                 </div>
             ) : (
-                <div className="flex items-center gap-2 text-gray-800 text-xs">
-                    {icon}
-                    <span>{(options.find(o => o.value === value)?.label) || value || "—"}</span>
+                <div className="flex items-center gap-3 text-slate-900 font-medium">
+                    {icon && <span className="text-slate-400">{icon}</span>}
+                    <span>{(options.find(o => o.value === value)?.label) || value || "Not specified"}</span>
                 </div>
             )}
         </div>
@@ -402,16 +422,16 @@ function SelectField({ label, value, onChange, editing, options, icon }: { label
 function Textarea({ label, value, onChange, editing }: { label: string; value: string; onChange: (v: string) => void; editing: boolean; }) {
     return (
         <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
+            <label className="block text-sm text-slate-600 mb-2">{label}</label>
             {editing ? (
                 <textarea
                     value={value}
                     onChange={e => onChange(e.target.value)}
-                    rows={3}
-                    className="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none text-xs"
+                    rows={4}
+                    className="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all resize-none"
                 />
             ) : (
-                <p className="text-gray-800 whitespace-pre-wrap text-xs">{value || "—"}</p>
+                <p className="text-slate-900 whitespace-pre-wrap font-medium">{value || "No description provided"}</p>
             )}
         </div>
     );
@@ -421,30 +441,38 @@ function Chips({ items, editing, onAdd, onRemove, placeholder }: { items: string
     const [input, setInput] = useState("");
     return (
         <div>
-            {editing ? (
-                <div className="flex items-center gap-2 mb-1">
+            {editing && (
+                <div className="flex gap-2 mb-3">
                     <input
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); onAdd(input); setInput(""); } }}
                         placeholder={placeholder}
-                        className="flex-1 px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-xs"
+                        className="flex-1 px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all"
                     />
-                    <button onClick={() => { onAdd(input); setInput(""); }} className="px-2 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs">Add</button>
+                    <button 
+                        onClick={() => { onAdd(input); setInput(""); }} 
+                        className="px-4 py-2.5 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors font-medium"
+                    >
+                        Add
+                    </button>
                 </div>
-            ) : null}
-            <div className="flex flex-wrap gap-1">
-                {items.length === 0 ? <span className="text-gray-500 text-xs">No items</span> : null}
-                {items.map((s) => (
-                    <span key={s} className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
-                        <span>{s}</span>
-                        {editing ? (
-                            <button onClick={() => onRemove(s)} className="text-blue-700 hover:text-blue-900">
-                                <X className="w-2.5 h-2.5" />
-                            </button>
-                        ) : null}
-                    </span>
-                ))}
+            )}
+            <div className="flex flex-wrap gap-2">
+                {items.length === 0 ? (
+                    <span className="text-slate-500 font-medium">None specified</span>
+                ) : (
+                    items.map((s) => (
+                        <span key={s} className="inline-flex items-center gap-2 bg-pink-50 text-pink-700 px-3 py-1.5 rounded-lg border border-pink-200">
+                            <span className="font-medium">{s}</span>
+                            {editing && (
+                                <button onClick={() => onRemove(s)} className="text-pink-600 hover:text-pink-800 transition-colors">
+                                    <X className="w-3 h-3" />
+                                </button>
+                            )}
+                        </span>
+                    ))
+                )}
             </div>
         </div>
     );

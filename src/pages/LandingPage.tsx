@@ -16,14 +16,9 @@ import { motion } from "framer-motion";
 
 const LandingPage: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
-    const [, setCurrentTestimonial] = useState(0);
 
     useEffect(() => {
         setIsVisible(true);
-        const interval = setInterval(() => {
-            setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-        }, 4000);
-        return () => clearInterval(interval);
     }, []);
 
     const brandLogos = [
@@ -38,32 +33,32 @@ const LandingPage: React.FC = () => {
         { name: "Dropbox", color: "bg-blue-500", icon: "G" },
     ];
 
-    const testimonials = [
-        {
-            name: "Sarah Chen",
-            role: "Product Designer",
-            company: "TechCorp",
-            content:
-                "Workbridg transformed how we work with freelancers. The admin-mediated process eliminated all our previous disputes.",
-            avatar: "👩‍💼",
-        },
-        {
-            name: "Marcus Johnson",
-            role: "Freelance Developer",
-            company: "Independent",
-            content:
-                "Finally, a platform where I can focus on great work without worrying about payment issues or miscommunication.",
-            avatar: "👨‍💻",
-        },
-        {
-            name: "Elena Rodriguez",
-            role: "Marketing Director",
-            company: "StartupXYZ",
-            content:
-                "The quality of freelancers and the smooth process makes Workbridg our go-to platform for all projects.",
-            avatar: "👩‍🎨",
-        },
-    ];
+    // const testimonials = [
+    //     {
+    //         name: "Sarah Chen",
+    //         role: "Product Designer",
+    //         company: "TechCorp",
+    //         content:
+    //             "Workbridg transformed how we work with freelancers. The admin-mediated process eliminated all our previous disputes.",
+    //         avatar: "👩‍💼",
+    //     },
+    //     {
+    //         name: "Marcus Johnson",
+    //         role: "Freelance Developer",
+    //         company: "Independent",
+    //         content:
+    //             "Finally, a platform where I can focus on great work without worrying about payment issues or miscommunication.",
+    //         avatar: "👨‍💻",
+    //     },
+    //     {
+    //         name: "Elena Rodriguez",
+    //         role: "Marketing Director",
+    //         company: "StartupXYZ",
+    //         content:
+    //             "The quality of freelancers and the smooth process makes Workbridg our go-to platform for all projects.",
+    //         avatar: "👩‍🎨",
+    //     },
+    // ];
 
     // const stats = [
     //     { number: "5,000+", label: "Active professionals", icon: Users },
@@ -199,7 +194,7 @@ const LandingPage: React.FC = () => {
                         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-8">
                             The talent you wish you
                             <br />
-                            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            <span className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                 found sooner
                             </span>
                         </h1>
@@ -360,7 +355,7 @@ const LandingPage: React.FC = () => {
                             >
                                 <Link to="/services" className="block">
                                     <div className="bg-white hover:bg-gray-50 border border-gray-200 rounded-xl p-8 transition-all duration-300 hover:shadow-xl h-full">
-                                        <div className={`w-16 h-16 rounded-lg bg-gradient-to-br ${service.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                                        <div className={`w-16 h-16 rounded-lg bg-linear-to-br ${service.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                                             <service.icon className="h-8 w-8 text-white" />
                                         </div>
                                         <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">

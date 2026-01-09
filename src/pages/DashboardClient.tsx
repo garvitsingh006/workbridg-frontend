@@ -4,7 +4,6 @@ import MessagesFeature from "../components/dashboard/features/MessageFeature";
 import ProfileFeature from "../components/dashboard/features/ProfileFeature";
 import Projects from "../components/dashboard/features/Projects";
 import DashboardHomeClient from "../components/dashboard/features/DashboardHomeClient";
-import AnalyticsClient from "../components/dashboard/features/AnalyticsClient";
 import PaymentsClient from "../components/dashboard/features/PaymentsClient";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
 import HelpPage from "../components/dashboard/features/HelpPage";
@@ -12,7 +11,6 @@ import ClientApplications from "../components/dashboard/features/ClientApplicati
 import BrowseFreelancers from "../components/dashboard/features/BrowseFreelancers";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
 
 export default function DashboardClient() {
   const navigate = useNavigate();
@@ -33,22 +31,6 @@ export default function DashboardClient() {
   const [activeFeature, setActiveFeature] = useState("home");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  const getFeatureTitle = () => {
-    const titles: { [key: string]: string } = {
-      'browse-freelancers': 'Browse Freelancers',
-      home: 'Dashboard',
-      projects: 'My Projects',
-      messages: 'Messages',
-      applications: 'Applications',
-      analytics: 'Analytics',
-      payments: 'Payments',
-      profile: 'Profile',
-      'account-settings': 'Account Settings',
-      'help': 'Help & Support',
-    };
-    return titles[activeFeature] || 'Dashboard';
-  };
-
   const renderFeature = () => {
     switch (activeFeature) {
       case "browse-freelancers":
@@ -61,8 +43,6 @@ export default function DashboardClient() {
         return <MessagesFeature />;
       case "applications":
         return <ClientApplications />;
-      case "analytics":
-        return <AnalyticsClient />;
       case "payments":
         return <PaymentsClient />;
       case "profile":
@@ -86,19 +66,6 @@ export default function DashboardClient() {
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="h-16 bg-white border-b border-gray-200 px-4 lg:px-6 flex items-center flex-shrink-0">
-            <div className="flex items-center gap-3 lg:gap-4">
-              <button
-                onClick={() => setIsMobileSidebarOpen(true)}
-                className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              <h1 className="text-lg lg:text-xl font-semibold text-gray-900 truncate">
-                {getFeatureTitle()}
-              </h1>
-            </div>
-          </div>
           <div className="flex-1 overflow-y-auto">{renderFeature()}</div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useProject, type ProjectApplication } from '../../../contexts/ProjectContext';
 import { useUser } from '../../../contexts/UserContext';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, ChevronDown, FolderOpen } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -90,7 +90,10 @@ export default function ClientApplications() {
   const clientProjects = useMemo(() => {
     return projects.filter(p => {
       const creatorId = (p.createdBy as any)?.id || (p.createdBy as any)?._id;
-      return creatorId === user?.id;
+      const isMyProject = creatorId === user?.id;
+      // Only show projects that don't have a freelancer assigned
+      const hasNoAssignedFreelancer = !p.assignedTo;
+      return isMyProject && hasNoAssignedFreelancer;
     });
   }, [projects, user?.id]);
 
@@ -131,236 +134,306 @@ export default function ClientApplications() {
   };
 
   return (
-    <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
-      <div>
-        <h2 className="text-lg sm:text-xl font-bold">Project Applications</h2>
-        <p className="text-xs sm:text-sm text-gray-600">View and choose applications for your projects</p>
-      </div>
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        {/* Header Section */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Project Applications</h1>
+          <p className="text-slate-600">Review and select the best freelancer for your projects</p>
+        </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-        <select
-          className="w-full sm:w-auto border rounded-md px-2 py-1.5 text-sm"
-          value={selectedProjectId || ''}
-          onChange={(e) => {
-            setSelectedProjectId(e.target.value || null);
-            setSortOrder('none');
-          }}
-        >
-          <option value="">Select project</option>
-          {clientProjects.map(p => (
-            <option key={p.id} value={p.id}>{p.title}</option>
-          ))}
-        </select>
-
-        {selectedProjectId && applications.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-600">Sort by rating:</span>
-            <button
-              onClick={() => setSortOrder(sortOrder === 'high-to-low' ? 'low-to-high' : sortOrder === 'low-to-high' ? 'none' : 'high-to-low')}
-              className="flex items-center gap-1 px-2 py-1 text-xs rounded border hover:bg-gray-50"
-            >
-              <ArrowUpDown className="w-3 h-3" />
-              {sortOrder === 'high-to-low' && 'High to Low'}
-              {sortOrder === 'low-to-high' && 'Low to High'}
-              {sortOrder === 'none' && 'None'}
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white rounded-lg border border-gray-200 p-4 min-h-[150px]">
-        {!selectedProjectId && (
-          <div className="text-xs text-gray-600">Choose a project to load applications.</div>
-        )}
-        {selectedProjectId && loading && (
-          <div className="text-xs text-gray-600">Loading applications…</div>
-        )}
-
-        {selectedProjectId && !loading && hasChosenApplication && chosenApplication && (
-          <div className="space-y-2">
-            {(() => {
-              const selectedProject = projects.find(p => p.id === selectedProjectId);
-              const projectStatus = selectedProject?.status;
-              
-              if (projectStatus === 'in-progress') {
-                return (
-                  <div className="text-sm font-medium text-blue-700 mb-2">
-                    ✅ Project approved! Your chosen freelancer is now working on this project.
-                  </div>
-                );
-              } else if (projectStatus === 'pending') {
-                return (
-                  <div className="text-sm font-medium text-yellow-700 mb-2">
-                    ⏳ You have chosen an application. Waiting for admin approval.
-                  </div>
-                );
-              } else if (projectStatus === 'completed') {
-                return (
-                  <div className="text-sm font-medium text-green-700 mb-2">
-                    ✅ Project completed successfully!
-                  </div>
-                );
-              } else {
-                return (
-                  <div className="text-sm font-medium text-gray-700 mb-2">
-                    Application status: {projectStatus}
-                  </div>
-                );
-              }
-            })()}
-            <div className="border border-green-200 rounded-lg p-4 bg-green-50">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center">
-                    <span className="text-green-700 font-semibold text-sm">{chosenApplication.fullName?.charAt(0) || 'U'}</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-green-900">{chosenApplication.fullName}</div>
-                    {chosenApplication.rating !== undefined && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="text-yellow-500">★</span>
-                        <span className="text-sm font-medium text-green-700">{chosenApplication.rating.toFixed(1)}</span>
-                        <span className="text-xs text-green-600">rating</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="text-xs text-green-600">
-                  Applied {new Date(chosenApplication.appliedAt).toLocaleDateString()}
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                {chosenApplication.proposalSummary && (
-                  <div className="bg-white rounded-lg p-3">
-                    <div className="text-xs font-medium text-green-700 mb-1">💡 Proposal Summary</div>
-                    <div className="text-sm text-gray-800">{chosenApplication.proposalSummary}</div>
-                  </div>
-                )}
-                
-                {chosenApplication.estimatedDelivery && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-blue-500">⏱️</span>
-                    <div>
-                      <div className="text-xs text-green-700">Delivery Time</div>
-                      <div className="text-sm font-medium text-gray-800">{chosenApplication.estimatedDelivery}</div>
-                    </div>
-                  </div>
-                )}
-                
-                {chosenApplication.addOns && (
-                  <div className="bg-white rounded-lg p-3">
-                    <div className="text-xs font-medium text-green-700 mb-1">✨ Additional Services</div>
-                    <div className="text-sm text-gray-800">{chosenApplication.addOns}</div>
-                  </div>
-                )}
+        {/* Controls Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Project Selector */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Select Project
+              </label>
+              <div className="relative">
+                <select
+                  className="w-full h-12 pl-4 pr-10 bg-white border border-slate-300 rounded-lg text-slate-900 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-colors appearance-none shadow-sm"
+                  value={selectedProjectId || ''}
+                  onChange={(e) => {
+                    setSelectedProjectId(e.target.value || null);
+                    setSortOrder('none');
+                  }}
+                >
+                  <option value="">Choose a project to view applications</option>
+                  {clientProjects.map(p => (
+                    <option key={p.id} value={p.id}>{p.title}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               </div>
             </div>
-          </div>
-        )}
 
-        {selectedProjectId && !loading && !hasChosenApplication && sortedApplications.length === 0 && (
-          <div className="text-xs text-gray-600">No applications yet for this project.</div>
-        )}
-        {selectedProjectId && !loading && !hasChosenApplication && sortedApplications.length > 0 && (
-          <ul className="space-y-2">
-            {sortedApplications.map((a, idx) => {
-              return (
-                <li key={idx} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#f72585]/10 rounded-full flex items-center justify-center">
-                        <span className="text-[#f72585] font-semibold text-sm">{a.fullName?.charAt(0) || 'U'}</span>
+            {/* Sort Controls */}
+            {selectedProjectId && applications.length > 0 && (
+              <div className="lg:w-64">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Sort by Rating
+                </label>
+                <button
+                  onClick={() => setSortOrder(sortOrder === 'high-to-low' ? 'low-to-high' : sortOrder === 'low-to-high' ? 'none' : 'high-to-low')}
+                  className="w-full h-12 px-4 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-colors flex items-center justify-between shadow-sm"
+                >
+                  <span className="flex items-center gap-2">
+                    <ArrowUpDown className="w-4 h-4" />
+                    {sortOrder === 'high-to-low' && 'High to Low'}
+                    {sortOrder === 'low-to-high' && 'Low to High'}
+                    {sortOrder === 'none' && 'Default Order'}
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 min-h-[400px]">
+          {!selectedProjectId && (
+            <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+              <div className="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center mb-4">
+                <FolderOpen className="w-8 h-8 text-pink-500" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Select a Project</h3>
+              <p className="text-slate-600 max-w-md">
+                Choose one of your projects from the dropdown above to view and manage applications from freelancers.
+              </p>
+            </div>
+          )}
+
+          {selectedProjectId && loading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-slate-600">Loading applications...</span>
+              </div>
+            </div>
+          )}
+
+          {selectedProjectId && !loading && hasChosenApplication && chosenApplication && (
+            <div className="p-6">
+              {(() => {
+                const selectedProject = projects.find(p => p.id === selectedProjectId);
+                const projectStatus = selectedProject?.status;
+                const hasAssignedFreelancer = selectedProject?.assignedTo;
+                
+                // If project has assigned freelancer, show the selected application
+                if (hasAssignedFreelancer) {
+                  if (projectStatus === 'in-progress') {
+                    return (
+                      <div className="text-sm font-medium text-blue-700 mb-2">
+                        ✅ Project approved! Your chosen freelancer is now working on this project.
                       </div>
-                      <div>
-                        <div className="font-semibold text-gray-900">{a.fullName}</div>
-                        {a.rating !== undefined && (
-                          <div className="flex items-center gap-1 mt-1">
-                            <span className="text-yellow-500">★</span>
-                            <span className="text-sm font-medium text-gray-700">{a.rating.toFixed(1)}</span>
-                            <span className="text-xs text-gray-500">rating</span>
-                          </div>
-                        )}
+                    );
+                  } else if (projectStatus === 'pending') {
+                    return (
+                      <div className="text-sm font-medium text-yellow-700 mb-2">
+                        ⏳ You have chosen an application. Waiting for admin approval.
                       </div>
+                    );
+                  } else if (projectStatus === 'completed') {
+                    return (
+                      <div className="text-sm font-medium text-green-700 mb-2">
+                        ✅ Project completed successfully!
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="text-sm font-medium text-gray-700 mb-2">
+                        Application status: {projectStatus}
+                      </div>
+                    );
+                  }
+                } else {
+                  return (
+                    <div className="text-sm font-medium text-yellow-700 mb-2">
+                      ⏳ You have chosen an application. Waiting for admin approval.
                     </div>
-                    <div className="text-xs text-gray-500">
-                      Applied {new Date(a.appliedAt).toLocaleDateString()}
+                  );
+                }
+              })()}
+              <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center">
+                      <span className="text-green-700 font-semibold text-sm">{chosenApplication.fullName?.charAt(0) || 'U'}</span>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2 mb-4">
-                    {a.proposalSummary && (
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="text-xs font-medium text-gray-600 mb-1">💡 Proposal Summary</div>
-                        <div className="text-sm text-gray-800">{a.proposalSummary}</div>
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {a.estimatedDelivery && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-blue-500">⏱️</span>
-                          <div>
-                            <div className="text-xs text-gray-600">Delivery Time</div>
-                            <div className="text-sm font-medium text-gray-800">{a.estimatedDelivery}</div>
-                          </div>
+                    <div>
+                      <div className="font-semibold text-green-900">{chosenApplication.fullName}</div>
+                      {chosenApplication.rating !== undefined && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-yellow-500">★</span>
+                          <span className="text-sm font-medium text-green-700">{chosenApplication.rating.toFixed(1)}</span>
+                          <span className="text-xs text-green-600">rating</span>
                         </div>
                       )}
                     </div>
-                    
-                    {a.addOns && (
-                      <div className="bg-green-50 rounded-lg p-3">
-                        <div className="text-xs font-medium text-green-700 mb-1">✨ Additional Services</div>
-                        <div className="text-sm text-green-800">{a.addOns}</div>
-                      </div>
-                    )}
                   </div>
+                  <div className="text-xs text-green-600">
+                    Applied {new Date(chosenApplication.appliedAt).toLocaleDateString()}
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  {chosenApplication.proposalSummary && (
+                    <div className="bg-white rounded-lg p-3">
+                      <div className="text-xs font-medium text-green-700 mb-1">💡 Proposal Summary</div>
+                      <div className="text-sm text-gray-800">{chosenApplication.proposalSummary}</div>
+                    </div>
+                  )}
                   
-                  <div className="flex justify-end">
-                    <button
-                      className="px-4 py-2 text-sm font-medium rounded-lg bg-[#f72585] text-white hover:bg-[#f72585]/90 transition-colors"
-                      onClick={() => handleChooseApplication(a)}
-                    >
-                      Choose This Application
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                  {chosenApplication.estimatedDelivery && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-500">⏱️</span>
+                      <div>
+                        <div className="text-xs text-green-700">Delivery Time</div>
+                        <div className="text-sm font-medium text-gray-800">{chosenApplication.estimatedDelivery}</div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {chosenApplication.addOns && (
+                    <div className="bg-white rounded-lg p-3">
+                      <div className="text-xs font-medium text-green-700 mb-1">✨ Additional Services</div>
+                      <div className="text-sm text-gray-800">{chosenApplication.addOns}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedProjectId && !loading && !hasChosenApplication && sortedApplications.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                <span className="text-2xl">📝</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">No Applications Yet</h3>
+              <p className="text-slate-600 max-w-md">
+                This project hasn't received any applications from freelancers yet. Applications will appear here once freelancers start applying.
+              </p>
+            </div>
+          )}
+
+          {selectedProjectId && !loading && !hasChosenApplication && sortedApplications.length > 0 && (
+            <div className="p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                  Applications ({sortedApplications.length})
+                </h3>
+                <p className="text-slate-600 text-sm">
+                  Review each application and choose the best freelancer for your project
+                </p>
+              </div>
+              <ul className="space-y-4">
+                {sortedApplications.map((a, idx) => {
+                  return (
+                    <li key={idx} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-[#f72585]/10 rounded-full flex items-center justify-center">
+                            <span className="text-[#f72585] font-semibold text-sm">{a.fullName?.charAt(0) || 'U'}</span>
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900">{a.fullName}</div>
+                            {a.rating !== undefined && (
+                              <div className="flex items-center gap-1 mt-1">
+                                <span className="text-yellow-500">★</span>
+                                <span className="text-sm font-medium text-gray-700">{a.rating.toFixed(1)}</span>
+                                <span className="text-xs text-gray-500">rating</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Applied {new Date(a.appliedAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2 mb-4">
+                        {a.proposalSummary && (
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="text-xs font-medium text-gray-600 mb-1">💡 Proposal Summary</div>
+                            <div className="text-sm text-gray-800">{a.proposalSummary}</div>
+                          </div>
+                        )}
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {a.estimatedDelivery && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-blue-500">⏱️</span>
+                              <div>
+                                <div className="text-xs text-gray-600">Delivery Time</div>
+                                <div className="text-sm font-medium text-gray-800">{a.estimatedDelivery}</div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {a.addOns && (
+                          <div className="bg-green-50 rounded-lg p-3">
+                            <div className="text-xs font-medium text-green-700 mb-1">✨ Additional Services</div>
+                            <div className="text-sm text-green-800">{a.addOns}</div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <button
+                          className="px-4 py-2 text-sm font-medium rounded-lg bg-[#f72585] text-white hover:bg-[#f72585]/90 transition-colors"
+                          onClick={() => handleChooseApplication(a)}
+                        >
+                          Choose This Application
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
 
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold mb-2">Confirm Application Selection</h3>
-            <p className="text-sm text-gray-600 mb-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">Confirm Application Selection</h3>
+            <p className="text-gray-600 mb-6 leading-relaxed">
               Are you sure you want to choose this freelancer? This action cannot be undone and will send the application to the admin for approval.
             </p>
             {selectedApplication && (
-              <div className="border rounded p-3 bg-gray-50 mb-4">
-                <div className="font-medium text-sm">{selectedApplication.fullName}</div>
+              <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 mb-6">
+                <div className="font-semibold text-gray-900 mb-2">{selectedApplication.fullName}</div>
                 {selectedApplication.rating !== undefined && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="text-yellow-600">★</span>
-                    <span className="text-xs font-medium">{selectedApplication.rating.toFixed(1)}</span>
+                  <div className="flex items-center gap-1 mb-2">
+                    <span className="text-yellow-500">★</span>
+                    <span className="text-sm font-medium text-gray-700">{selectedApplication.rating.toFixed(1)} rating</span>
                   </div>
                 )}
                 {selectedApplication.proposalSummary && (
-                  <div className="text-xs text-gray-700 mt-1">Proposal: {selectedApplication.proposalSummary}</div>
+                  <div className="text-sm text-gray-700 mb-2">
+                    <span className="font-medium">Proposal:</span> {selectedApplication.proposalSummary}
+                  </div>
                 )}
                 {selectedApplication.estimatedDelivery && (
-                  <div className="text-xs text-gray-700">Estimated Delivery: {selectedApplication.estimatedDelivery}</div>
+                  <div className="text-sm text-gray-700 mb-2">
+                    <span className="font-medium">Estimated Delivery:</span> {selectedApplication.estimatedDelivery}
+                  </div>
                 )}
                 {selectedApplication.addOns && (
-                  <div className="text-xs text-gray-700">Add-ons: {selectedApplication.addOns}</div>
+                  <div className="text-sm text-gray-700">
+                    <span className="font-medium">Add-ons:</span> {selectedApplication.addOns}
+                  </div>
                 )}
               </div>
             )}
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-3 justify-end">
               <button
-                className="px-4 py-2 text-sm rounded border hover:bg-gray-50"
+                className="px-6 py-2.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
                 onClick={() => {
                   setShowConfirmModal(false);
                   setSelectedApplication(null);
@@ -369,10 +442,10 @@ export default function ClientApplications() {
                 Cancel
               </button>
               <button
-                className="px-4 py-2 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
+                className="px-6 py-2.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                 onClick={confirmChooseApplication}
               >
-                Confirm
+                Confirm Selection
               </button>
             </div>
           </div>

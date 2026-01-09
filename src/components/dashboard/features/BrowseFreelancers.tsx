@@ -317,26 +317,26 @@ export default function BrowseFreelancers() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Skills</label>
-              <input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="react, javascript" className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm" />
+              <input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="react, javascript" className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors text-sm" />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Name</label>
-              <input value={nameSearch} onChange={(e) => setNameSearch(e.target.value)} placeholder="john doe" className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm" />
+              <input value={nameSearch} onChange={(e) => setNameSearch(e.target.value)} placeholder="john doe" className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors text-sm" />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Location</label>
-              <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City or region" className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm" />
+              <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City or region" className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors text-sm" />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Work Field / Role</label>
-              <input value={workField} onChange={(e) => setWorkField(e.target.value)} placeholder="Frontend Developer" className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm" />
+              <input value={workField} onChange={(e) => setWorkField(e.target.value)} placeholder="Frontend Developer" className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors text-sm" />
             </div>
           </div>
 
           <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Min Rating</label>
-              <select value={String(minRating)} onChange={(e) => setMinRating(e.target.value === '' ? '' : Number(e.target.value))} className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white text-sm">
+              <select value={String(minRating)} onChange={(e) => setMinRating(e.target.value === '' ? '' : Number(e.target.value))} className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors bg-white text-sm">
                 <option value={''}>Any</option>
                 <option value={5}>5</option>
                 <option value={4}>4+</option>
@@ -346,7 +346,7 @@ export default function BrowseFreelancers() {
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Sort</label>
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white text-sm">
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors bg-white text-sm">
                 <option value="rating">Rating</option>
                 <option value="experience">Experience</option>
                 <option value="completed">Completed Projects</option>
@@ -354,13 +354,13 @@ export default function BrowseFreelancers() {
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Order</label>
-              <select value={order} onChange={(e) => setOrder(e.target.value === 'asc' ? 'asc' : 'desc')} className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white text-sm">
+              <select value={order} onChange={(e) => setOrder(e.target.value === 'asc' ? 'asc' : 'desc')} className="w-full px-3 py-2.5 border border-gray-200 rounded-md focus:ring-1 focus:ring-pink-500 focus:border-pink-500 outline-none transition-colors bg-white text-sm">
                 <option value="desc">Descending</option>
                 <option value="asc">Ascending</option>
               </select>
             </div>
             <div className="flex gap-2 col-span-2 md:col-span-2">
-              <button type="button" onClick={applyFilters} className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium text-sm">Apply</button>
+              <button type="button" onClick={applyFilters} className="flex-1 px-4 py-2.5 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors font-medium text-sm">Apply</button>
               <button type="button" onClick={() => { setSearchInput(''); setNameSearch(''); setLocation(''); setWorkField(''); setMinRating(''); setSortBy('rating'); setOrder('desc'); setPage(1); fetchList({ page:1 }); }} className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium text-sm">Reset</button>
             </div>
           </div>
@@ -412,7 +412,7 @@ export default function BrowseFreelancers() {
                   Prev
                 </button>
 
-                <div className="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm">
+                <div className="px-3 py-1.5 bg-pink-600 text-white rounded-md text-sm">
                   {page}
                 </div>
 
