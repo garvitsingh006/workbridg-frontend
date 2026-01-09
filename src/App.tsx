@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserProvider } from "./contexts/UserContext";
@@ -24,6 +24,10 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import FileUploadDemo from "./components/demo/FileUploadDemo";
+import TermsPage from "./pages/TermsPage";
+import RefundPolicyPage from "./pages/RefundPolicyPage";
+import ContactPage from "./pages/ContactPage";
+import ScrollToTop from "./components/ScrollToTop.tsx";
 
 function App() {
     return (
@@ -33,6 +37,7 @@ function App() {
                     <InterviewProvider>
                         <PaymentProvider>
                     <Router>
+                        <ScrollToTop />
                         <div className="min-h-screen flex flex-col">
                             <ToastContainer
                                 position="top-right"
@@ -73,22 +78,12 @@ function App() {
                                             <Header />
                                             <main className="flex-1">
                                                 <Routes>
-                                                    <Route
-                                                        path="/"
-                                                        element={
-                                                            <LandingPage />
-                                                        }
-                                                    />
-                                                    <Route
-                                                        path="/how-it-works"
-                                                        element={
-                                                            <HowItWorksPage />
-                                                        }
-                                                    />
-                                                    <Route
-                                                        path="/about"
-                                                        element={<AboutPage />}
-                                                    />
+                                                    <Route path="/" element={<LandingPage />} />
+                                                    <Route path="/how-it-works" element= {<HowItWorksPage />} />
+                                                    <Route path="/about" element={<AboutPage />} />
+                                                    <Route path="/terms" element={<TermsPage />} />
+                                                    <Route path="/refund-policy" element={<RefundPolicyPage />} />
+                                                    <Route path="/contact" element={<ContactPage />} />
                                                 </Routes>
                                             </main>
                                             <Footer />
