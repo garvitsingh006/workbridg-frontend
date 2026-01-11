@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
     Eye,
     EyeOff,
@@ -20,6 +20,7 @@ import { useUser } from "../contexts/UserContext";
 const LoginPage: React.FC = () => {
     const { fetchUser, fetchLoginDetails } = useUser();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
@@ -48,6 +49,13 @@ const LoginPage: React.FC = () => {
         if (!isMounted.current) return;
 
         setIsVisible(true);
+
+        // Check for email verification success
+        if (searchParams.get('verified') === 'true') {
+            setTimeout(() => {
+                toast.success('Email verified successfully! Please login');
+            }, 100);
+        }
 
         // Only run auth check if we haven't already done so
         if (hasCheckedAuth.current || authCheckInProgress.current) return;
@@ -250,7 +258,7 @@ const LoginPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-white flex relative overflow-hidden">
             {/* Left Side - Decorative */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
                 {/* Floating Elements */}
                 {floatingElements.map((element, index) => (
                     <div
@@ -273,7 +281,7 @@ const LoginPage: React.FC = () => {
                         <h1 className="text-5xl font-bold mb-6 leading-tight">
                             Never run out of
                             <br />
-                            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                            <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                                 talent again.
                             </span>
                         </h1>
@@ -341,7 +349,7 @@ const LoginPage: React.FC = () => {
                 </div>
 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-black/50 to-transparent"></div>
             </div>
 
             {/* Right Side - Form */}

@@ -90,7 +90,14 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
               </span>
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+              <h2 className="text-sm font-semibold text-gray-900">
+                {title}
+                {chat.isLocked && (
+                  <span className="ml-2 text-xs font-normal text-gray-500">
+                    (Admin moderated {chat.project?.adminManagementRequestedAt ? `since ${new Date(chat.project.adminManagementRequestedAt).toLocaleDateString()}` : ''})
+                  </span>
+                )}
+              </h2>
               <p className="text-xs text-gray-500">{getChatTypeLabel()}</p>
             </div>
           </div>
@@ -174,16 +181,24 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
       </div>
 
       {/* Message Input */}
-      <div className="border-t border-gray-100 bg-white">
-        <MessageInput
-          onSend={handleSend}
-          disabled={
-            // Only lock pending project chats for non-admins. Direct chats are always open.
-            chat.type === 'project' && chat.status === 'pending' && user?.userType !== 'admin'
-          }
-          status={chat.status}
-        />
-      </div>
+      {chat.isLocked && user?.userType !== 'admin' ? (
+        <div className="border-t border-gray-100 bg-gray-50 p-4">
+          <div className="text-center text-gray-500 text-sm">
+            This chat is locked. Only admin can post messages.
+          </div>
+        </div>
+      ) : (
+        <div className="border-t border-gray-100 bg-white">
+          <MessageInput
+            onSend={handleSend}
+            disabled={
+              // Only lock pending project chats for non-admins. Direct chats are always open.
+              chat.type === 'project' && chat.status === 'pending' && user?.userType !== 'admin'
+            }
+            status={chat.status}
+          />
+        </div>
+      )}
       
       {/* Group Info Modal */}
       {showGroupInfo && (chat.type === 'group' || chat.type === 'project') && (

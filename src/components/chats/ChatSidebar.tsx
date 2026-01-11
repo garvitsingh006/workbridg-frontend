@@ -187,12 +187,12 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                         }
                                     }}
                                     disabled={isCreatingAdminChat}
-                                    className={`w-full text-left p-3 rounded-xl mb-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 ${isCreatingAdminChat ? 'opacity-50 cursor-not-allowed' : ''
+                                    className={`w-full text-left p-3 rounded-xl mb-2 bg-linear-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-300 ${isCreatingAdminChat ? 'opacity-50 cursor-not-allowed' : ''
                                         }`}
                                 >
                                     {/* Keep the existing button content */}
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
                                             <span className="text-xs font-bold text-white">👤</span>
                                         </div>
                                         <div className="flex-1">
@@ -250,12 +250,12 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                     type="button"
                                     onClick={() => onSelectChat(chat)}
                                     className={`w-full text-left p-3 rounded-xl mb-1 transition-all duration-300 ${isActive
-                                        ? (isAdminChat ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg' : 'bg-white border-2 border-gray-900 shadow-md')
-                                        : (isAdminChat ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 hover:from-blue-100 hover:to-indigo-100' : 'hover:bg-gray-50')
+                                        ? (isAdminChat ? 'bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-lg' : 'bg-white border-2 border-gray-900 shadow-md')
+                                        : (isAdminChat ? 'bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 hover:from-blue-100 hover:to-indigo-100' : 'hover:bg-gray-50')
                                         }`}
                                 >
                                     <div className="flex items-start gap-2">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isActive
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isActive
                                             ? (isAdminChat ? 'bg-white/20' : 'bg-gray-900')
                                             : (isAdminChat ? 'bg-blue-600' : 'bg-gray-100')
                                             }`}>
@@ -273,6 +273,14 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                                     : (isAdminChat ? 'text-blue-900' : 'text-gray-900')
                                                     }`}>
                                                     {title}
+                                                    {chat.isLocked && (
+                                                        <span className={`ml-2 text-xs font-normal ${isActive
+                                                            ? (isAdminChat ? 'text-white/70' : 'text-gray-500')
+                                                            : (isAdminChat ? 'text-blue-600' : 'text-gray-500')
+                                                        }`}>
+                                                            (Admin moderated {chat.project?.adminManagementRequestedAt ? `since ${new Date(chat.project.adminManagementRequestedAt).toLocaleDateString()}` : ''})
+                                                        </span>
+                                                    )}
                                                 </h3>
                                                 {unreadCount > 0 && (
                                                     <span className="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-blue-600 text-white text-[9px] font-medium">

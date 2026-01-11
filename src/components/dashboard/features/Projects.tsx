@@ -1,5 +1,5 @@
 import React from "react";
-import { FolderOpen, Plus, ListFilter as Calendar, RefreshCw } from "lucide-react";
+import { FolderOpen, Plus, ListFilter as Calendar, RefreshCw, HelpCircle } from "lucide-react";
 import { useProject } from "../../../contexts/ProjectContext";
 import { useUser } from "../../../contexts/UserContext";
 import CreateProjectModal from "../../modals/CreateProjectModal";
@@ -9,13 +9,14 @@ import StatusUpdateModal from "../../modals/StatusUpdateModal";
 import ApplyProjectModal from "../../modals/ApplyProjectModal";
 import type { Project } from "../../../contexts/ProjectContext";
 import Joyride, {type CallBackProps, STATUS, type Step, type Placement } from 'react-joyride';
+import { toast } from 'react-toastify';
 
 export default function Projects() {
     const [projectName, setProjectName] = React.useState("");
     const [budgetMin, setBudgetMin] = React.useState("");
     const [budgetMax, setBudgetMax] = React.useState("");
     const [category, setCategory] = React.useState("");
-    const { projects, applyToProject, fetchProjects, deleteProject } = useProject();
+    const { projects, applyToProject, fetchProjects, deleteProject, requestAdminManagement } = useProject();
     const { user, updateUser } = useUser();
     
     React.useEffect(() => {
@@ -60,6 +61,8 @@ export default function Projects() {
     // const [dropdownOpen, setDropdownOpen] = React.useState<string | null>(null);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
     const [projectToDelete, setProjectToDelete] = React.useState<Project | null>(null);
+    const [adminManagementConfirmOpen, setAdminManagementConfirmOpen] = React.useState(false);
+    const [projectForAdminManagement, setProjectForAdminManagement] = React.useState<Project | null>(null);
 
     const categories = [
         'Development',
@@ -316,7 +319,21 @@ export default function Projects() {
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {displayProjects.map((project, index) => {
                     const originalProject = projects.find((p) => p.id === project.id);
+                    console.log("ORIGINAL PROJECT:", originalProject?.hasRequestedAdminManagement);
                     const description = originalProject?.description || '';
+                    
+                    // Check if project is eligible for admin management (within 48 hours and in-progress)
+                    const isEligibleForAdminManagement = originalProject && 
+                        originalProject.status === 'in-progress' && 
+                        !originalProject.hasRequestedAdminManagement &&
+                        user?.userType === 'client' &&
+                        originalProject.createdBy?.id === user?.id;
+                    
+                    const projectAge = originalProject ? Date.now() - new Date(originalProject.createdAt).getTime() : 0;
+                    const fortyEightHours = 48 * 60 * 60 * 1000;
+                    const isWithin48Hours = projectAge <= fortyEightHours;
+                    
+                    const showAdminManagementButton = isEligibleForAdminManagement && isWithin48Hours && !originalProject.hasRequestedAdminManagement;
                     
                     return (
                         <div
@@ -328,7 +345,7 @@ export default function Projects() {
                                     setDetailsModalOpen(true);
                                 }
                             }}
-                            className="bg-white rounded-lg border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200 cursor-pointer group"
+                            className="bg-white rounded-lg border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all duration-200 cursor-pointer"
                         >
                             {/* Header */}
                             <div className="flex items-start justify-between mb-4">
@@ -361,6 +378,40 @@ export default function Projects() {
                                 <div className="text-lg font-semibold text-gray-900">
                                     {project.budget}
                                 </div>
+                                
+                                {/* Admin Management Button or Status */}
+                                {originalProject?.hasRequestedAdminManagement ? (
+                                    <div className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-md text-sm font-medium border border-gray-300">
+                                        Under Admin Management
+                                    </div>
+                                ) : showAdminManagementButton ? (
+                                    <div className="relative">
+                                        <div className="group relative">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setProjectForAdminManagement(originalProject);
+                                                    setAdminManagementConfirmOpen(true);
+                                                }}
+                                                className="flex items-center gap-1 px-3 py-1.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors font-medium text-sm cursor-pointer"
+                                            >
+                                                Request Admin Management (+5%)
+                                                <HelpCircle className="w-3 h-3" />
+                                            </button>
+                                            <div className="absolute bottom-full left-0 mb-2 w-72 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                <div className="space-y-1">
+                                                    <div className="font-semibold text-orange-300 mb-2">Time remaining: {Math.max(0, Math.ceil((fortyEightHours - projectAge) / (1000 * 60 * 60)))} hours</div>
+                                                    <div>• Admin will take control of the project</div>
+                                                    <div>• Group chat will be locked</div>
+                                                    <div>• Scope and requirements will be finalized by admin</div>
+                                                    <div>• The decision is irreversible</div>
+                                                    <div>• Client waives the right to change requirements</div>
+                                                    <div className="font-semibold text-yellow-300 mt-2">• 5% extra charge will be added to final payment</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : null}
                                 {user?.userType === 'freelancer' && (
                                     <button
                                         onClick={(e) => {
@@ -592,6 +643,53 @@ export default function Projects() {
                                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
                             >
                                 Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Admin Management Confirmation Modal */}
+            {adminManagementConfirmOpen && projectForAdminManagement && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Request Admin Management</h3>
+                        <div className="text-gray-600 mb-6 space-y-2">
+                            <p className="font-medium text-red-600">This action is irreversible</p>
+                            <p className="font-medium text-orange-600">5% extra charge will be added to your final payment</p>
+                            <ul className="space-y-1 text-sm">
+                                <li>• Group chat will become read-only</li>
+                                <li>• Only admin can post in the group</li>
+                                <li>• Client waives the right to modify scope or requirements</li>
+                                <li>• Admin will finalize project scope, deliverables, timeline, and payment</li>
+                            </ul>
+                        </div>
+                        <div className="flex items-center justify-end space-x-3">
+                            <button
+                                onClick={() => {
+                                    setAdminManagementConfirmOpen(false);
+                                    setProjectForAdminManagement(null);
+                                }}
+                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        await requestAdminManagement(projectForAdminManagement.id);
+                                        toast.success('Project is now under admin management! 🎯');
+                                        await fetchProjects();
+                                    } catch (error) {
+                                        console.error('Error requesting admin management:', error);
+                                        toast.error('Failed to request admin management. Please try again.');
+                                    }
+                                    setAdminManagementConfirmOpen(false);
+                                    setProjectForAdminManagement(null);
+                                }}
+                                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors cursor-pointer"
+                            >
+                                Confirm Request
                             </button>
                         </div>
                     </div>

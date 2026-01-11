@@ -54,7 +54,7 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
         <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
                 {/* Fixed Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 shrink-0">
                     <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                         <CreditCard className="w-5 h-5 text-blue-600" />
                         Payment Details
@@ -118,7 +118,7 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
                                     <p className="font-semibold text-lg">₹{payment.totalAmount.toLocaleString()}</p>
                                 </div>
                                 <div>
-                                    <span className="text-gray-600">Service Charge (5%):</span>
+                                    <span className="text-gray-600">Service Charge ({payment.platformFee.serviceCharge > 0 ? '5%' : '0%'}):</span>
                                     <p className="font-semibold text-lg text-red-600">₹{payment.platformFee.serviceCharge.toLocaleString()}</p>
                                 </div>
                                 <div>
@@ -133,7 +133,7 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
                                         <div className="relative group">
                                             <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
                                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-                                                8% commission fee is deducted from the total amount
+                                                10% commission fee is deducted from the total amount
                                             </div>
                                         </div>
                                     </div>
@@ -151,7 +151,7 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-1">
-                                        <span className="text-gray-600">Service Charge (5%):</span>
+                                        <span className="text-gray-600">Service Charge ({payment.platformFee.serviceCharge > 0 ? '5%' : '0%'}):</span>
                                         <div className="relative group">
                                             <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
                                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
@@ -163,7 +163,7 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-1">
-                                        <span className="text-gray-600">Commission Fee (8%):</span>
+                                        <span className="text-gray-600">Commission Fee (10%):</span>
                                         <div className="relative group">
                                             <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
                                             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">

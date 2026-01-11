@@ -31,10 +31,13 @@ export interface Chat {
     project?: {
         _id: string;
         title: string;
+        hasRequestedAdminManagement?: boolean;
+        adminManagementRequestedAt?: Date;
     };
     messages: Message[];
     status: "pending" | "approved" | "with_admin";
     adminAdded: boolean;
+    isLocked?: boolean;
     createdAt: Date;
     updatedAt: Date;
     createdBy?: string; // Track who created the chat
@@ -182,6 +185,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                     _id: chat.project._id || chat.project.id,
                     title:
                         chat.project.title || chat.project.name || "Project",
+                    hasRequestedAdminManagement: chat.project.hasRequestedAdminManagement,
+                    adminManagementRequestedAt: chat.project.adminManagementRequestedAt ? new Date(chat.project.adminManagementRequestedAt) : undefined,
                 }
                 : undefined,
             messages: Array.isArray(chat.messages)
@@ -191,6 +196,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             adminAdded: Boolean(
                 chat.adminAdded ?? chat.status === "with_admin"
             ),
+            isLocked: Boolean(chat.isLocked),
             createdAt: new Date(chat.createdAt || Date.now()),
             updatedAt: new Date(chat.updatedAt || chat.createdAt || Date.now()),
             createdBy: chat.createdBy,

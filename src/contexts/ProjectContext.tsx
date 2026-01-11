@@ -36,6 +36,8 @@ export interface Project {
     remarks: Remark[];
     payment?: Payment;
     totalAmount?: number; // Total project amount for payment system
+    hasRequestedAdminManagement?: boolean;
+    adminManagementRequestedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -82,6 +84,7 @@ interface ProjectContextType {
         projectData: Partial<Project>
     ) => Promise<void>;
     deleteProject: (projectId: string) => Promise<void>;
+    requestAdminManagement: (projectId: string) => Promise<void>;
     // Project methods
     updateStatus: (
         projectId: string,
@@ -428,6 +431,23 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         }
     };
 
+    const requestAdminManagement = async (projectId: string): Promise<void> => {
+        try {
+            setError(null);
+            const response = await api.post(`/projects/${projectId}/request-admin-management`);
+            const updatedProject = response.data.data;
+            setProjects((prev) =>
+                prev.map((project) =>
+                    project.id === projectId ? updatedProject : project
+                )
+            );
+        } catch (err: any) {
+            const message = err?.response?.data?.message || err?.message || 'Failed to request admin management';
+            setError(message);
+            throw new Error(message);
+        }
+    };
+
     useEffect(() => {
         fetchProjects();
     }, []);
@@ -448,6 +468,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({
         createProject,
         updateProject,
         deleteProject,
+        requestAdminManagement,
         updateStatus,
         markCompleted,
         addRemark,
