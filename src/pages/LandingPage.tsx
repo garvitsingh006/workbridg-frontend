@@ -69,7 +69,7 @@ const LandingPage: React.FC = () => {
     const popularServices = [
         {
             icon: Code,
-            title: "Web & Mobile App Development",
+            title: "Web Development",
             description: "Custom solutions for web and mobile platforms",
             gradient: "from-blue-500 to-cyan-500"
         },
@@ -343,31 +343,51 @@ const LandingPage: React.FC = () => {
                     </motion.div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {popularServices.map((service, index) => (
-                            <motion.div
-                                key={service.title}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                                whileHover={{ y: -8 }}
-                                className="group"
-                            >
-                                <Link to="/services" className="block">
-                                    <div className="bg-white hover:bg-gray-50 border border-gray-200 rounded-xl p-8 transition-all duration-300 hover:shadow-xl h-full">
-                                        <div className={`w-16 h-16 rounded-lg bg-linear-to-br ${service.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                                            <service.icon className="h-8 w-8 text-white" />
+                        {popularServices.map((service, index) => {
+                            const isActive = service.title === "Web Development";
+                            return (
+                                <motion.div
+                                    key={service.title}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                                    whileHover={isActive ? { y: -8 } : {}}
+                                    className="group"
+                                >
+                                    {isActive ? (
+                                        <Link to="/services" className="block">
+                                            <div className="bg-white hover:bg-gray-50 border border-gray-200 rounded-xl p-8 transition-all duration-300 hover:shadow-xl h-full">
+                                                <div className={`w-16 h-16 rounded-lg bg-linear-to-br ${service.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                                                    <service.icon className="h-8 w-8 text-white" />
+                                                </div>
+                                                <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                                                    {service.title}
+                                                </h3>
+                                                <p className="text-gray-600">
+                                                    {service.description}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    ) : (
+                                        <div className="bg-gray-100 border border-gray-200 rounded-xl p-8 h-full opacity-60 cursor-not-allowed">
+                                            <div className="w-16 h-16 rounded-lg bg-gray-300 flex items-center justify-center mb-6">
+                                                <service.icon className="h-8 w-8 text-gray-500" />
+                                            </div>
+                                            <h3 className="text-xl font-semibold text-gray-500 mb-3">
+                                                {service.title}
+                                            </h3>
+                                            <p className="text-gray-400 mb-2">
+                                                {service.description}
+                                            </p>
+                                            <p className="text-sm font-medium text-gray-500">
+                                                Coming Soon
+                                            </p>
                                         </div>
-                                        <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                                            {service.title}
-                                        </h3>
-                                        <p className="text-gray-600">
-                                            {service.description}
-                                        </p>
-                                    </div>
-                                </Link>
-                            </motion.div>
-                        ))}
+                                    )}
+                                </motion.div>
+                            );
+                        })}
                     </div>
                 </div>
             </section>

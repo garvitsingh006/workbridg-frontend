@@ -65,16 +65,7 @@ export default function Projects() {
     const [projectForAdminManagement, setProjectForAdminManagement] = React.useState<Project | null>(null);
 
     const categories = [
-        'Development',
-        'Design', 
-        'Writing',
-        'Marketing',
-        'Video & Animation',
-        'Audio & Music',
-        'Business & Consulting',
-        'Data & AI',
-        'Support & Admin',
-        'Other'
+        'Web Development'
     ];
 
     const applyFilters = () => {
@@ -319,7 +310,7 @@ export default function Projects() {
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {displayProjects.map((project, index) => {
                     const originalProject = projects.find((p) => p.id === project.id);
-                    console.log("ORIGINAL PROJECT:", originalProject?.hasRequestedAdminManagement);
+                    // console.log("ORIGINAL PROJECT:", originalProject?.hasRequestedAdminManagement);
                     const description = originalProject?.description || '';
                     
                     // Check if project is eligible for admin management (within 48 hours and in-progress)

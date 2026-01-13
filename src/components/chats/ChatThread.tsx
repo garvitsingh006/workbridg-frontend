@@ -186,7 +186,7 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
                         ? 'bg-black text-white' 
                         : 'bg-white border border-gray-200'
                     } ${
-                      highlightedMessageId === m._id ? 'ring-2 ring-blue-400 bg-blue-50' : ''
+                      highlightedMessageId === (m._id || `msg-${idx}`) ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                     }`}>
                       <div className="text-xs leading-relaxed">{m.content}</div>
                       <div className={`text-xs mt-1 ${isMine ? 'text-white/60' : 'text-gray-400'}`}>

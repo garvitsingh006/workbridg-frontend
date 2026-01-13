@@ -10,6 +10,7 @@ import api from "../api";
 
 // Types for Chat Context - Updated to match backend
 export interface Message {
+    _id?: string; // Add optional _id for message identification
     sender: {
         _id: string;
         username: string;
@@ -111,6 +112,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     const normalizeMessage = (msg: any): Message => {
         return {
+            _id: msg._id || msg.id, // Include message ID if available
             sender: {
                 _id:
                     msg.sender?._id ||

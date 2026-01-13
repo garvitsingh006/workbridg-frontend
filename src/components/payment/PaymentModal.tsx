@@ -93,7 +93,7 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
                                 <User className="w-4 h-4 text-gray-500" />
                                 <span className="text-sm font-medium text-gray-700">Freelancer</span>
                             </div>
-                            <p className="text-gray-900">{payment.freelancerId.fullName}</p>
+                            <p className="text-gray-900">{payment.freelancerId?.fullName || 'N/A'}</p>
                         </div>
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
@@ -108,78 +108,88 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
                     <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                         <h3 className="font-medium text-gray-900 flex items-center gap-2">
                             <DollarSign className="w-4 h-4" />
-                            Financial Breakdown
+                            {payment.isAdminManagementFee ? 'Admin Management Fee' : 'Financial Breakdown'}
                         </h3>
-                        {user?.userType === 'client' ? (
-                            // Client view - show only client-side information
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <span className="text-gray-600">Project Amount:</span>
-                                    <p className="font-semibold text-lg">₹{payment.totalAmount.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Service Charge ({payment.platformFee.serviceCharge > 0 ? '5%' : '0%'}):</span>
-                                    <p className="font-semibold text-lg text-red-600">₹{payment.platformFee.serviceCharge.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Total You Pay:</span>
-                                    <p className="font-semibold text-lg text-blue-600">
-                                        ₹{(payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}
-                                    </p>
-                                </div>
-                                <div>
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-gray-600">Freelancer Receives:</span>
-                                        <div className="relative group">
-                                            <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
-                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-                                                10% commission fee is deducted from the total amount
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p className="font-semibold text-lg text-green-600">
-                                        ₹{(payment.totalAmount - payment.platformFee.commissionFee).toLocaleString()}
-                                    </p>
-                                </div>
+                        {payment.isAdminManagementFee ? (
+                            // Admin Management Fee - Simple display
+                            <div className="text-center">
+                                <div className="text-sm text-gray-600 mb-1">Admin Management Fee (5%)</div>
+                                <div className="text-2xl font-bold text-blue-600">₹{payment.totalAmount.toLocaleString()}</div>
+                                <div className="text-xs text-gray-500 mt-1">{payment.description}</div>
                             </div>
                         ) : (
-                            // Freelancer/Admin view - show detailed breakdown
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <span className="text-gray-600">Project Amount:</span>
-                                    <p className="font-semibold text-lg">₹{payment.totalAmount.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                    <div className="flex items-center gap-1">
+                            // Regular payment breakdown
+                            user?.userType === 'client' ? (
+                                // Client view - show only client-side information
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-600">Project Amount:</span>
+                                        <p className="font-semibold text-lg">₹{payment.totalAmount.toLocaleString()}</p>
+                                    </div>
+                                    <div>
                                         <span className="text-gray-600">Service Charge ({payment.platformFee.serviceCharge > 0 ? '5%' : '0%'}):</span>
-                                        <div className="relative group">
-                                            <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
-                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-                                                From Client
+                                        <p className="font-semibold text-lg text-red-600">₹{payment.platformFee.serviceCharge.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-600">Total You Pay:</span>
+                                        <p className="font-semibold text-lg text-blue-600">
+                                            ₹{(payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-gray-600">Freelancer Receives:</span>
+                                            <div className="relative group">
+                                                <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                                                    10% commission fee is deducted from the total amount
+                                                </div>
                                             </div>
                                         </div>
+                                        <p className="font-semibold text-lg text-green-600">
+                                            ₹{(payment.totalAmount - payment.platformFee.commissionFee).toLocaleString()}
+                                        </p>
                                     </div>
-                                    <p className="font-semibold text-lg text-red-600">₹{payment.platformFee.serviceCharge.toLocaleString()}</p>
                                 </div>
-                                <div>
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-gray-600">Commission Fee (10%):</span>
-                                        <div className="relative group">
-                                            <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
-                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-                                                From Freelancer
+                            ) : (
+                                // Freelancer/Admin view - show detailed breakdown
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-600">Project Amount:</span>
+                                        <p className="font-semibold text-lg">₹{payment.totalAmount.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-gray-600">Service Charge ({payment.platformFee.serviceCharge > 0 ? '5%' : '0%'}):</span>
+                                            <div className="relative group">
+                                                <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                                                    From Client
+                                                </div>
                                             </div>
                                         </div>
+                                        <p className="font-semibold text-lg text-red-600">₹{payment.platformFee.serviceCharge.toLocaleString()}</p>
                                     </div>
-                                    <p className="font-semibold text-lg text-orange-600">₹{payment.platformFee.commissionFee.toLocaleString()}</p>
+                                    <div>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-gray-600">Commission Fee (10%):</span>
+                                            <div className="relative group">
+                                                <HelpCircle className="w-3 h-3 text-gray-400 cursor-help" />
+                                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                                                    From Freelancer
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="font-semibold text-lg text-orange-600">₹{payment.platformFee.commissionFee.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-600">Freelancer Final Amount:</span>
+                                        <p className="font-semibold text-lg text-green-600">
+                                            ₹{(payment.totalAmount - payment.platformFee.commissionFee).toLocaleString()}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span className="text-gray-600">Freelancer Final Amount:</span>
-                                    <p className="font-semibold text-lg text-green-600">
-                                        ₹{(payment.totalAmount - payment.platformFee.commissionFee).toLocaleString()}
-                                    </p>
-                                </div>
-                            </div>
+                            )
                         )}
                         
                         {payment.releaseAmount > 0 && (
@@ -209,7 +219,7 @@ export default function PaymentModal({ payment, isOpen, onClose }: PaymentModalP
                             <div className="grid grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <span className="text-gray-600">Amount:</span>
-                                    <p className="font-semibold">₹{(payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}</p>
+                                    <p className="font-semibold">₹{payment.isAdminManagementFee ? payment.totalAmount.toLocaleString() : (payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}</p>
                                 </div>
                                 {payment.total.orderId && (
                                     <div>

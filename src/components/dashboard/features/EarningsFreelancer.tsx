@@ -240,9 +240,15 @@ export default function EarningsFreelancer() {
                       <td className="px-6 py-4">
                         <div>
                           <div className="font-medium text-sm text-gray-900">{payment.projectId?.title || 'Unknown Project'}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            Project: ₹{payment.totalAmount.toLocaleString()} - Fee: ₹{payment.platformFee.commissionFee.toLocaleString()}
-                          </div>
+                          {payment.isAdminManagementFee ? (
+                            <div className="text-xs text-orange-600 mt-0.5 font-medium">
+                              Admin Management Service Charge
+                            </div>
+                          ) : (
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              Project: ₹{payment.totalAmount.toLocaleString()} - Fee: ₹{payment.platformFee.commissionFee.toLocaleString()}
+                            </div>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -259,7 +265,13 @@ export default function EarningsFreelancer() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-sm text-gray-900">₹{freelancerAmount.toLocaleString()}</div>
+                        <div className="font-semibold text-sm text-gray-900">
+                          {payment.isAdminManagementFee ? (
+                            <span className="text-orange-600">₹{payment.totalAmount.toLocaleString()}</span>
+                          ) : (
+                            `₹${freelancerAmount.toLocaleString()}`
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <button

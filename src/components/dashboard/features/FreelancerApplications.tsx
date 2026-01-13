@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { Clock, CheckCircle, Eye } from 'lucide-react';
 import api from '../../../api';
 
 interface Application {

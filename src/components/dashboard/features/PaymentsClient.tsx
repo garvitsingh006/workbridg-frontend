@@ -92,14 +92,14 @@ export default function PaymentsClient() {
   const calculateTotals = () => {
     const totalPaid = payments.reduce((sum, payment) => {
       if (payment.total.status === 'paid') {
-        return sum + (payment.totalAmount + payment.platformFee.serviceCharge);
+        return sum + (payment.isAdminManagementFee ? payment.totalAmount : payment.totalAmount + payment.platformFee.serviceCharge);
       }
       return sum;
     }, 0);
     
     const totalPending = payments.reduce((sum, payment) => {
       if (payment.total.status === 'created' || payment.total.status === 'failed') {
-        return sum + (payment.totalAmount + payment.platformFee.serviceCharge);
+        return sum + (payment.isAdminManagementFee ? payment.totalAmount : payment.totalAmount + payment.platformFee.serviceCharge);
       }
       return sum;
     }, 0);
@@ -237,7 +237,7 @@ export default function PaymentsClient() {
                       <PaymentStatusBadge status={payment.total.status} size="sm" />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-sm text-gray-900">₹{(payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}</div>
+                      <div className="font-semibold text-sm text-gray-900">₹{(payment.isAdminManagementFee ? payment.totalAmount : payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">

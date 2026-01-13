@@ -1,7 +1,7 @@
 import { useProject } from '../../../contexts/ProjectContext';
 import { useUser } from '../../../contexts/UserContext';
 import { usePayment } from '../../../contexts/PaymentContext';
-import { TrendingUp, DollarSign, FolderOpen, CircleCheck as CheckCircle, Users, Search, Bell } from 'lucide-react';
+import { TrendingUp, DollarSign, FolderOpen, CircleCheck as CheckCircle, Users, Search } from 'lucide-react';
 import ProjectDetailsModal from '../../modals/ProjectDetailsModal';
 import { useState, useEffect } from 'react';
 
@@ -123,9 +123,9 @@ export default function DashboardHome({}: DashboardHomeProps) {
 
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 mt-10">
       {/* Header with Search */}
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <div className="flex-1 max-w-md">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -142,7 +142,7 @@ export default function DashboardHome({}: DashboardHomeProps) {
             <span className="absolute top-1 right-1 w-2 h-2 bg-[#f72585] rounded-full"></span>
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

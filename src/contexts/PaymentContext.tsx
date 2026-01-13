@@ -46,6 +46,8 @@ export interface Payment {
     | "final_paid"
     | "released"
     | "refunded";
+    isAdminManagementFee?: boolean;
+    description?: string;
     createdAt: string;
     updatedAt: string;
 }

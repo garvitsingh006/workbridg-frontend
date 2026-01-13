@@ -7,7 +7,7 @@ import Projects from "../components/dashboard/features/Projects";
 import DashboardHome from "../components/dashboard/features/DashboardHome";
 import AnalyticsFreelancer from "../components/dashboard/features/AnalyticsFreelancer";
 import EarningsFreelancer from "../components/dashboard/features/EarningsFreelancer";
-import FreelancerInterviews from "../components/dashboard/features/FreelancerInterviews";
+// import FreelancerInterviews from "../components/dashboard/features/FreelancerInterviews";
 import AccountSettings from "../components/dashboard/features/AccountSettings";
 import HelpPage from "../components/dashboard/features/HelpPage";
 import { useUser } from "../contexts/UserContext";
@@ -19,10 +19,10 @@ export default function DashboardFreelancer() {
   const location = useLocation();
   const { fetchUser } = useUser();
 
-  const { user } = useUser();
+//   const { user } = useUser();
   const { fetchPendingForFreelancer } = useInterviews();
-  const [hasPendingRequest, setHasPendingRequest] = useState(false);
-  const [hasAssignedInterview, setHasAssignedInterview] = useState(false);
+  const [, setHasPendingRequest] = useState(false);
+  const [, setHasAssignedInterview] = useState(false);
   const [, setAssignedInterview] = useState<any | null>(null);
 
   const [activeFeature, setActiveFeature] = useState("home");
@@ -96,7 +96,7 @@ export default function DashboardFreelancer() {
       case "home":
         return <DashboardHome onViewAllProjects={() => setActiveFeature("projects")} />;
       case "projects":
-        return <Projects notificationState={notificationState} />;
+        return <Projects />;
       case "messages":
         return <MessagesFeature notificationState={notificationState} />;
       case "analytics":
@@ -104,9 +104,19 @@ export default function DashboardFreelancer() {
       case "applications":
         return <FreelancerApplications notificationState={notificationState} />;
       case "earnings":
-        return <EarningsFreelancer notificationState={notificationState} />;
+        return <EarningsFreelancer />;
       case "freelancer-interviews":
-        return <FreelancerInterviews />;
+        return (
+          <div className="p-6 flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl text-gray-400">📋</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-400 mb-2">Interviews</h3>
+              <p className="text-gray-400">Coming Soon</p>
+            </div>
+          </div>
+        );
       case "profile":
         return <ProfileFeature />;
       case "account-settings":
@@ -129,7 +139,7 @@ export default function DashboardFreelancer() {
         />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Interview status banner for freelancers */}
-          {user && user.userType === "freelancer" && user.freelancerDetails && user.freelancerDetails.isInterviewed === false && (
+          {/* {user && user.userType === "freelancer" && user.freelancerDetails && user.freelancerDetails.isInterviewed === false && (
             <>
               {hasAssignedInterview ? (
                 <div className="bg-green-50 border-l-4 border-green-500 text-green-800 px-6 py-3">
@@ -163,7 +173,7 @@ export default function DashboardFreelancer() {
                 </div>
               )}
             </>
-          )}
+          )} */}
           <div className="flex-1 overflow-y-auto">{renderFeature()}</div>
         </div>
       </div>

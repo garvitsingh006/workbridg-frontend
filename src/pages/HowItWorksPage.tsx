@@ -33,7 +33,7 @@ const HowItWorks = () => {
     {
       number: '02', 
       title: 'Project Assignment',
-      description: 'Admin shares suitable project details through your dedicated chatbox. Accept and start working.',
+      description: 'Apply to projects, client chooses your application, admin approves it after confirming details.',
       icon: Briefcase,
       color: 'from-green-500 to-green-600'
     },
@@ -78,7 +78,7 @@ const HowItWorks = () => {
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-8">
               Talent You Can Trust.
               <br />
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                  A Process You Can Rely On
               </span>
             </h1>
@@ -91,13 +91,13 @@ const HowItWorks = () => {
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
               <Link 
                 to="/register" 
-                className="group relative inline-flex items-center justify-center px-10 py-5 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                className="group relative inline-flex items-center justify-center px-10 py-5 text-lg font-semibold text-white bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
               >
                 <span className="relative z-10 flex items-center">
                   Get Started
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </Link>
             </div>
 
@@ -124,11 +124,11 @@ const HowItWorks = () => {
       </section>
 
       {/* Steps Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white relative">
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-gray-50 to-white relative">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              How <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Workbridg</span> Works
+              How <span className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Workbridg</span> Works
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               A streamlined process designed for success
@@ -137,7 +137,7 @@ const HowItWorks = () => {
 
           <div className="relative">
             {/* Timeline Line */}
-            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-blue-500 transform -translate-x-1/2"></div>
+            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-linear-to-b from-blue-500 via-purple-500 to-blue-500 transform -translate-x-1/2"></div>
 
             {/* Steps */}
             {steps.map((step, index) => (
@@ -158,7 +158,7 @@ const HowItWorks = () => {
   `}
 >
 
-                    <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <span className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                       {step.number}
                     </span>
                   </div>
@@ -168,7 +168,7 @@ const HowItWorks = () => {
                     index % 2 === 0 ? 'md:mr-24' : 'md:ml-24'
                   }`}>
                     <div className="flex items-start gap-6">
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                      <div className={`w-16 h-16 rounded-2xl bg-linear-to-br ${step.color} flex items-center justify-center shrink-0 shadow-lg`}>
                         <step.icon className="w-8 h-8 text-white" />
                       </div>
                       <div>
@@ -190,14 +190,14 @@ const HowItWorks = () => {
           <div className="grid md:grid-cols-2 gap-16">
             {/* Freelancers */}
             <div className="space-y-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-blue-600 shadow-lg">
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-3xl font-bold text-gray-900">For Freelancers</h3>
               
               <div className="space-y-4">
                 <div className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-                  <CheckCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                  <CheckCircle className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">One-Time Interview</h4>
                     <p className="text-gray-600">Undergo a comprehensive interview to verify your skills and expertise</p>
@@ -205,7 +205,7 @@ const HowItWorks = () => {
                 </div>
                 
                 <div className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-                  <Star className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                  <Star className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Skill Rating</h4>
                     <p className="text-gray-600">Receive a rating based on your skills, experience, and performance</p>
@@ -213,7 +213,7 @@ const HowItWorks = () => {
                 </div>
                 
                 <div className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-                  <Briefcase className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                  <Briefcase className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Apply to Projects</h4>
                     <p className="text-gray-600">Only verified freelancers with ratings can apply to client projects</p>
@@ -224,14 +224,14 @@ const HowItWorks = () => {
 
             {/* Clients */}
             <div className="space-y-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-green-500 to-green-600 shadow-lg">
                 <Briefcase className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-3xl font-bold text-gray-900">For Clients</h3>
               
               <div className="space-y-4">
                 <div className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-                  <FileText className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                  <FileText className="w-6 h-6 text-green-600 shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Post Projects</h4>
                     <p className="text-gray-600">Create detailed project listings with clear requirements and expectations</p>
@@ -239,7 +239,7 @@ const HowItWorks = () => {
                 </div>
                 
                 <div className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-                  <Star className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                  <Star className="w-6 h-6 text-green-600 shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">View Ratings</h4>
                     <p className="text-gray-600">Browse verified freelancers with transparent ratings provided by Workbridg</p>
@@ -247,7 +247,7 @@ const HowItWorks = () => {
                 </div>
                 
                 <div className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
-                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                  <CheckCircle className="w-6 h-6 text-green-600 shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Clear Requirements</h4>
                     <p className="text-gray-600">Define project deliverables and agree on terms before work begins</p>
@@ -260,7 +260,7 @@ const HowItWorks = () => {
       </section>
 
       {/* Project Workflow Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-purple-50">
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-blue-50 to-purple-50">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Project Workflow</h2>
@@ -270,7 +270,7 @@ const HowItWorks = () => {
           <div className="space-y-6">
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-start gap-6">
-                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                   <CheckCircle className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
@@ -282,7 +282,7 @@ const HowItWorks = () => {
 
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-start gap-6">
-                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
                   <Shield className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
@@ -294,24 +294,24 @@ const HowItWorks = () => {
 
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-start gap-6">
-                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
                   <Users className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">Project Oversight</h4>
-                  <p className="text-gray-600">A Workbridg team member oversees project chat and progress. Both parties can contact support for assistance</p>
+                  <h4 className="text-xl font-semibold text-gray-900 mb-2">Admin Moderation  (+5% service charge)</h4>
+                  <p className="text-gray-600">Client can choose their project to be admin moderated. A Workbridg team  member will oversee the project, contacting with both freelancer and client.</p>
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-start gap-6">
-                <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
                   <CheckCircle className="w-6 h-6 text-orange-600" />
                 </div>
                 <div>
                   <h4 className="text-xl font-semibold text-gray-900 mb-2">Completion & Approval</h4>
-                  <p className="text-gray-600">Freelancer submits completed work for client approval. Payment is released upon approval</p>
+                  <p className="text-gray-600">Freelancer submits completed work for client approval. Payment is released from escrow upon approval</p>
                 </div>
               </div>
             </div>
@@ -323,7 +323,7 @@ const HowItWorks = () => {
       <section className="py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 shadow-xl mb-6">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br from-purple-500 to-blue-500 shadow-xl mb-6">
               <Shield className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Payments & Escrow</h2>
@@ -336,15 +336,15 @@ const HowItWorks = () => {
               <h3 className="text-2xl font-bold text-gray-900">Escrow Protection</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <Shield className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                  <Shield className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
                   <p className="text-gray-600">All client payments are held in escrow until project completion and approval</p>
                 </li>
                 <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                  <CheckCircle className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
                   <p className="text-gray-600">Platform commission and service charges are deducted automatically at release</p>
                 </li>
                 <li className="flex items-start gap-3">
-                  <FileText className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                  <FileText className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
                   <p className="text-gray-600">Workbridg is not liable for delays due to banking or technical issues</p>
                 </li>
               </ul>
@@ -356,24 +356,42 @@ const HowItWorks = () => {
               <div className="space-y-4">
                 <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-100">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg font-semibold text-gray-900">Platform Commission</span>
-                    <span className="text-2xl font-bold text-blue-600">8%</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold text-gray-900">Platform Commission</span>
+                      <div className="relative group">
+                        <span className="w-4 h-4 bg-gray-400 text-white text-xs rounded-full flex items-center justify-center cursor-help">?</span>
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-10">
+                          Applicable only to the freelancer
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-2xl font-bold text-blue-600">10%</span>
                   </div>
                   <p className="text-sm text-gray-600">Platform maintenance and operations</p>
                 </div>
                 
                 <div className="bg-purple-50 rounded-2xl p-6 border-2 border-purple-100">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg font-semibold text-gray-900">Service Charge</span>
-                    <span className="text-2xl font-bold text-purple-600">5%</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold text-gray-900">Service Charge</span>
+                      <div className="relative group">
+                        <span className="w-4 h-4 bg-gray-400 text-white text-xs rounded-full flex items-center justify-center cursor-help">?</span>
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-10">
+                          Applicable only to the client.
+                          <br />
+                          Service charge increases to 5% if client requests admin moderation
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-2xl font-bold text-purple-600">0%</span>
                   </div>
                   <p className="text-sm text-gray-600">Platform support and management services</p>
                 </div>
                 
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
+                <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">Total Fee</span>
-                    <span className="text-3xl font-bold">13%</span>
+                    <span className="text-3xl font-bold">10%</span>
                   </div>
                 </div>
               </div>
@@ -383,7 +401,7 @@ const HowItWorks = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 to-purple-600 text-white">
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-blue-600 to-purple-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl sm:text-5xl font-bold mb-6">
             Ready to Get Started?

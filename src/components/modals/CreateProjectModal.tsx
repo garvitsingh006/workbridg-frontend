@@ -22,16 +22,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
   });
 
   const categories = [
-    'Development',
-    'Design', 
-    'Writing',
-    'Marketing',
-    'Video & Animation',
-    'Audio & Music',
-    'Business & Consulting',
-    'Data & AI',
-    'Support & Admin',
-    'Other'
+    'Web Development'
   ];
 
   const handleInputChange = (field: string, value: string) => {
