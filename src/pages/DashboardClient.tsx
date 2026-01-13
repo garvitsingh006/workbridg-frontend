@@ -52,13 +52,13 @@ export default function DashboardClient() {
       case "home":
         return <DashboardHomeClient onViewAllProjects={() => setActiveFeature("projects")} />;
       case "projects":
-        return <Projects notificationState={notificationState} />;
+        return <Projects />;
       case "messages":
         return <MessagesFeature notificationState={notificationState} />;
       case "applications":
         return <ClientApplications />;
       case "payments":
-        return <PaymentsClient notificationState={notificationState} />;
+        return <PaymentsClient />;
       case "profile":
         return <ProfileFeature />;
       case "account-settings":
