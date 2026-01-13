@@ -1,7 +1,7 @@
-import { Menu, Bell, Search } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext';
-import { useEffect, useMemo, useState } from 'react';
-import { useChat } from '../../contexts/ChatContext';
+import { useEffect, useState } from 'react';
+import NotificationBell from '../components/notifications/NotificationBell';
 
 interface DashboardHeaderProps {
   onMobileMenuToggle: () => void;
@@ -10,8 +10,6 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: DashboardHeaderProps) {
   const { user, fetchUser } = useUser();
-  const { chats } = useChat();
-  const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isVisible, setIsVisible] = useState(false);
 
@@ -19,31 +17,6 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
     fetchUser();
     setIsVisible(true);
   }, []);
-
-  const notifications = useMemo(() => {
-    const items: Array<{ id: string; title: string; time: string; onClick?: () => void }> = [];
-    chats.forEach(c => {
-      const latestUnread = [...c.messages].reverse().find(m => !m.read && m.sender._id !== (user?.id || ''));
-      if (latestUnread) {
-        const senderName = (latestUnread.sender.username?.toLowerCase?.() === 'admin') ? 'Admin' : latestUnread.sender.username;
-        const prefix = c.type === 'project' && c.project ? c.project.title : senderName;
-        const snippet = (latestUnread.content || '').slice(0, 15) + ((latestUnread.content || '').length > 15 ? '…' : '');
-        items.push({
-          id: `${c._id}-${latestUnread.timestamp}`,
-          title: `${prefix}: ${snippet}`,
-          time: new Date(latestUnread.timestamp).toLocaleTimeString(),
-          onClick: () => {
-            window.location.hash = `#messages:${c._id}`;
-            window.dispatchEvent(new CustomEvent('open-messages-feature'));
-            if (!window.location.pathname.includes('/dashboard')) {
-              window.location.href = '/dashboard';
-            }
-          }
-        });
-      }
-    });
-    return items;
-  }, [chats, user?.id]);
 
   const getFeatureTitle = () => {
     const titles: { [key: string]: string } = {
@@ -94,56 +67,7 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
           </div>
 
           {/* Notifications */}
-          <div className="relative">
-            <button
-              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
-              onClick={() => setOpen(v => !v)}
-            >
-              <Bell className="w-5 h-5" />
-              {notifications.length > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-medium">
-                  {notifications.length > 9 ? '9+' : notifications.length}
-                </span>
-              )}
-            </button>
-            
-            {open && (
-              <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="font-semibold text-gray-900 text-sm">Notifications</h3>
-                </div>
-                <div className="max-h-96 overflow-auto">
-                  {notifications.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">
-                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                      <p className="text-sm font-medium">No notifications</p>
-                      <p className="text-xs mt-1">You're all caught up</p>
-                    </div>
-                  ) : (
-                    <div>
-                      {notifications.map(n => (
-                        <button
-                          key={n.id}
-                          className="w-full text-left p-3 hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100 last:border-b-0"
-                          onClick={n.onClick}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <Bell className="w-4 h-4 text-gray-600" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm text-gray-900 truncate">{n.title}</div>
-                              <div className="text-xs text-gray-500 mt-0.5">{n.time}</div>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+          <NotificationBell />
 
           {/* Profile */}
           <div className="flex items-center space-x-3">

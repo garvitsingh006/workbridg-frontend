@@ -70,6 +70,8 @@ interface UserContextType {
         role: string;
     } | null>;
     updateUser: (userData: Partial<User>) => Promise<void>;
+    checkUsernameAvailability: (username: string) => Promise<boolean>;
+    updateUsername: (username: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -231,6 +233,27 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         }
     };
 
+    const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+        try {
+            const response = await api.get(`/users/username-available/${username}`);
+            return response.data.available;
+        } catch (err) {
+            console.error('Error checking username availability:', err);
+            return false;
+        }
+    };
+
+    const updateUsername = async (username: string): Promise<void> => {
+        try {
+            await api.patch('/users/username', { username });
+            if (user) {
+                setUser({ ...user, username });
+            }
+        } catch (err) {
+            throw err;
+        }
+    };
+
     const logout = async () => {
         setUser(null);
         await api
@@ -250,6 +273,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         fetchUser,
         fetchLoginDetails,
         updateUser,
+        checkUsernameAvailability,
+        updateUsername,
         logout,
     };
 

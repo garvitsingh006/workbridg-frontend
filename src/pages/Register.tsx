@@ -18,13 +18,20 @@ import {
 // import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 import api from "../api";
+import { useUser } from "../contexts/UserContext";
 
 const Register: React.FC = () => {
     const navigate = useNavigate();
+    const { checkUsernameAvailability } = useUser();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [usernameStatus, setUsernameStatus] = useState<{
+        message: string;
+        isValid: boolean;
+        color: string;
+    }>({ message: "", isValid: false, color: "" });
     const [formData, setFormData] = useState({
         username: "",
         firstName: "",
@@ -134,12 +141,56 @@ const Register: React.FC = () => {
             ...formData,
             [name]: type === "checkbox" ? checked : value,
         });
+
+        if (name === "username") {
+            handleUsernameChange(value);
+        }
+    };
+
+    const handleUsernameChange = async (username: string) => {
+        if (username.length === 0) {
+            setUsernameStatus({ message: "", isValid: false, color: "" });
+            return;
+        }
+
+        if (username.length < 5) {
+            setUsernameStatus({
+                message: "Username must be at least 5 characters",
+                isValid: false,
+                color: "text-red-500"
+            });
+            return;
+        }
+
+        try {
+            const isAvailable = await checkUsernameAvailability(username);
+            if (isAvailable) {
+                setUsernameStatus({
+                    message: "Username is available",
+                    isValid: true,
+                    color: "text-green-500"
+                });
+            } else {
+                setUsernameStatus({
+                    message: "Username is not available",
+                    isValid: false,
+                    color: "text-red-500"
+                });
+            }
+        } catch (error) {
+            setUsernameStatus({
+                message: "Error checking username",
+                isValid: false,
+                color: "text-red-500"
+            });
+        }
     };
 
     const isFormValid =
         formData.firstName &&
         formData.lastName &&
         formData.username &&
+        usernameStatus.isValid &&
         formData.email &&
         formData.password &&
         formData.confirmPassword &&
@@ -354,6 +405,11 @@ const Register: React.FC = () => {
                                         placeholder="Choose a username"
                                     />
                                 </div>
+                                {usernameStatus.message && (
+                                    <p className={`text-sm mt-1 ${usernameStatus.color}`}>
+                                        {usernameStatus.message}
+                                    </p>
+                                )}
                             </div>
 
                             <div>

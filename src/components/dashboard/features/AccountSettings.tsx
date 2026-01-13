@@ -1,16 +1,24 @@
 import { useState } from "react";
 import { useUser } from "../../../contexts/UserContext";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit2, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../../../api";
 
 export default function AccountSettings() {
-  const { user } = useUser();
+  const { user, checkUsernameAvailability, updateUsername } = useUser();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [newUsername, setNewUsername] = useState(user?.username || '');
+  const [usernameStatus, setUsernameStatus] = useState<{
+    message: string;
+    isValid: boolean;
+    color: string;
+  }>({ message: "", isValid: false, color: "" });
+  const [isSavingUsername, setIsSavingUsername] = useState(false);
 
   const getInitials = () => {
     if (!user?.fullName) return "U";
@@ -19,6 +27,74 @@ export default function AccountSettings() {
       return `${names[0][0]}${names[1][0]}`.toUpperCase();
     }
     return user.fullName.charAt(0).toUpperCase();
+  };
+
+  const handleUsernameChange = async (username: string) => {
+    setNewUsername(username);
+    
+    if (username === user?.username) {
+      setUsernameStatus({ message: "", isValid: true, color: "" });
+      return;
+    }
+
+    if (username.length === 0) {
+      setUsernameStatus({ message: "", isValid: false, color: "" });
+      return;
+    }
+
+    if (username.length < 5) {
+      setUsernameStatus({
+        message: "Username must be at least 5 characters",
+        isValid: false,
+        color: "text-red-500"
+      });
+      return;
+    }
+
+    try {
+      const isAvailable = await checkUsernameAvailability(username);
+      if (isAvailable) {
+        setUsernameStatus({
+          message: "Username is available",
+          isValid: true,
+          color: "text-green-500"
+        });
+      } else {
+        setUsernameStatus({
+          message: "Username is not available",
+          isValid: false,
+          color: "text-red-500"
+        });
+      }
+    } catch (error) {
+      setUsernameStatus({
+        message: "Error checking username",
+        isValid: false,
+        color: "text-red-500"
+      });
+    }
+  };
+
+  const handleSaveUsername = async () => {
+    if (!usernameStatus.isValid || newUsername === user?.username) return;
+    
+    setIsSavingUsername(true);
+    try {
+      await updateUsername(newUsername);
+      toast.success('Username updated successfully');
+      setIsEditingUsername(false);
+      setUsernameStatus({ message: "", isValid: false, color: "" });
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update username');
+    } finally {
+      setIsSavingUsername(false);
+    }
+  };
+
+  const handleCancelUsernameEdit = () => {
+    setIsEditingUsername(false);
+    setNewUsername(user?.username || '');
+    setUsernameStatus({ message: "", isValid: false, color: "" });
   };
 
   const handleDeleteAccount = async () => {
@@ -91,12 +167,55 @@ export default function AccountSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Username
                 </label>
-                <input
-                  type="text"
-                  value={user?.username || ""}
-                  readOnly
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
-                />
+                <div className="flex items-center gap-2">
+                  {isEditingUsername ? (
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={newUsername}
+                        onChange={(e) => handleUsernameChange(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none"
+                      />
+                      {usernameStatus.message && (
+                        <p className={`text-sm mt-1 ${usernameStatus.color}`}>
+                          {usernameStatus.message}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={user?.username || ""}
+                      readOnly
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
+                    />
+                  )}
+                  
+                  {isEditingUsername ? (
+                    <div className="flex gap-1">
+                      <button
+                        onClick={handleSaveUsername}
+                        disabled={!usernameStatus.isValid || newUsername === user?.username || isSavingUsername}
+                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Check className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={handleCancelUsernameEdit}
+                        className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setIsEditingUsername(true)}
+                      className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div>

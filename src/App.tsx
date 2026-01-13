@@ -6,6 +6,7 @@ import { ProjectProvider } from "./contexts/ProjectContext";
 import { ChatProvider } from "./contexts/ChatContext";
 import { InterviewProvider } from "./contexts/InterviewContext";
 import { PaymentProvider } from "./contexts/PaymentContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/LandingPage";
@@ -32,10 +33,11 @@ import ScrollToTop from "./components/ScrollToTop.tsx";
 function App() {
     return (
         <UserProvider>
-            <ProjectProvider>
-                <ChatProvider>
-                    <InterviewProvider>
-                        <PaymentProvider>
+            <NotificationProvider>
+                <ProjectProvider>
+                    <ChatProvider>
+                        <InterviewProvider>
+                            <PaymentProvider>
                     <Router>
                         <ScrollToTop />
                         <div className="min-h-screen flex flex-col">
@@ -93,10 +95,11 @@ function App() {
                             </Routes>
                         </div>
                     </Router>
-                        </PaymentProvider>
-                    </InterviewProvider>
-                </ChatProvider>
-            </ProjectProvider>
+                            </PaymentProvider>
+                        </InterviewProvider>
+                    </ChatProvider>
+                </ProjectProvider>
+            </NotificationProvider>
         </UserProvider>
     );
 }

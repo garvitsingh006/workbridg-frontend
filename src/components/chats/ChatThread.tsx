@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { type Chat } from '../../contexts/ChatContext';
 import { useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
+import { useNotifications } from '../../contexts/NotificationContext';
 import MessageInput from './MessageInput';
 import { CircleCheck as CheckCircle2, Users, Menu } from 'lucide-react';
 import GroupChatInfo from './GroupChatInfo';
@@ -11,14 +12,17 @@ import { isSameDay } from '../../utils/dateUtils';
 interface ChatThreadProps {
   chat: Chat;
   onToggleSidebar?: () => void;
+  highlightMessageId?: string;
 }
 
-const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
+const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highlightMessageId }) => {
   const { addMessage, markMessagesRead, getChatParticipants } = useChat();
   const { user } = useUser();
+  const { markChatNotificationsAsRead } = useNotifications();
   const endRef = useRef<HTMLDivElement | null>(null);
   const [showGroupInfo, setShowGroupInfo] = React.useState(false);
   const [participants, setParticipants] = React.useState<any[]>([]);
+  const [highlightedMessageId, setHighlightedMessageId] = React.useState<string | null>(null);
 
   const title = useMemo(() => {
     const otherParticipants = chat.participants.filter(p => p._id !== (user?.id || ''));
@@ -46,12 +50,28 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
   }, [chat._id, chat.type]);
 
   useEffect(() => {
-    markMessagesRead(chat._id).catch(() => {});
-  }, [chat._id]);
+    const markRead = async () => {
+      await markMessagesRead(chat._id);
+      // Mark all notifications for this chat as read
+      await markChatNotificationsAsRead(chat._id);
+    };
+    markRead().catch(() => {});
+  }, [chat._id, markChatNotificationsAsRead]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chat.messages.length]);
+
+  // Handle message highlighting
+  useEffect(() => {
+    if (highlightMessageId) {
+      setHighlightedMessageId(highlightMessageId);
+      const timer = setTimeout(() => {
+        setHighlightedMessageId(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightMessageId]);
 
   const handleSend = async (content: string) => {
     if (!content.trim()) return;
@@ -161,10 +181,12 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar }) => {
                         </span>
                       </div>
                     )}
-                    <div className={`rounded-2xl px-3 py-2 shadow-sm ${
+                    <div className={`rounded-2xl px-3 py-2 shadow-sm transition-all duration-500 ${
                       isMine 
                         ? 'bg-black text-white' 
                         : 'bg-white border border-gray-200'
+                    } ${
+                      highlightedMessageId === m._id ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                     }`}>
                       <div className="text-xs leading-relaxed">{m.content}</div>
                       <div className={`text-xs mt-1 ${isMine ? 'text-white/60' : 'text-gray-400'}`}>

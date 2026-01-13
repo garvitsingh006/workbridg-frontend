@@ -10,16 +10,11 @@ import HelpPage from "../components/dashboard/features/HelpPage";
 import ClientApplications from "../components/dashboard/features/ClientApplications";
 import BrowseFreelancers from "../components/dashboard/features/BrowseFreelancers";
 import { useUser } from "../contexts/UserContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardClient() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { fetchUser } = useUser();
-
-  const [activeFeature, setActiveFeature] = useState("home");
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [notificationState, setNotificationState] = useState<any>(null);
 
   useEffect(() => {
     const func = async () => {
@@ -33,17 +28,8 @@ export default function DashboardClient() {
     func();
   }, []);
 
-  // Handle notification navigation
-  useEffect(() => {
-    if (location.state) {
-      const { section, chatId, messageId, projectId, paymentId } = location.state;
-      if (section) {
-        setActiveFeature(section === "chat" ? "messages" : section);
-        setNotificationState({ chatId, messageId, projectId, paymentId });
-        navigate(location.pathname, { replace: true });
-      }
-    }
-  }, [location.state]);
+  const [activeFeature, setActiveFeature] = useState("home");
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const renderFeature = () => {
     switch (activeFeature) {
@@ -52,13 +38,13 @@ export default function DashboardClient() {
       case "home":
         return <DashboardHomeClient onViewAllProjects={() => setActiveFeature("projects")} />;
       case "projects":
-        return <Projects notificationState={notificationState} />;
+        return <Projects />;
       case "messages":
-        return <MessagesFeature notificationState={notificationState} />;
+        return <MessagesFeature />;
       case "applications":
         return <ClientApplications />;
       case "payments":
-        return <PaymentsClient notificationState={notificationState} />;
+        return <PaymentsClient />;
       case "profile":
         return <ProfileFeature />;
       case "account-settings":
@@ -86,3 +72,5 @@ export default function DashboardClient() {
     </div>
   );
 }
+
+

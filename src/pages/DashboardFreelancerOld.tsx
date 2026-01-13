@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import FreelancerApplications from "../components/dashboard/features/FreelancerApplications";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 import MessagesFeature from "../components/dashboard/features/MessageFeature";
 import ProfileFeature from "../components/dashboard/features/ProfileFeature";
@@ -12,11 +11,10 @@ import AccountSettings from "../components/dashboard/features/AccountSettings";
 import HelpPage from "../components/dashboard/features/HelpPage";
 import { useUser } from "../contexts/UserContext";
 import { useInterviews } from "../contexts/InterviewContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardFreelancer() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { fetchUser } = useUser();
 
   const { user } = useUser();
@@ -24,10 +22,6 @@ export default function DashboardFreelancer() {
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [hasAssignedInterview, setHasAssignedInterview] = useState(false);
   const [, setAssignedInterview] = useState<any | null>(null);
-
-  const [activeFeature, setActiveFeature] = useState("home");
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [notificationState, setNotificationState] = useState<any>(null);
 
   useEffect(() => {
     const func = async () => {
@@ -40,18 +34,6 @@ export default function DashboardFreelancer() {
     };
     func();
   }, []);
-
-  // Handle notification navigation
-  useEffect(() => {
-    if (location.state) {
-      const { section, chatId, messageId, projectId, paymentId, applicationId } = location.state;
-      if (section) {
-        setActiveFeature(section === "chat" ? "messages" : section);
-        setNotificationState({ chatId, messageId, projectId, paymentId, applicationId });
-        navigate(location.pathname, { replace: true });
-      }
-    }
-  }, [location.state]);
 
   // check if freelancer has a pending request and listen for new requests
   useEffect(() => {
@@ -91,20 +73,21 @@ export default function DashboardFreelancer() {
     };
   }, []);
 
+  const [activeFeature, setActiveFeature] = useState("home");
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
   const renderFeature = () => {
     switch (activeFeature) {
       case "home":
         return <DashboardHome onViewAllProjects={() => setActiveFeature("projects")} />;
       case "projects":
-        return <Projects notificationState={notificationState} />;
+        return <Projects />;
       case "messages":
-        return <MessagesFeature notificationState={notificationState} />;
+        return <MessagesFeature />;
       case "analytics":
         return <AnalyticsFreelancer />;
-      case "applications":
-        return <FreelancerApplications notificationState={notificationState} />;
       case "earnings":
-        return <EarningsFreelancer notificationState={notificationState} />;
+        return <EarningsFreelancer />;
       case "freelancer-interviews":
         return <FreelancerInterviews />;
       case "profile":
@@ -170,3 +153,5 @@ export default function DashboardFreelancer() {
     </div>
   );
 }
+
+

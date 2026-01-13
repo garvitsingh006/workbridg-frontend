@@ -6,7 +6,16 @@ import ChatThread from './ChatThread';
 import ChatEmptyState from './ChatEmptyState';
 import { Menu } from 'lucide-react';
 
-const ChatLayout: React.FC = () => {
+interface ChatLayoutProps {
+    notificationState?: {
+        chatId?: string;
+        messageId?: string;
+        projectId?: string;
+        paymentId?: string;
+    };
+}
+
+const ChatLayout: React.FC<ChatLayoutProps> = ({ notificationState }) => {
     const { chats, activeChat, setActiveChat, fetchChats, loading, error } = useChat();
     const { user } = useUser();
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -22,6 +31,16 @@ const ChatLayout: React.FC = () => {
     useEffect(() => {
         fetchChats();
     }, []);
+
+    // Handle notification-based navigation
+    useEffect(() => {
+        if (notificationState?.chatId && chats.length > 0) {
+            const targetChat = chats.find(c => c._id === notificationState.chatId);
+            if (targetChat && activeChat?._id !== targetChat._id) {
+                setActiveChat(targetChat);
+            }
+        }
+    }, [notificationState, chats]);
 
     // Handle deep-link from notifications: #messages:<chatId>
     useEffect(() => {
@@ -90,7 +109,7 @@ const ChatLayout: React.FC = () => {
                     </div>
                 )}
                 {!loading && !error && !activeChat && <ChatEmptyState userRole={user?.userType || 'freelancer'} onToggleSidebar={() => setSidebarOpen(true)} />}
-                {!loading && !error && activeChat && <ChatThread chat={activeChat} onToggleSidebar={() => setSidebarOpen(true)} />}
+                {!loading && !error && activeChat && <ChatThread chat={activeChat} onToggleSidebar={() => setSidebarOpen(true)} highlightMessageId={notificationState?.messageId} />}
             </div>
         </div>
     );
