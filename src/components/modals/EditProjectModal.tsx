@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, FileText, Save, Tag, HelpCircle } from 'lucide-react';
+import { X, Calendar, FileText, Save, Tag } from 'lucide-react';
 import { useProject, type Project } from '../../contexts/ProjectContext';
 
 interface EditProjectModalProps {
@@ -70,7 +70,7 @@ export default function EditProjectModal({ isOpen, onClose, project }: EditProje
         deadline: new Date(formData.deadline),
         budget: parseFloat(formData.budget),
         category: formData.category,
-        paymentMethod: formData.paymentMethod,
+        paymentMethod: formData.paymentMethod as "milestone" | "upfront" | "hourly",
       });
       
       onClose();

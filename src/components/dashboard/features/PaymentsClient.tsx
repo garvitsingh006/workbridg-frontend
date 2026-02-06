@@ -28,7 +28,7 @@ export default function PaymentsClient() {
   }, [fetchUserPayments]);
 
   const [showUpiModal, setShowUpiModal] = useState(false);
-  const [upiData, setUpiData] = useState<{link: string, amount: number, upiId: string} | null>(null);
+  const [upiData, setUpiData] = useState<{link: string, amount: number, upiId: string, upiLink: string} | null>(null);
 
   const handlePayment = async (payment: Payment) => {
     if (!user) return;

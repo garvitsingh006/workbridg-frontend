@@ -288,7 +288,7 @@ export default function PaymentsAdmin() {
                             <Eye className="w-3 h-3" />
                             Details
                           </button>
-                          {payment.total.status === 'paid' && payment.total.status !== 'received' && (
+                          {payment.total.status === 'paid' && payment.releaseStatus !== 'released' && (
                             <button
                               onClick={() => handleMarkAsReceived(payment._id)}
                               className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"

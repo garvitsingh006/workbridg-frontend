@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, UserMinus, Shield, User, Briefcase } from 'lucide-react';
-// import { useNavigate } from 'react-router-dom';
 import { useChat, type Chat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 
@@ -19,7 +18,6 @@ const GroupChatInfo: React.FC<GroupChatInfoProps> = ({
 }) => {
   const { removeParticipantFromChat, addAdminToChat, fetchChats } = useChat();
   const { user } = useUser();
-//   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const isAdmin = user?.userType === 'admin';

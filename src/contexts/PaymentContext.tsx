@@ -15,6 +15,7 @@ export interface PaymentStage {
     signature?: string;
     amount: number;
     status: "pending" | "created" | "paid" | "failed";
+    paymentType?: "upi" | "cashfree";
 }
 
 export interface Payment {
