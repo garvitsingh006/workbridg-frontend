@@ -5,6 +5,7 @@ import { useUser } from '../../../contexts/UserContext';
 import PaymentModal from '../../payment/PaymentModal';
 import PaymentStatusBadge from '../../payment/PaymentStatusBadge';
 import { toast } from 'react-toastify';
+import api from '../../../api';
 
 export default function PaymentsClient() {
   const { user } = useUser();
@@ -26,56 +27,86 @@ export default function PaymentsClient() {
     fetchUserPayments();
   }, [fetchUserPayments]);
 
+  const [showUpiModal, setShowUpiModal] = useState(false);
+  const [upiData, setUpiData] = useState<{link: string, amount: number, upiId: string} | null>(null);
+
   const handlePayment = async (payment: Payment) => {
     if (!user) return;
     
     try {
       setProcessingPayment(`${payment._id}-total`);
       
-      // Create Cashfree order
-      const orderData = await createPaymentOrder(payment._id, 'total');
-      
-      // Open Cashfree checkout
-      openCashfreeCheckout(
-        orderData,
-        { 
-          name: user.fullName, 
-          email: user.email,
-          phone: user.phone
-        },
-        async (response) => {
-          try {
-            // Verify payment
-            await verifyPayment(
-              payment._id, 
-              'total', 
-              response.orderId,
-              response.paymentSessionId
-            );
-
-            // Signature verification can be done here using webhook
-            
-            // Refresh payments
-            await fetchUserPayments();
-            
-            toast.success('Payment successful! 🎉');
-          } catch (error) {
-            console.error('Payment verification failed:', error);
-            toast.error('Payment verification failed. Please contact support.');
-          } finally {
+      // Check if it's a UPI payment (admin management fee)
+      if (payment.total.paymentType === 'upi') {
+        // Generate UPI deeplink using the api instance
+        const response = await api.get(`/upi/${payment._id}/upi-link`);
+        const data = response.data;
+        
+        if (data.success) {
+          // Show UPI modal instead of redirecting
+          setUpiData(data.data);
+          setShowUpiModal(true);
+          toast.success('UPI payment details loaded. Scan QR code or use the link to pay.');
+        } else {
+          throw new Error(data.message);
+        }
+      } else {
+        // Original Cashfree payment logic
+        const orderData = await createPaymentOrder(payment._id, 'total');
+        
+        openCashfreeCheckout(
+          orderData,
+          { 
+            name: user.fullName, 
+            email: user.email,
+            phone: user.phone
+          },
+          async (response) => {
+            try {
+              await verifyPayment(
+                payment._id, 
+                'total', 
+                response.orderId,
+                response.paymentSessionId
+              );
+              
+              await fetchUserPayments();
+              toast.success('Payment successful! 🎉');
+            } catch (error) {
+              console.error('Payment verification failed:', error);
+              toast.error('Payment verification failed. Please contact support.');
+            } finally {
+              setProcessingPayment(null);
+            }
+          },
+          (error: any) => {
+            console.error('Payment failed:', error);
+            toast.error(error.message || 'Payment failed. Please try again.');
             setProcessingPayment(null);
           }
-        },
-        (error: any) => {
-          console.error('Payment failed:', error);
-          toast.error(error.message || 'Payment failed. Please try again.');
-          setProcessingPayment(null);
-        }
-      );
+        );
+      }
     } catch (error) {
       console.error('Failed to initiate payment:', error);
       toast.error('Failed to initiate payment. Please try again.');
+    } finally {
       setProcessingPayment(null);
+    }
+  };
+
+  const handleMarkAsPaid = async (paymentId: string) => {
+    try {
+      const response = await api.patch(`/upi/${paymentId}/mark-paid`);
+      const data = response.data;
+      
+      if (data.success) {
+        toast.success('Payment marked as paid successfully!');
+        await fetchUserPayments();
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || 'Failed to mark payment as paid');
     }
   };
 
@@ -227,7 +258,12 @@ export default function PaymentsClient() {
                   <tr key={payment._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div>
-                        <div className="font-medium text-sm text-gray-900">{payment.projectId?.title || 'Unknown Project'}</div>
+                        <div className="font-medium text-sm text-gray-900">
+                          {payment.isAdminManagementFee && payment.moderationId 
+                            ? payment.moderationId 
+                            : (payment.projectId?.title || 'Unknown Project')
+                          }
+                        </div>
                         <div className="text-xs text-gray-500 mt-0.5">
                           {new Date(payment.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}
                         </div>
@@ -248,18 +284,28 @@ export default function PaymentsClient() {
                           <MoreVertical className="w-4 h-4 text-gray-500" />
                         </button>
                         {(payment.overallStatus === 'pending' || payment.overallStatus === "failed") && (
-                          <button
-                            onClick={() => handlePayment(payment)}
-                            disabled={processingPayment === `${payment._id}-total`}
-                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                          >
-                            {processingPayment === `${payment._id}-total` ? (
-                              <RefreshCw className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <CreditCard className="w-4 h-4" />
+                          <>
+                            <button
+                              onClick={() => handlePayment(payment)}
+                              disabled={processingPayment === `${payment._id}-total`}
+                              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                            >
+                              {processingPayment === `${payment._id}-total` ? (
+                                <RefreshCw className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <CreditCard className="w-4 h-4" />
+                              )}
+                              Pay
+                            </button>
+                            {payment.total.paymentType === 'upi' && (
+                              <button
+                                onClick={() => handleMarkAsPaid(payment._id)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                              >
+                                I have paid
+                              </button>
                             )}
-                            Pay Now
-                          </button>
+                          </>
                         )}
                       </div>
                     </td>
@@ -278,6 +324,69 @@ export default function PaymentsClient() {
           isOpen={isModalOpen}
           onClose={closePaymentModal}
         />
+      )}
+
+      {/* UPI Payment Modal */}
+      {showUpiModal && upiData && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowUpiModal(false)}
+        >
+          <div 
+            className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl transform transition-all duration-300 ease-out scale-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-4">UPI Payment</h3>
+            <div className="text-center mb-4">
+              <div className="mb-4">
+                <div className="text-2xl font-bold text-green-600 mb-2">₹{upiData.amount.toLocaleString()}</div>
+                <div className="text-sm text-gray-600">Pay to: {upiData.upiId}</div>
+              </div>
+              
+              {/* QR Code */}
+              <div className="mb-4 flex justify-center">
+                <div className="p-4 bg-white border-2 border-gray-200 rounded-lg">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiData.upiLink)}`}
+                    alt="UPI QR Code"
+                    className="w-48 h-48"
+                  />
+                </div>
+              </div>
+              
+              {/* UPI Link */}
+              <div className="mb-4">
+                <div className="text-xs text-gray-500 mb-2">Or click the link below:</div>
+                <a 
+                  href={upiData.upiLink}
+                  className="text-blue-600 hover:text-blue-800 text-sm break-all"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open UPI App
+                </a>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowUpiModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(upiData.upiLink);
+                  toast.success('UPI link copied to clipboard!');
+                }}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Copy Link
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

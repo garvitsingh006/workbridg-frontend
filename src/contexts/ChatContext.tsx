@@ -36,7 +36,7 @@ export interface Chat {
         adminManagementRequestedAt?: Date;
     };
     messages: Message[];
-    status: "pending" | "approved" | "with_admin";
+    status: "pending" | "approved" | "with_admin" | "discussion" | "committed" | "closed";
     adminAdded: boolean;
     isLocked?: boolean;
     createdAt: Date;

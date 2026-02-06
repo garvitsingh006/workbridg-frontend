@@ -9,6 +9,11 @@ interface PaymentStatusBadgeProps {
 export default function PaymentStatusBadge({ status, size = 'md' }: PaymentStatusBadgeProps) {
     const getStatusConfig = () => {
         const configs = {
+            received: {
+                color: 'bg-purple-100 text-purple-800 border-purple-200',
+                icon: CheckCircle,
+                label: 'Received'
+            },
             // Payment statuses
             paid: {
                 color: 'bg-green-100 text-green-800 border-green-200',

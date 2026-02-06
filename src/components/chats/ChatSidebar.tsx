@@ -208,7 +208,6 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                             )}
 
                         {filteredChats.map((chat) => {
-                            console.log('Chat data:', { type: chat.type, project: chat.project, participants: chat.participants.length });
                             const isActive = chat._id === activeChatId;
                             const otherParticipants = chat.participants.filter(p => p._id !== (user?.id || ''));
                             let titleRaw;
@@ -216,7 +215,6 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                 titleRaw = chat.project.title;
                             } else if (chat.type === 'group') {
                                 titleRaw = chat.project?.title || `Group (${chat.participants.length})`;
-                                console.log('Group chat title:', titleRaw, 'project:', chat.project);
                             } else {
                                 titleRaw = otherParticipants[0]?.username || 'Chat';
                             }
@@ -273,12 +271,19 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                                     : (isAdminChat ? 'text-blue-900' : 'text-gray-900')
                                                     }`}>
                                                     {title}
-                                                    {chat.isLocked && (
+                                                    {/* Show admin moderated only when admin management is explicitly requested and within 2 days */}
+                                                    {chat.isLocked && chat.project?.hasRequestedAdminManagement && chat.project?.adminManagementRequestedAt && (
+                                                        (() => {
+                                                            const requestedAt = new Date(chat.project.adminManagementRequestedAt);
+                                                            const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+                                                            return requestedAt > twoDaysAgo;
+                                                        })()
+                                                    ) && (
                                                         <span className={`ml-2 text-xs font-normal ${isActive
                                                             ? (isAdminChat ? 'text-white/70' : 'text-gray-500')
                                                             : (isAdminChat ? 'text-blue-600' : 'text-gray-500')
                                                         }`}>
-                                                            (Admin moderated {chat.project?.adminManagementRequestedAt ? `since ${new Date(chat.project.adminManagementRequestedAt).toLocaleDateString()}` : ''})
+                                                            (Admin moderated since {new Date(chat.project.adminManagementRequestedAt).toLocaleDateString()})
                                                         </span>
                                                     )}
                                                 </h3>

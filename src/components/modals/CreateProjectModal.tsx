@@ -19,6 +19,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     deadline: '',
     budget: '',
     category: '',
+    paymentMethod: '',
   });
 
   const categories = [
@@ -41,12 +42,13 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         deadline: new Date(formData.deadline),
         budget: parseFloat(formData.budget),
         category: formData.category,
+        paymentMethod: formData.paymentMethod as 'milestone' | 'upfront' | 'hourly',
         createdBy: user,
         status: 'unassigned',
       });
       
       // Reset form and close modal
-      setFormData({ title: '', description: '', deadline: '', budget: '', category: '' });
+      setFormData({ title: '', description: '', deadline: '', budget: '', category: '', paymentMethod: '' });
       toast.success('Project created successfully! 🚀');
       onClose();
     } catch (error) {
@@ -56,7 +58,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     }
   };
 
-  const canSubmit = formData.title.trim() && formData.description.trim() && formData.deadline && formData.budget && formData.category;
+  const canSubmit = formData.title.trim() && formData.description.trim() && formData.deadline && formData.budget && formData.category && formData.paymentMethod;
 
   if (!isOpen) return null;
 
@@ -165,6 +167,76 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Payment Method *
+            </label>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="radio"
+                    id="milestone"
+                    name="paymentMethod"
+                    value="milestone"
+                    checked={formData.paymentMethod === 'milestone'}
+                    onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <label htmlFor="milestone" className="flex items-center space-x-2 text-sm text-gray-700">
+                    <span>Milestone based</span>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                      Recommended
+                    </span>
+                  </label>
+                </div>
+                <p className="ml-7 text-xs text-gray-500 mt-1">
+                  Payment released after completing each milestone. Up to 3 milestones can be set.
+                </p>
+              </div>
+              
+              <div>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="radio"
+                    id="upfront"
+                    name="paymentMethod"
+                    value="upfront"
+                    checked={formData.paymentMethod === 'upfront'}
+                    onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <label htmlFor="upfront" className="text-sm text-gray-700">
+                    50% upfront + 50% after completion
+                  </label>
+                </div>
+                <p className="ml-7 text-xs text-gray-500 mt-1">
+                  Half payment before project starts. Remaining half after project completion.
+                </p>
+              </div>
+              
+              <div>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="radio"
+                    id="hourly"
+                    name="paymentMethod"
+                    value="hourly"
+                    checked={formData.paymentMethod === 'hourly'}
+                    onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <label htmlFor="hourly" className="text-sm text-gray-700">
+                    Hourly/Weekly
+                  </label>
+                </div>
+                <p className="ml-7 text-xs text-gray-500 mt-1">
+                  Payment based on hours worked. Invoiced weekly or bi-weekly.
+                </p>
+              </div>
             </div>
           </div>
 

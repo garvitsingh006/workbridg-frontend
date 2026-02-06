@@ -33,6 +33,7 @@ export interface Project {
     deadline: Date;
     budget?: number;
     category: string;
+    paymentMethod: "milestone" | "upfront" | "hourly";
     remarks: Remark[];
     payment?: Payment;
     totalAmount?: number; // Total project amount for payment system

@@ -4,10 +4,12 @@ import { useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import MessageInput from './MessageInput';
-import { CircleCheck as CheckCircle2, Users, Menu } from 'lucide-react';
+import { CircleCheck as CheckCircle2, Users, Menu, UserCheck, Shield } from 'lucide-react';
 import GroupChatInfo from './GroupChatInfo';
 import DateSeparator from './DateSeparator';
 import { isSameDay } from '../../utils/dateUtils';
+import api from '../../api';
+import { toast } from 'react-toastify';
 
 interface ChatThreadProps {
   chat: Chat;
@@ -30,6 +32,11 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
       return chat.project.title;
     }
     if (chat.type === 'group') {
+      if (chat.project?.title && otherParticipants.length > 0) {
+        // Show project name + other participant's name
+        const otherParticipant = otherParticipants[0];
+        return `${chat.project.title} - ${otherParticipant.username || 'User'}`;
+      }
       return chat.project?.title || `Group Chat (${chat.participants.length})`;
     }
     return otherParticipants[0]?.username || 'Chat';
@@ -112,9 +119,29 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
             <div>
               <h2 className="text-sm font-semibold text-gray-900">
                 {title}
-                {chat.isLocked && (
+                {/* Show admin moderated only when admin management is explicitly requested and within 2 days */}
+                {chat.isLocked && chat.project?.hasRequestedAdminManagement && chat.project?.adminManagementRequestedAt && (
+                  (() => {
+                    const requestedAt = new Date(chat.project.adminManagementRequestedAt);
+                    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+                    return requestedAt > twoDaysAgo;
+                  })()
+                ) && (
                   <span className="ml-2 text-xs font-normal text-gray-500">
-                    (Admin moderated {chat.project?.adminManagementRequestedAt ? `since ${new Date(chat.project.adminManagementRequestedAt).toLocaleDateString()}` : ''})
+                    (Admin moderated since {new Date(chat.project.adminManagementRequestedAt).toLocaleDateString()})
+                  </span>
+                )}
+                {chat.status && chat.status !== 'approved' && (
+                  <span className={`ml-2 px-2 py-0.5 text-xs font-medium rounded-full ${
+                    chat.status === 'discussion' ? 'bg-blue-100 text-blue-700' :
+                    chat.status === 'committed' ? 'bg-green-100 text-green-700' :
+                    chat.status === 'closed' ? 'bg-gray-100 text-gray-700' :
+                    'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {chat.status === 'discussion' ? 'Discussion' :
+                     chat.status === 'committed' ? 'Committed' :
+                     chat.status === 'closed' ? 'Closed' :
+                     chat.status}
                   </span>
                 )}
               </h2>
@@ -123,6 +150,23 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
           </div>
           
           <div className="flex items-center gap-2">
+            {/* Proceed with Freelancer button for clients in discussion status */}
+            {user?.userType === 'client' && chat.status === 'discussion' && chat.project && (
+              <ProceedWithFreelancerButton chatId={chat._id} />
+            )}
+            
+            {/* Admin Moderation Request button for clients in committed status within 2 days */}
+            {user?.userType === 'client' && chat.status === 'committed' && chat.project && !chat.project.hasRequestedAdminManagement && (
+              (() => {
+                // Check if commitment is within 2 days (using updatedAt as proxy for commitment time)
+                const commitmentTime = new Date(chat.updatedAt);
+                const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+                return commitmentTime > twoDaysAgo;
+              })()
+            ) && (
+              <AdminModerationButton projectId={chat.project._id} />
+            )}
+            
             {/* Group info button for group/project chats */}
             {(chat.type === 'group' || chat.type === 'project') && (
               <button
@@ -203,20 +247,23 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
       </div>
 
       {/* Message Input */}
-      {chat.isLocked && user?.userType !== 'admin' ? (
+      {chat.status === 'closed' ? (
         <div className="border-t border-gray-100 bg-gray-50 p-4">
           <div className="text-center text-gray-500 text-sm">
-            This chat is locked. Only admin can post messages.
+            This discussion has been closed.
+          </div>
+        </div>
+      ) : (chat.isLocked && chat.project?.hasRequestedAdminManagement && user?.userType !== 'admin') ? (
+        <div className="border-t border-gray-100 bg-gray-50 p-4">
+          <div className="text-center text-gray-500 text-sm">
+            This chat is under admin moderation. Only admin can post messages.
           </div>
         </div>
       ) : (
         <div className="border-t border-gray-100 bg-white">
           <MessageInput
             onSend={handleSend}
-            disabled={
-              // Only lock pending project chats for non-admins. Direct chats are always open.
-              chat.type === 'project' && chat.status === 'pending' && user?.userType !== 'admin'
-            }
+            disabled={false}
             status={chat.status}
           />
         </div>
@@ -238,7 +285,7 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
   );
 };
 
-const AdminActions: React.FC<{ chatId: string; status: 'pending' | 'approved' | 'with_admin' }> = ({ chatId, status }) => {
+const AdminActions: React.FC<{ chatId: string; status: 'pending' | 'approved' | 'with_admin' | 'discussion' | 'committed' | 'closed' }> = ({ chatId, status }) => {
   const { approveChat } = useChat();
   return (
     <div className="flex items-center gap-2">
@@ -254,6 +301,175 @@ const AdminActions: React.FC<{ chatId: string; status: 'pending' | 'approved' | 
       )}
       
     </div>
+  );
+};
+
+const ProceedWithFreelancerButton: React.FC<{ chatId: string }> = ({ chatId }) => {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [showBudgetModal, setShowBudgetModal] = React.useState(false);
+  const [finalBudget, setFinalBudget] = React.useState('');
+  const { fetchChats } = useChat();
+
+  const handleProceed = async () => {
+    if (!finalBudget || parseFloat(finalBudget) <= 0) {
+      toast.error('Please enter a valid final budget');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await api.patch(`/chats/${chatId}/proceed-freelancer`, {
+        finalBudget: parseFloat(finalBudget)
+      });
+      toast.success('Proceeded with freelancer! Other discussions have been closed.');
+      setShowBudgetModal(false);
+      await fetchChats();
+      // Force page reload to ensure all data is refreshed
+      window.location.reload();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to proceed with freelancer');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setShowBudgetModal(true)}
+        className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-full text-xs font-medium hover:bg-green-700 transition-colors"
+      >
+        <UserCheck className="w-4 h-4" />
+        Proceed with this freelancer
+      </button>
+      
+      {showBudgetModal && (
+        <div 
+          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+          style={{ zIndex: 9999 }}
+        >
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">Set Final Budget</h3>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Final Budget Amount
+              </label>
+              <input
+                type="number"
+                value={finalBudget}
+                onChange={(e) => setFinalBudget(e.target.value)}
+                placeholder="Enter final budget"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowBudgetModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleProceed}
+                disabled={isLoading}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+              >
+                {isLoading ? 'Processing...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+const AdminModerationButton: React.FC<{ projectId: string }> = ({ projectId }) => {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [showTooltip, setShowTooltip] = React.useState(false);
+  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
+
+  const handleRequestAdminModeration = async () => {
+    if (!projectId) {
+      toast.error('Project ID not found');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await api.post(`/projects/${projectId}/request-admin-management`);
+      toast.success('Admin moderation requested successfully!');
+      setShowConfirmModal(false);
+      window.location.reload();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to request admin moderation');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setShowConfirmModal(true)}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium hover:bg-orange-200 transition-colors"
+        >
+          <Shield className="w-4 h-4" />
+          ?
+        </button>
+        
+        {showTooltip && (
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10">
+            <div className="text-center">
+              <div className="font-medium mb-1">Request Admin Moderation</div>
+              <div className="text-gray-300">Available for 2 days after commitment</div>
+              <div className="text-gray-300">5% additional fee applies</div>
+              <div className="text-gray-300">Click to request admin oversight</div>
+            </div>
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+          </div>
+        )}
+      </div>
+      
+      {showConfirmModal && (
+        <div 
+          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+          style={{ zIndex: 9999 }}
+        >
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">Request Admin Moderation</h3>
+            <div className="mb-4 text-sm text-gray-600">
+              <p className="mb-2">This will:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Add admin oversight to this project</li>
+                <li>Charge an additional 5% fee</li>
+                <li>Lock the chat for admin-only messages</li>
+              </ul>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRequestAdminModeration}
+                disabled={isLoading}
+                className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50"
+              >
+                {isLoading ? 'Requesting...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

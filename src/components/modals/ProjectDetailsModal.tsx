@@ -93,6 +93,23 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, 
                     <span className="text-gray-900 font-medium">{project.category}</span>
                   </div>
                 </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-500 mb-2 block">Payment Method</label>
+                  <div className="flex items-center space-x-2">
+                    <DollarSign className="w-4 h-4 text-[#f72585]" />
+                    <span className="text-gray-900 font-medium">
+                      {project.paymentMethod === 'milestone' ? 'Milestone based' :
+                       project.paymentMethod === 'upfront' ? '50% upfront + 50% after completion' :
+                       'Hourly/Weekly'}
+                    </span>
+                    {project.paymentMethod === 'milestone' && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                        Recommended
+                      </span>
+                    )}
+                  </div>
+                </div>
                 
                 <div>
                   <label className="text-sm font-medium text-gray-500 mb-2 block">Created By</label>
@@ -210,7 +227,7 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, 
                 }}
                 className="px-6 py-3 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-xl hover:from-[#f72585] hover:to-[#f72585] transition-all font-semibold shadow-lg shadow-[#f72585]/30 cursor-pointer"
               >
-                Apply to Project
+                Start Discussion
               </button>
             </div>
           )}

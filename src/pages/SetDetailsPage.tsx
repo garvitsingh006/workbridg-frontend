@@ -428,27 +428,11 @@ export default function SetDetailsPage() {
 
             console.log("Submitting form data:", finalData);
 
-            const res = await fetch(
-                `${import.meta.env.VITE_SERVER}/profiles/me`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify(finalData),
-                }
-            );
-
-            const dataFromBackend = await res.json();
-            if (res.ok) {
-                console.log("Profile updated:", dataFromBackend);
-                toast.success('Profile updated successfully!');
-                navigate("/dashboard");
-            } else {
-                console.error("Error updating profile:", dataFromBackend);
-                toast.error(dataFromBackend.message || 'Failed to update profile');
-            }
+            const response = await api.put("/profiles/me", finalData);
+            
+            console.log("Profile updated:", response.data);
+            toast.success('Profile updated successfully!');
+            navigate("/dashboard");
         } catch (error) {
             console.error("Error submitting form:", error);
             toast.error('An error occurred. Please try again.');

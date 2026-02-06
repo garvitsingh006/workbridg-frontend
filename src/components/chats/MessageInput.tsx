@@ -4,7 +4,7 @@ import { Send, Paperclip, Smile } from 'lucide-react';
 interface MessageInputProps {
   onSend: (content: string) => Promise<void> | void;
   disabled?: boolean;
-  status?: 'pending' | 'approved' | 'with_admin';
+  status?: 'pending' | 'approved' | 'with_admin' | 'discussion' | 'committed' | 'closed';
 }
 
 const MessageInput: React.FC<MessageInputProps> = ({ onSend, disabled, status }) => {

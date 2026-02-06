@@ -3,6 +3,8 @@ import { DollarSign, Shield, Eye, AlertCircle, RefreshCw, Search, Filter } from 
 import { usePayment, type Payment } from '../../../contexts/PaymentContext';
 import PaymentModal from '../../payment/PaymentModal';
 import PaymentStatusBadge from '../../payment/PaymentStatusBadge';
+import { toast } from 'react-toastify';
+import api from '../../../api';
 
 export default function PaymentsAdmin() {
   const { 
@@ -60,6 +62,22 @@ export default function PaymentsAdmin() {
 //     }
 //   };
 
+  const handleMarkAsReceived = async (paymentId: string) => {
+    try {
+      const response = await api.patch(`/upi/${paymentId}/mark-received`);
+      const data = response.data;
+      
+      if (data.success) {
+        toast.success('Payment marked as received successfully!');
+        await fetchAllPayments();
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || 'Failed to mark payment as received');
+    }
+  };
+
   const openPaymentModal = (payment: Payment) => {
     setSelectedPayment(payment);
     setIsModalOpen(true);
@@ -89,8 +107,9 @@ export default function PaymentsAdmin() {
     const projectTitle = String(payment.projectId?.title || '').toLowerCase();
     const clientName = String(payment.clientId?.fullName || '').toLowerCase();
     const freelancerName = String(payment.freelancerId?.fullName || '').toLowerCase();
+    const moderationId = String(payment.moderationId || '').toLowerCase();
     const q = searchTerm.toLowerCase();
-    const matchesSearch = projectTitle.includes(q) || clientName.includes(q) || freelancerName.includes(q);
+    const matchesSearch = projectTitle.includes(q) || clientName.includes(q) || freelancerName.includes(q) || moderationId.includes(q);
     
     const matchesStatus = statusFilter === 'all' || payment.overallStatus === statusFilter;
     
@@ -234,7 +253,12 @@ export default function PaymentsAdmin() {
                   {filteredPayments.map((payment) => (
                     <tr key={payment._id} className="hover:bg-gray-50">
                       <td className="px-3 py-2">
-                        <div className="font-medium text-gray-900">{payment.projectId?.title || 'Unknown Project'}</div>
+                        <div className="font-medium text-gray-900">
+                          {payment.isAdminManagementFee && payment.moderationId 
+                            ? payment.moderationId 
+                            : (payment.projectId?.title || 'Unknown Project')
+                          }
+                        </div>
                         <div className="text-xs text-gray-500">{formatDate(payment.createdAt)}</div>
                       </td>
                       <td className="px-3 py-2">
@@ -256,13 +280,23 @@ export default function PaymentsAdmin() {
                         <PaymentStatusBadge status={payment.releaseStatus} type="release" size="sm" />
                       </td>
                       <td className="px-3 py-2">
-                        <button
-                          onClick={() => openPaymentModal(payment)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
-                        >
-                          <Eye className="w-3 h-3" />
-                          Details
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => openPaymentModal(payment)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
+                          >
+                            <Eye className="w-3 h-3" />
+                            Details
+                          </button>
+                          {payment.total.status === 'paid' && payment.total.status !== 'received' && (
+                            <button
+                              onClick={() => handleMarkAsReceived(payment._id)}
+                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                            >
+                              I have received
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

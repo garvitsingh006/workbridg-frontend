@@ -6,7 +6,7 @@ import CreateProjectModal from "../../modals/CreateProjectModal";
 import ProjectDetailsModal from "../../modals/ProjectDetailsModal";
 import EditProjectModal from "../../modals/EditProjectModal";
 import StatusUpdateModal from "../../modals/StatusUpdateModal";
-import ApplyProjectModal from "../../modals/ApplyProjectModal";
+// import ApplyProjectModal from "../../modals/ApplyProjectModal";
 import type { Project } from "../../../contexts/ProjectContext";
 import Joyride, {type CallBackProps, STATUS, type Step, type Placement } from 'react-joyride';
 import { toast } from 'react-toastify';
@@ -57,7 +57,7 @@ export default function Projects() {
     const [statusModalOpen, setStatusModalOpen] = React.useState(false);
     const [selectedProject, setSelectedProject] =
         React.useState<Project | null>(null);
-    const [applyOpen, setApplyOpen] = React.useState(false);
+    // const [applyOpen, setApplyOpen] = React.useState(false);
     // const [dropdownOpen, setDropdownOpen] = React.useState<string | null>(null);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
     const [projectToDelete, setProjectToDelete] = React.useState<Project | null>(null);
@@ -405,14 +405,23 @@ export default function Projects() {
                                 ) : null}
                                 {user?.userType === 'freelancer' && (
                                     <button
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                             e.stopPropagation();
-                                            setSelectedProject(originalProject || null);
-                                            setApplyOpen(true);
+                                            if (!originalProject) return;
+                                            try {
+                                                await applyToProject(originalProject.id, {
+                                                    proposalSummary: '',
+                                                    estimatedDelivery: '',
+                                                    addOns: ''
+                                                });
+                                                toast.success('Discussion started! Check your chats.');
+                                            } catch (error: any) {
+                                                toast.error(error.message || 'Failed to start discussion');
+                                            }
                                         }}
                                         className="px-3 py-1.5 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-md hover:from-[#f72585] hover:to-[#f72585] transition-all font-medium text-sm shadow-lg shadow-[#f72585]/30 cursor-pointer"
                                     >
-                                        Apply
+                                        Start Discussion
                                     </button>
                                 )}
                                 {user?.userType !== 'admin' && user?.userType !== "freelancer" && originalProject?.status === 'unassigned' && (
@@ -569,10 +578,18 @@ export default function Projects() {
                     setSelectedProject(project);
                     setEditModalOpen(true);
                 }}
-                onApply={(project) => {
+                onApply={async (project) => {
                     setDetailsModalOpen(false);
-                    setSelectedProject(project);
-                    setApplyOpen(true);
+                    try {
+                        await applyToProject(project.id, {
+                            proposalSummary: '',
+                            estimatedDelivery: '',
+                            addOns: ''
+                        });
+                        toast.success('Discussion started! Check your chats.');
+                    } catch (error: any) {
+                        toast.error(error.message || 'Failed to start discussion');
+                    }
                 }}
             />
 
@@ -593,14 +610,16 @@ export default function Projects() {
                 }}
                 project={selectedProject}
             />
+            {/* COMMENTED OUT: ApplyProjectModal - Now using direct chat creation
             <ApplyProjectModal
                 isOpen={applyOpen}
                 onClose={() => setApplyOpen(false)}
-                onSubmit={async ({proposalSummary, estimatedDelivery, addOns, }) => {
+                onSubmit={async () => {
                     if (!selectedProject) return;
-                    await applyToProject(selectedProject.id, { proposalSummary, estimatedDelivery, addOns });
+                    await applyToProject(selectedProject.id, {});
                 }}
             />
+            */}
 
             {/* Delete Confirmation Modal */}
             {deleteConfirmOpen && projectToDelete && (
