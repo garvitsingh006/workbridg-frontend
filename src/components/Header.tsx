@@ -24,9 +24,7 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Briefcase className="h-5 w-5 text-white" />
-            </div>
+            <img src="/logo.jpg" alt="Workbridg" className="w-8 h-8 rounded-lg group-hover:scale-110 transition-transform duration-300" />
             <span className="text-xl font-bold text-gray-900">Workbridg</span>
           </Link>
 
