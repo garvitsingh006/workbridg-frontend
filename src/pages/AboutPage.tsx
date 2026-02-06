@@ -122,7 +122,7 @@ const AboutPage: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-gray-700 leading-relaxed">
-                  By positioning our admin team as mediators in every interaction, we ensure that both parties 
+                  Through verified freelancers, direct chat, and optional admin moderation when enabled by clients, we ensure that both parties 
                   receive the support they need to deliver exceptional results.
                 </p>
               </div>
@@ -136,7 +136,7 @@ const AboutPage: React.FC = () => {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">98% Success Rate</h3>
                   <p className="text-gray-600 max-w-sm">
-                    Our admin-mediated process has achieved a 98% project success rate, 
+                    Our verified freelancers have achieved a 98% project success rate, 
                     with virtually zero disputes reported.
                   </p>
                 </div>
@@ -160,21 +160,21 @@ const AboutPage: React.FC = () => {
               {
                 icon: Shield,
                 title: 'Trust & Security',
-                description: 'We prioritize the security of payments, data, and communications, ensuring all parties feel confident throughout their collaboration.',
+                description: 'We prioritize the security of communications, verified users, and data ensuring all parties feel confident throughout their collaboration.',
                 color: 'bg-blue-50 text-blue-600',
                 bgGradient: 'from-blue-50 to-blue-100'
               },
               {
                 icon: Users,
                 title: 'Quality First',
-                description: 'Every freelancer is carefully vetted, and every project is monitored to maintain the highest standards of work quality.',
+                description: 'Every freelancer is carefully vetted, and vetted freelancers maintain the highest standards of work quality.',
                 color: 'bg-green-50 text-green-600',
                 bgGradient: 'from-green-50 to-green-100'
               },
               {
                 icon: Heart,
                 title: 'Human-Centered',
-                description: 'Our admin team provides personal attention to every project, ensuring human oversight in an increasingly automated world.',
+                description: 'Our admin team provides personal attention to every project which has optionally enabled admin moderation, ensuring human oversight in an increasingly automated world.',
                 color: 'bg-purple-50 text-purple-600',
                 bgGradient: 'from-purple-50 to-purple-100'
               },
@@ -188,7 +188,7 @@ const AboutPage: React.FC = () => {
               {
                 icon: Award,
                 title: 'Excellence',
-                description: 'We strive for excellence in every interaction, from initial project discussions to final delivery and payment processing.',
+                description: 'We strive for excellence in every interaction, from initial project discussions to final delivery.',
                 color: 'bg-red-50 text-red-600',
                 bgGradient: 'from-red-50 to-red-100'
               },
@@ -239,7 +239,7 @@ const AboutPage: React.FC = () => {
               to="/how-it-works" 
               className="group text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/10 transition-all duration-300 flex items-center justify-center border border-white/20"
             >
-              See our plans
+              See how it works
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

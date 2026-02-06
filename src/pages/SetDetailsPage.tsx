@@ -178,6 +178,7 @@ export default function SetDetailsPage() {
 
     const [currentSkill, setCurrentSkill] = useState("");
     const [currentProjectType, setCurrentProjectType] = useState("");
+    const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
 
 
     const getCountries = () => {
@@ -337,7 +338,8 @@ export default function SetDetailsPage() {
                     return (
                         freelancerFormData.preferredRole.trim() &&
                         freelancerFormData.bio.trim() &&
-                        !!freelancerFormData.resume
+                        !!freelancerFormData.resume &&
+                        hasAcceptedTerms
                     );
                 default:
                     return false;
@@ -357,7 +359,8 @@ export default function SetDetailsPage() {
                     );
                 case 3:
                     return (
-                        clientFormData.companyDescription.trim()
+                        clientFormData.companyDescription.trim() &&
+                        hasAcceptedTerms
                     );
                 default:
                     return false;
@@ -428,7 +431,7 @@ export default function SetDetailsPage() {
 
             console.log("Submitting form data:", finalData);
 
-            const response = await api.put("/profiles/me", finalData);
+            const response = await api.put("/profiles/me", { ...finalData, hasAcceptedTerms });
             
             console.log("Profile updated:", response.data);
             toast.success('Profile updated successfully!');
@@ -444,8 +447,8 @@ export default function SetDetailsPage() {
     const renderFreelancerStep1 = () => (
         <div className="space-y-8">
             <div className="text-center mb-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <MapPin className="w-10 w-10 text-blue-600" />
+                <div className="w-20 h-20 bg-linear-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <MapPin className="w-10 text-blue-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Basic Information
@@ -535,8 +538,8 @@ export default function SetDetailsPage() {
     const renderFreelancerStep2 = () => (
         <div className="space-y-8">
             <div className="text-center mb-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Briefcase className="w-10 w-10 text-green-600" />
+                <div className="w-20 h-20 bg-linear-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Briefcase className="w-10 text-green-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Experience & Skills
@@ -726,8 +729,8 @@ export default function SetDetailsPage() {
     const renderFreelancerStep3 = () => (
         <div className="space-y-8">
             <div className="text-center mb-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <User className="w-10 w-10 text-purple-600" />
+                <div className="w-20 h-20 bg-linear-to-br from-purple-50 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <User className="w-10 text-purple-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Profile & Links
@@ -853,6 +856,29 @@ export default function SetDetailsPage() {
                         </div>
                     )}
                 </div>
+
+                {/* Terms and Conditions Checkbox */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div className="flex items-start space-x-3">
+                        <input
+                            type="checkbox"
+                            id="terms-freelancer"
+                            checked={hasAcceptedTerms}
+                            onChange={(e) => setHasAcceptedTerms(e.target.checked)}
+                            className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                        />
+                        <label htmlFor="terms-freelancer" className="text-sm text-gray-700">
+                            I agree to the{" "}
+                            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                                Terms and Conditions
+                            </a>
+                            {" "}and{" "}
+                            <a href="/refund-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                                Refund Policy
+                            </a>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -860,8 +886,8 @@ export default function SetDetailsPage() {
     const renderClientStep1 = () => (
         <div className="space-y-8">
             <div className="text-center mb-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Building2 className="w-10 w-10 text-blue-600" />
+                <div className="w-20 h-20 bg-linear-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Building2 className="w-10 text-blue-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Company Information
@@ -985,8 +1011,8 @@ export default function SetDetailsPage() {
     const renderClientStep2 = () => (
         <div className="space-y-8">
             <div className="text-center mb-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Briefcase className="w-10 w-10 text-green-600" />
+                <div className="w-20 h-20 bg-linear-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Briefcase className="w-10 text-green-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Project Details
@@ -1082,8 +1108,8 @@ export default function SetDetailsPage() {
     const renderClientStep3 = () => (
         <div className="space-y-8">
             <div className="text-center mb-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <FileText className="w-10 w-10 text-purple-600" />
+                <div className="w-20 h-20 bg-linear-to-br from-purple-50 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <FileText className="w-10 text-purple-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Company Profile
@@ -1115,6 +1141,29 @@ export default function SetDetailsPage() {
                         {clientFormData.companyDescription.length}/500
                     </div>
                 </div>
+
+                {/* Terms and Conditions Checkbox */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                    <div className="flex items-start space-x-3">
+                        <input
+                            type="checkbox"
+                            id="terms-client"
+                            checked={hasAcceptedTerms}
+                            onChange={(e) => setHasAcceptedTerms(e.target.checked)}
+                            className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                        />
+                        <label htmlFor="terms-client" className="text-sm text-gray-700">
+                            I agree to the{" "}
+                            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                                Terms and Conditions
+                            </a>
+                            {" "}and{" "}
+                            <a href="/refund-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                                Refund Policy
+                            </a>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -1122,8 +1171,8 @@ export default function SetDetailsPage() {
     const renderRoleSelection = () => (
         <div className="space-y-8">
             <div className="text-center mb-12">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Target className="w-10 w-10 text-blue-600" />
+                <div className="w-20 h-20 bg-linear-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <Target className="w-10 text-blue-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                     Choose Your Role
@@ -1256,7 +1305,7 @@ export default function SetDetailsPage() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
                             <div
-                                className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 shadow-lg"
+                                className="bg-linear-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 shadow-lg"
                                 style={{ width: `${(currentStep / 3) * 100}%` }}
                             ></div>
                         </div>
@@ -1286,7 +1335,7 @@ export default function SetDetailsPage() {
                                 onClick={handleNext}
                                 disabled={!canProceedToNext() || isSubmitting || isInitializing}
                                 className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${canProceedToNext() && !isSubmitting && !isInitializing
-                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 shadow-lg"
+                                    ? "bg-linear-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 shadow-lg"
                                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     }`}
                             >
@@ -1312,7 +1361,7 @@ export default function SetDetailsPage() {
                                 onClick={handleSubmit}
                                 disabled={!canProceedToNext() || isSubmitting}
                                 className={`flex items-center space-x-2 px-8 py-4 rounded-full font-semibold transition-all transform ${canProceedToNext() && !isSubmitting
-                                    ? "bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 hover:scale-105 shadow-lg"
+                                    ? "bg-linear-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 hover:scale-105 shadow-lg"
                                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     }`}
                             >

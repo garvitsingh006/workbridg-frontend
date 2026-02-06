@@ -110,7 +110,7 @@ const LandingPage: React.FC = () => {
             icon: Shield,
             title: "Dispute-free collaboration",
             description:
-                "All communication flows through our admin team, preventing misunderstandings and ensuring professionalism.",
+                "Optional admin moderation available when explicitly enabled by client at project creation for communication assistance.",
             color: "bg-blue-50 text-blue-600",
         },
         {
@@ -124,7 +124,7 @@ const LandingPage: React.FC = () => {
             icon: Clock,
             title: "Secure payments",
             description:
-                "Payments are held securely until project completion, protecting both clients and freelancers.",
+                "Clients choose direct payment methods (milestone, upfront/split, hourly); all payments handled directly between users.",
             color: "bg-purple-50 text-purple-600",
         },
     ];
@@ -200,7 +200,7 @@ const LandingPage: React.FC = () => {
                         </h1>
 
                         <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-                            You focus on the work you need. We handle everything else.
+                            Discover verified freelancers and manage projects directly with optional admin support.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
@@ -432,8 +432,7 @@ const LandingPage: React.FC = () => {
                         <br />
                     </h2>
                     <p className="text-xl text-gray-600 mb-12">
-                        Join thousands of professionals who trust Workbridg for
-                        their freelance projects.
+                        Join professionals using Workbridg for freelancer discovery and project moderation.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-6 justify-center">
                         <Link

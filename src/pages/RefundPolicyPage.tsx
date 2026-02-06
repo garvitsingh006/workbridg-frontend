@@ -1,10 +1,10 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 export default function RefundPolicyPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-16 px-4 mt-10">
+    <div className="min-h-screen bg-gray-50 py-16 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
-        <motion.div 
+        <motion.div
           className="bg-black text-white py-12 px-8 text-center"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -14,72 +14,64 @@ export default function RefundPolicyPage() {
           <p className="text-gray-300">Last updated: 1st November, 2024</p>
         </motion.div>
 
-        <motion.div 
-          className="p-8 md:p-12 space-y-8"
+        <motion.div
+          className="p-8 md:p-12 space-y-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div className="space-y-6">
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">1. Project Cancellation</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-4">
-                <li>Projects can be canceled before they are started by either the client or freelancer.</li>
-                <li>Once a project is officially started, cancellation is only allowed under exceptional circumstances, subject to review by Workbridg.</li>
-              </ul>
-            </section>
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">1. Project Cancellation</h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>Projects may be cancelled by mutual agreement between the client and freelancer.</li>
+              <li>Workbridg does not enforce or guarantee cancellation terms agreed between users.</li>
+              <li>Cancellation rules may differ based on the selected payment model.</li>
+            </ul>
+          </section>
 
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">2. Refunds</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-4">
-                <li>All client payments are held in escrow until project completion.</li>
-                <li>Refunds will be processed according to the following:
-                  <ol className="list-decimal pl-6 mt-2 space-y-2">
-                    <li>If the project is canceled before starting, the client will receive a full refund.</li>
-                    <li>If the project is canceled after starting, refunds are determined by Workbridg based on work completed, milestone agreements, and platform oversight.</li>
-                  </ol>
-                </li>
-                <li>Service charge may be deducted where applicable.</li>
-              </ul>
-            </section>
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">2. Refunds</h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>Workbridg does not process payments and does not issue refunds.</li>
+              <li>Refunds, if any, are solely handled between the client and freelancer.</li>
+              <li>Refund eligibility depends on the private agreement and payment method used.</li>
+              <li>Service charges paid to Workbridg under the subscription-based project moderation model are non-refundable.</li>
+            </ul>
+          </section>
 
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">3. Payment Release</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-4">
-                <li>Freelancer payment is released only after project completion and client approval.</li>
-                <li>Platform fees are automatically deducted before payout.</li>
-                <li>Workbridg oversees communication to ensure smooth release of funds.</li>
-              </ul>
-            </section>
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">3. Payments</h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>All payments occur directly between clients and freelancers.</li>
+              <li>Workbridg does not hold funds, operate escrow services, or control payment timelines.</li>
+              <li>Any delays, failures, or disputes related to payments are outside WorkBridg’s control.</li>
+            </ul>
+          </section>
 
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">4. Disputes & Support</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-4">
-                <li>In case of disputes, clients or freelancers can contact Workbridg support.</li>
-                <li>Workbridg will review project details, communications, and completed work to determine fair resolution.</li>
-                <li>All decisions made by Workbridg regarding refunds or cancellations are final and binding.</li>
-              </ul>
-            </section>
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">4. Disputes & Mediation</h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              {/* <li>Dispute assistance is available only for clients enrolled in the subscription-based project moderation service.</li> */}
+              <li>Workbridg mediation aims to assist communication and resolution but does not impose binding decisions.</li>
+              <li>Final outcomes remain the responsibility of the client and freelancer.</li>
+            </ul>
+          </section>
 
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">5. Contact</h2>
-              <p className="text-gray-700 leading-relaxed">
-                For questions regarding refunds or cancellations, email: 
-                <a href="mailto:workbridg.team@gmail.com" className="text-blue-600 hover:underline ml-1">
-                  workbridg.team@gmail.com
-                </a>
-              </p>
-            </section>
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">5. Contact</h2>
+            <p className="text-gray-700 leading-relaxed">
+              For questions regarding refunds or cancellations, contact:
+              <a href="mailto:workbridg.team@gmail.com" className="text-blue-600 hover:underline ml-1">
+                workbridg.team@gmail.com
+              </a>
+            </p>
+          </section>
 
-            <div className="pt-4 border-t border-gray-200 mt-8">
-              <p className="text-gray-600 text-sm">
-                If you have any questions about our Refund & Cancellation Policy, please contact us at{' '}
-                <a href="mailto:workbridg.team@gmail.com" className="text-blue-600 hover:underline">
-                  workbridg.team@gmail.com
-                </a>
-              </p>
-            </div>
-          </div>
+          {/* <section className="pt-6 border-t border-gray-200">
+            <p className="text-gray-600 text-sm">
+              This policy clarifies WorkBridg’s limited role and does not override private agreements between users.
+            </p>
+          </section> */}
         </motion.div>
       </div>
     </div>
