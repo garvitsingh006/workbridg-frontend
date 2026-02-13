@@ -5,106 +5,106 @@ import { useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import MessageInput from './MessageInput';
-import { CircleCheck as CheckCircle2, Users, Menu, UserCheck, Shield } from 'lucide-react';
+import { CircleCheck as CheckCircle2, Users, Menu, UserCheck } from 'lucide-react';
 import GroupChatInfo from './GroupChatInfo';
 import DateSeparator from './DateSeparator';
 import { isSameDay } from '../../utils/dateUtils';
 import api from '../../api';
 import { toast } from 'react-toastify';
 
-const AdminModerationButton: React.FC<{ projectId: string }> = ({ projectId }) => {
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [showTooltip, setShowTooltip] = React.useState(false);
-  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
+// const AdminModerationButton: React.FC<{ projectId: string }> = ({ projectId }) => {
+//   const [isLoading, setIsLoading] = React.useState(false);
+//   const [showTooltip, setShowTooltip] = React.useState(false);
+//   const [showConfirmModal, setShowConfirmModal] = React.useState(false);
 
-  const handleRequestAdminModeration = async () => {
-    if (!projectId) {
-      toast.error('Project ID not found');
-      return;
-    }
+//   const handleRequestAdminModeration = async () => {
+//     if (!projectId) {
+//       toast.error('Project ID not found');
+//       return;
+//     }
     
-    setIsLoading(true);
-    try {
-      await api.post(`/projects/${projectId}/request-admin-management`);
-      toast.success('Admin moderation requested successfully!');
-      setShowConfirmModal(false);
-      window.location.reload();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to request admin moderation');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+//     setIsLoading(true);
+//     try {
+//       await api.post(`/projects/${projectId}/request-admin-management`);
+//       toast.success('Admin moderation requested successfully!');
+//       setShowConfirmModal(false);
+//       window.location.reload();
+//     } catch (error: any) {
+//       toast.error(error.response?.data?.message || 'Failed to request admin moderation');
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
 
-  return (
-    <>
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setShowConfirmModal(true)}
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
-          className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium hover:bg-orange-200 transition-colors"
-        >
-          <Shield className="w-4 h-4" />
-          ?
-        </button>
+//   return (
+//     <>
+//       <div className="relative">
+//         <button
+//           type="button"
+//           onClick={() => setShowConfirmModal(true)}
+//           onMouseEnter={() => setShowTooltip(true)}
+//           onMouseLeave={() => setShowTooltip(false)}
+//           className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium hover:bg-orange-200 transition-colors"
+//         >
+//           <Shield className="w-4 h-4" />
+//           ?
+//         </button>
         
-        {showTooltip && createPortal(
-          <div className="fixed bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-99998">
-            <div className="text-center">
-              <div className="font-medium mb-1">Request Admin Moderation</div>
-              <div className="text-gray-300">Available for 2 days after commitment</div>
-              <div className="text-gray-300">5% additional fee applies</div>
-              <div className="text-gray-300">Click to request admin oversight</div>
-            </div>
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-          </div>,
-          document.body
-        )}
+//         {showTooltip && createPortal(
+//           <div className="fixed bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-99998">
+//             <div className="text-center">
+//               <div className="font-medium mb-1">Request Admin Moderation</div>
+//               <div className="text-gray-300">Available for 2 days after commitment</div>
+//               <div className="text-gray-300">5% additional fee applies</div>
+//               <div className="text-gray-300">Click to request admin oversight</div>
+//             </div>
+//             <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+//           </div>,
+//           document.body
+//         )}
         
-        {showConfirmModal && createPortal(
-          <div 
-            className="fixed inset-0 w-full h-full flex items-center justify-center"
-            style={{ 
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              backdropFilter: 'blur(4px)',
-              zIndex: 99999 
-            }}
-          >
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 relative">
-              <h3 className="text-lg font-semibold mb-4">Request Admin Moderation</h3>
-              <div className="mb-4 text-sm text-gray-600">
-                <p className="mb-2">This will:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Add admin oversight to this project</li>
-                  <li>Charge an additional 5% fee</li>
-                  <li>Lock chat for admin-only messages</li>
-                </ul>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowConfirmModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleRequestAdminModeration}
-                  disabled={isLoading}
-                  className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50"
-                >
-                  {isLoading ? 'Requesting...' : 'Confirm'}
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
-      </div>
-    </>
-  );
-};
+//         {showConfirmModal && createPortal(
+//           <div 
+//             className="fixed inset-0 w-full h-full flex items-center justify-center"
+//             style={{ 
+//               backgroundColor: 'rgba(0, 0, 0, 0.3)',
+//               backdropFilter: 'blur(4px)',
+//               zIndex: 99999 
+//             }}
+//           >
+//             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 relative">
+//               <h3 className="text-lg font-semibold mb-4">Request Admin Moderation</h3>
+//               <div className="mb-4 text-sm text-gray-600">
+//                 <p className="mb-2">This will:</p>
+//                 <ul className="list-disc list-inside space-y-1">
+//                   <li>Add admin oversight to this project</li>
+//                   <li>Charge an additional 5% fee</li>
+//                   <li>Lock chat for admin-only messages</li>
+//                 </ul>
+//               </div>
+//               <div className="flex gap-3">
+//                 <button
+//                   onClick={() => setShowConfirmModal(false)}
+//                   className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+//                 >
+//                   Cancel
+//                 </button>
+//                 <button
+//                   onClick={handleRequestAdminModeration}
+//                   disabled={isLoading}
+//                   className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50"
+//                 >
+//                   {isLoading ? 'Requesting...' : 'Confirm'}
+//                 </button>
+//               </div>
+//             </div>
+//           </div>,
+//           document.body
+//         )}
+//       </div>
+//     </>
+//   );
+// };
 
 interface ChatThreadProps {
   chat: Chat;
@@ -248,18 +248,6 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
             {/* Proceed with Freelancer button for clients in discussion status */}
             {user?.userType === 'client' && chat.status === 'discussion' && chat.project && (
               <ProceedWithFreelancerButton chatId={chat._id} />
-            )}
-            
-            {/* Admin Moderation Request button for clients in committed status within 2 days */}
-            {user?.userType === 'client' && chat.status === 'committed' && chat.project && !chat.project.hasRequestedAdminManagement && (
-              (() => {
-                // Check if commitment is within 2 days (using updatedAt as proxy for commitment time)
-                const commitmentTime = new Date(chat.updatedAt);
-                const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-                return commitmentTime > twoDaysAgo;
-              })()
-            ) && (
-              <AdminModerationButton projectId={chat.project._id} />
             )}
             
             {/* Group info button for group/project chats */}

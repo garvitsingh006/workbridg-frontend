@@ -16,6 +16,8 @@ export interface PaymentStage {
     amount: number;
     status: "pending" | "created" | "paid" | "failed";
     paymentType?: "upi" | "cashfree";
+    claimedPaid?: boolean;
+    claimedPaidAt?: string;
 }
 
 export interface Payment {

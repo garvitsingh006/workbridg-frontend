@@ -218,7 +218,7 @@ const Register: React.FC = () => {
     return (
         <div className="min-h-screen bg-white flex relative overflow-hidden">
             {/* Left Side - Decorative */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
                 {/* Floating Elements */}
                 {floatingElements.map((element, index) => (
                     <div
@@ -241,7 +241,7 @@ const Register: React.FC = () => {
                         <h1 className="text-5xl font-bold mb-6 leading-tight">
                             Join the future of
                             <br />
-                            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                            <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                                 freelance work.
                             </span>
                         </h1>
@@ -309,7 +309,7 @@ const Register: React.FC = () => {
                 </div>
 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-black/50 to-transparent"></div>
             </div>
 
             {/* Right Side - Form */}
@@ -541,10 +541,10 @@ const Register: React.FC = () => {
                                         </Link>{" "}
                                         and{" "}
                                         <Link
-                                            to="/privacy"
+                                            to="/refund-policy"
                                             className="text-black hover:text-gray-800 font-medium transition-colors duration-300"
                                         >
-                                            Privacy Policy
+                                            Refund Policy
                                         </Link>
                                     </label>
                                 </div>

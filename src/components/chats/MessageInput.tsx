@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, Smile } from 'lucide-react';
+import { Send, Smile } from 'lucide-react';
 
 interface MessageInputProps {
   onSend: (content: string) => Promise<void> | void;
@@ -97,7 +97,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSend, disabled, status })
         <div className="flex-1 relative">
           <textarea
             ref={textareaRef}
-            className="w-full min-h-[44px] max-h-32 p-4 pr-12 bg-gray-50 border-0 rounded-3xl focus:ring-2 focus:ring-black focus:bg-white transition-all duration-300 resize-none text-sm placeholder-gray-500"
+            className="w-full min-h-11 max-h-32 p-4 pr-12 bg-gray-50 border-0 rounded-3xl focus:ring-2 focus:ring-black focus:bg-white transition-all duration-300 resize-none text-sm placeholder-gray-500"
             placeholder={placeholder}
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -115,13 +115,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSend, disabled, status })
             }}
           />
           <div className="absolute right-3 bottom-3 flex items-center gap-2">
-            <button
-              type="button"
-              className="w-6 h-6 text-gray-400 hover:text-gray-600 transition-colors"
-              disabled={disabled}
-            >
-              <Paperclip className="w-4 h-4" />
-            </button>
             <button
               type="button"
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}

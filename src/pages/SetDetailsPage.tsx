@@ -476,7 +476,7 @@ export default function SetDetailsPage() {
                     >
                         <option value="">Select your work field</option>
                         <option value="web-development">Web Development</option>
-                        <option value="mobile-development">
+                        {/* <option value="mobile-development">
                             Mobile Development
                         </option>
                         <option value="ui-ux-design">UI/UX Design</option>
@@ -487,7 +487,7 @@ export default function SetDetailsPage() {
                         </option>
                         <option value="data-science">Data Science</option>
                         <option value="consulting">Consulting</option>
-                        <option value="other">Other</option>
+                        <option value="other">Other</option> */}
                     </select>
                 </div>
 
@@ -622,17 +622,17 @@ export default function SetDetailsPage() {
                                 <input
                                     type="number"
                                     value={exp.years}
-                                    onChange={(e) =>
-                                        handleWorkExperienceChange(
-                                            index,
-                                            "years",
-                                            parseInt(e.target.value) || 0
-                                        )
-                                    }
+                                    onChange={(e) => {
+                                        const value = parseFloat(e.target.value) || 0;
+                                        const rounded = Math.round(value * 2) / 2;
+                                        handleWorkExperienceChange(index, "years", rounded);
+                                    }}
                                     placeholder="Years of Experience *"
                                     min="0"
+                                    step="0.5"
                                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                                 />
+                                <p className="text-xs text-gray-500">Values will be rounded to nearest 0.5 (e.g., 1, 1.5, 2, 2.5)</p>
 
                                 <textarea
                                     value={exp.description}
@@ -928,16 +928,20 @@ export default function SetDetailsPage() {
                         className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all hover:border-gray-300"
                     >
                         <option value="">Select your industry</option>
-                        <option value="technology">Technology</option>
-                        <option value="healthcare">Healthcare</option>
-                        <option value="finance">Finance</option>
-                        <option value="education">Education</option>
-                        <option value="retail">Retail</option>
-                        <option value="manufacturing">Manufacturing</option>
+                        <option value="saas">SaaS</option>
+                        <option value="ai-ml">AI / Machine Learning</option>
+                        <option value="fintech">Fintech</option>
+                        <option value="healthtech">HealthTech</option>
+                        <option value="edtech">EdTech</option>
+                        <option value="ecommerce">E-commerce</option>
+                        <option value="web3-blockchain">Web3 / Blockchain</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="media-content">Media / Content</option>
+                        <option value="marketing-adtech">Marketing / AdTech</option>
                         <option value="consulting">Consulting</option>
-                        <option value="real-estate">Real Estate</option>
-                        <option value="media">Media & Entertainment</option>
-                        <option value="non-profit">Non-Profit</option>
+                        <option value="climate-sustainability">Climate / Sustainability</option>
+                        <option value="cybersecurity">Cybersecurity</option>
+                        <option value="enterprise-software">Enterprise Software</option>
                         <option value="other">Other</option>
                     </select>
                 </div>
@@ -1386,7 +1390,7 @@ export default function SetDetailsPage() {
                     <p className="text-sm text-gray-600 mb-2">
                         Need help?{" "}
                         <a
-                            href="#"
+                            href="/contact"
                             className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
                         >
                             Contact Support

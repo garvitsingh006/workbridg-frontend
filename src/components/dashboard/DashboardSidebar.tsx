@@ -49,7 +49,6 @@ export default function DashboardSidebar({
 
     const nonAdminExtras = [
         ...(isFreelancer ? [
-            { id: "applications", label: "Applications", icon: FolderOpen },
             { id: "earnings", label: "Earnings", icon: DollarSign },
             { id: "freelancer-interviews", label: "Interviews", icon: Settings },
         ] : []),
@@ -58,7 +57,6 @@ export default function DashboardSidebar({
         ] : []),
         ...(isClient ? [
             { id: "browse-freelancers", label: "Browse Freelancers", icon: Users },
-            { id: "applications", label: "Applications", icon: FolderOpen },
             { id: "payments", label: "Payments", icon: DollarSign }
         ] : []),
         { id: "profile", label: "Profile", icon: User },

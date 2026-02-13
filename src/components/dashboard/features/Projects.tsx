@@ -471,7 +471,7 @@ export default function Projects() {
                         No projects found
                     </h3>
                     <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto">
-                        {projectName ? "Try adjusting your search or filters" : "Start your freelancing journey by creating your first project"}
+                        {projectName ? "Try adjusting your search or filters" : user?.userType === 'client' ? "Start your freelancing journey by creating your first project" : "No projects available at the moment"}
                     </p>
                     {user?.userType === 'client' && !projectName && (
                         <button

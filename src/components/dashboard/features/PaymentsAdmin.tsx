@@ -274,7 +274,12 @@ export default function PaymentsAdmin() {
                         </div>
                       </td>
                       <td className="px-3 py-2">
-                        <PaymentStatusBadge status={payment.total.status} size="sm" />
+                        <div className="flex flex-col gap-1">
+                          <PaymentStatusBadge status={payment.total.status} size="sm" />
+                          {payment.total.claimedPaid && (
+                            <span className="text-xs text-orange-600 font-medium">Client claimed paid</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-3 py-2">
                         <PaymentStatusBadge status={payment.releaseStatus} type="release" size="sm" />
@@ -288,7 +293,7 @@ export default function PaymentsAdmin() {
                             <Eye className="w-3 h-3" />
                             Details
                           </button>
-                          {payment.total.status === 'paid' && payment.releaseStatus !== 'released' && (
+                          {payment.total.claimedPaid && (
                             <button
                               onClick={() => handleMarkAsReceived(payment._id)}
                               className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"

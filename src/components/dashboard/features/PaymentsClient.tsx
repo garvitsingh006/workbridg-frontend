@@ -270,7 +270,12 @@ export default function PaymentsClient() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <PaymentStatusBadge status={payment.total.status} size="sm" />
+                      <div className="flex flex-col gap-1">
+                        <PaymentStatusBadge status={payment.total.status} size="sm" />
+                        {payment.total.claimedPaid && (
+                          <span className="text-xs text-orange-600 font-medium">Client claimed paid</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="font-semibold text-sm text-gray-900">₹{(payment.isAdminManagementFee ? payment.totalAmount : payment.totalAmount + payment.platformFee.serviceCharge).toLocaleString()}</div>
@@ -283,7 +288,7 @@ export default function PaymentsClient() {
                         >
                           <MoreVertical className="w-4 h-4 text-gray-500" />
                         </button>
-                        {(payment.overallStatus === 'pending' || payment.overallStatus === "failed") && (
+                        {(payment.overallStatus === 'pending' || payment.overallStatus === "failed" || payment.total.claimedPaid) && (
                           <>
                             <button
                               onClick={() => handlePayment(payment)}
@@ -297,7 +302,7 @@ export default function PaymentsClient() {
                               )}
                               Pay
                             </button>
-                            {payment.total.paymentType === 'upi' && (
+                            {payment.total.paymentType === 'upi' && !payment.total.claimedPaid && (
                               <button
                                 onClick={() => handleMarkAsPaid(payment._id)}
                                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"

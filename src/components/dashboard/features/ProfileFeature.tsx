@@ -327,25 +327,18 @@ export default function ProfileFeature() {
                         {isFreelancer && (
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                                 <h3 className="font-semibold text-slate-900 mb-4">Performance</h3>
-                                {user.freelancerDetails?.isInterviewed ? (
-                                    <div className="space-y-3">
-                                        <div>
-                                            <div className="text-sm text-slate-600">Overall rating</div>
-                                            <div className="font-medium text-slate-900">
-                                                {user.freelancerDetails?.rating ? `${user.freelancerDetails.rating.toFixed(1)}/5.0` : 'No rating yet'}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="text-sm text-slate-600">Projects completed</div>
-                                            <div className="font-medium text-slate-900">{user.freelancerDetails?.completedProjects || 0}</div>
+                                <div className="space-y-3">
+                                    <div>
+                                        <div className="text-sm text-slate-600">Overall rating</div>
+                                        <div className="font-medium text-slate-900">
+                                            {user.freelancerDetails?.rating ? `${user.freelancerDetails.rating.toFixed(1)}/5.0` : 'No rating yet'}
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="text-center py-4">
-                                        <div className="text-amber-600 font-medium mb-1">Interview Pending</div>
-                                        <div className="text-sm text-slate-600">Complete your interview to start receiving projects</div>
+                                    <div>
+                                        <div className="text-sm text-slate-600">Projects completed</div>
+                                        <div className="font-medium text-slate-900">{user.freelancerDetails?.completedProjects || 0}</div>
                                     </div>
-                                )}
+                                </div>
                             </div>
                         )}
                     </div>

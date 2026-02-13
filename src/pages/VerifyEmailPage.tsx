@@ -53,7 +53,7 @@ const VerifyEmailPage: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">
             {/* Floating Elements */}
             {floatingElements.map((element, index) => (
                 <div
@@ -93,7 +93,7 @@ const VerifyEmailPage: React.FC = () => {
                     {/* Success Icon */}
                     <div className="flex justify-center mb-6">
                         <div className="relative">
-                            <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-xl animate-bounce-slow">
+                            <div className="w-24 h-24 bg-linear-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-xl animate-bounce-slow">
                                 <Mail className="w-12 h-12 text-white" />
                             </div>
                             <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
@@ -112,7 +112,7 @@ const VerifyEmailPage: React.FC = () => {
                             We've sent a verification link to
                         </p>
 
-                        <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-4 border border-blue-100">
+                        <div className="bg-linear-to-r from-blue-50 to-green-50 rounded-2xl p-4 border border-blue-100">
                             <p className="text-xl font-semibold text-gray-900 break-all">
                                 {email}
                             </p>
@@ -126,7 +126,7 @@ const VerifyEmailPage: React.FC = () => {
                         {/* Info Box */}
                         <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 mt-6">
                             <div className="flex items-start space-x-3">
-                                <div className="flex-shrink-0">
+                                <div className="shrink-0">
                                     <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
                                         <span className="text-white text-sm font-bold">
                                             !
@@ -171,7 +171,7 @@ const VerifyEmailPage: React.FC = () => {
                     <p className="text-sm text-gray-600">
                         Need help?{" "}
                         <a
-                            href="mailto:support@workbridg.com"
+                            href="/contact"
                             className="font-medium text-black hover:text-gray-800 transition-colors duration-300"
                         >
                             Contact support
