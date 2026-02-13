@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Globe, Mail, Calendar, Award, Briefcase, Building2, User, HelpCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, Mail, Calendar, Award, Briefcase, Building2, User } from 'lucide-react';
 import axios from 'axios';
 
 export default function PublicProfilePage() {
