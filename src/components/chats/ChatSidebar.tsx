@@ -3,6 +3,7 @@ import { type Chat, useChat } from '../../contexts/ChatContext';
 import { useUser } from '../../contexts/UserContext';
 import { Search, MessageCircle, Users as UsersIcon, X } from 'lucide-react';
 import axios from 'axios';
+import PremiumBadge from '../common/PremiumBadge';
 
 interface ChatSidebarProps {
     chats: Chat[];
@@ -271,6 +272,11 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, activeChatId, onSelect
                                                     : (isAdminChat ? 'text-blue-900' : 'text-gray-900')
                                                     }`}>
                                                     {title}
+                                                    {/* Premium badge for the other participant in group/individual chats */}
+                                                    {!isAdminChat && (() => {
+                                                      const otherP = otherParticipants[0];
+                                                      return otherP?.isPremium ? <PremiumBadge className="ml-1" /> : null;
+                                                    })()}
                                                     {/* Show admin moderated only when admin management is explicitly requested and within 2 days */}
                                                     {chat.isLocked && chat.project?.hasRequestedAdminManagement && chat.project?.adminManagementRequestedAt && (
                                                         (() => {

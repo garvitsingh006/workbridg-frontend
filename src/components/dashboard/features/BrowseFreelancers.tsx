@@ -3,6 +3,7 @@ import api from "../../../api";
 import { Star, MapPin, CheckCircle } from "lucide-react";
 import { useUser } from "../../../contexts/UserContext";
 import Joyride, {type CallBackProps, STATUS, type Step, type Placement } from 'react-joyride';
+import PremiumBadge from '../../common/PremiumBadge';
 
 function truncate(str: string, n: number) {
   if (!str) return "";
@@ -55,7 +56,10 @@ function FreelancerCard({ profile }: { profile: any }) {
           {photo ? <img src={photo} alt={name} className="w-full h-full object-cover rounded-lg" /> : String(name).charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">{name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate flex items-center gap-1">
+            {name}
+            {user.isPremium && <PremiumBadge />}
+          </h3>
           <p className="text-sm text-gray-600 mb-2">{workField}</p>
           <div className="flex items-center gap-3 text-sm">
             <div className="flex items-center gap-1">

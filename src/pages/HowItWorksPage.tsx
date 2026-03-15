@@ -588,6 +588,113 @@ const HowItWorks = () => {
                 </div>
             </section>
 
+            {/* Premium Plan Section */}
+            <section className="py-32 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-gray-50 to-white">
+                <div className="max-w-5xl mx-auto">
+                    <div className="text-center mb-16">
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br from-yellow-400 to-amber-500 shadow-xl mb-6">
+                            <Star className="w-10 h-10 text-white fill-white" />
+                        </div>
+                        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                            Freelancer Plans
+                        </h2>
+                        <p className="text-xl text-gray-600">
+                            Start free. Upgrade when you're ready to grow.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-8 items-stretch">
+                        {/* Basic Plan */}
+                        <div className="bg-white rounded-3xl border-2 border-gray-200 p-8 flex flex-col">
+                            <div className="mb-6">
+                                <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-sm font-semibold rounded-full mb-4">Basic</span>
+                                <div className="flex items-end gap-1 mb-2">
+                                    <span className="text-5xl font-bold text-gray-900">₹0</span>
+                                    <span className="text-gray-500 mb-2">/month</span>
+                                </div>
+                                <p className="text-gray-500 text-sm">Everything you need to get started on Workbridg.</p>
+                            </div>
+
+                            <ul className="space-y-4 flex-1 mb-8">
+                                {[
+                                    { text: '5 project applications per week', included: true },
+                                    { text: 'Full profile & portfolio page', included: true },
+                                    { text: 'Direct chat with clients', included: true },
+                                    { text: 'Access to all open projects', included: true },
+                                    { text: 'Premium badge on profile', included: false },
+                                    { text: 'Stand out in client searches', included: false },
+                                    { text: '50 applications per week', included: false },
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3">
+                                        {item.included ? (
+                                            <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+                                        ) : (
+                                            <div className="w-5 h-5 rounded-full border-2 border-gray-200 shrink-0" />
+                                        )}
+                                        <span className={`text-sm ${item.included ? 'text-gray-700' : 'text-gray-400'}`}>{item.text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <Link
+                                to="/register"
+                                className="block text-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-50 transition-colors"
+                            >
+                                Get Started Free
+                            </Link>
+                        </div>
+
+                        {/* Premium Plan */}
+                        <div className="relative bg-linear-to-br from-yellow-400 to-amber-500 rounded-3xl p-8 flex flex-col shadow-2xl shadow-yellow-200">
+                            {/* Popular badge */}
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gray-900 text-white text-sm font-bold rounded-full shadow-lg">
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                    Most Popular
+                                </span>
+                            </div>
+
+                            <div className="mb-6">
+                                <span className="inline-block px-3 py-1 bg-white/30 text-white text-sm font-semibold rounded-full mb-4">Premium</span>
+                                <div className="flex items-end gap-1 mb-2">
+                                    <span className="text-5xl font-bold text-white">₹299</span>
+                                    <span className="text-white/80 mb-2">/month</span>
+                                </div>
+                                <p className="text-white/80 text-sm">For serious freelancers who want to win more projects.</p>
+                            </div>
+
+                            <ul className="space-y-4 flex-1 mb-8">
+                                {[
+                                    '50 project applications per week',
+                                    'Full profile & portfolio page',
+                                    'Direct chat with clients',
+                                    'Access to all open projects',
+                                    'Premium crown badge on profile & chats',
+                                    'Stand out in client searches',
+                                    'Priority visibility to clients',
+                                ].map((text, i) => (
+                                    <li key={i} className="flex items-center gap-3">
+                                        <CheckCircle className="w-5 h-5 text-white shrink-0 fill-white/20" />
+                                        <span className="text-sm text-white">{text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <Link
+                                to="/register"
+                                className="block text-center px-6 py-3 bg-white text-amber-600 font-bold rounded-2xl hover:bg-yellow-50 transition-colors shadow-lg"
+                            >
+                                Upgrade to Premium
+                            </Link>
+                        </div>
+                    </div>
+
+                    <p className="text-center text-sm text-gray-400 mt-8">
+                        Premium is available for freelancers only. Upgrade anytime from your dashboard.
+                    </p>
+                </div>
+            </section>
+
             {/* Final CTA */}
             <section className="py-32 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-blue-600 to-purple-600 text-white">
                 <div className="max-w-4xl mx-auto text-center">

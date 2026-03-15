@@ -28,6 +28,7 @@ export interface Chat {
         _id: string;
         username: string;
         role?: string; // Add role to identify admin, client, freelancer
+        isPremium?: boolean;
     }>;
     project?: {
         _id: string;
@@ -167,7 +168,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         return {
                             _id: participantId,
                             username: p.username || p.fullName || existingParticipant?.username || "User",
-                            role: p.role || p.userType || existingParticipant?.role
+                            role: p.role || p.userType || existingParticipant?.role,
+                            isPremium: p.isPremium ?? existingParticipant?.isPremium ?? false,
                         };
                     }
 
@@ -179,6 +181,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                         _id: participantId,
                         username: p.username || p.fullName || existingParticipant?.username || "User",
                         role: p.role || p.userType || existingParticipant?.role,
+                        isPremium: p.isPremium ?? existingParticipant?.isPremium ?? false,
                     };
                 }
             ),

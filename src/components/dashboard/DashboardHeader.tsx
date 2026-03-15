@@ -2,6 +2,7 @@ import { Menu, Search } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext';
 import { useEffect, useState } from 'react';
 import NotificationBell from '../components/notifications/NotificationBell';
+import PremiumBadge from '../common/PremiumBadge';
 
 interface DashboardHeaderProps {
   onMobileMenuToggle: () => void;
@@ -73,7 +74,10 @@ export default function DashboardHeader({ onMobileMenuToggle, activeFeature }: D
           <div className="flex items-center space-x-3">
             <div className="hidden md:flex items-center space-x-2">
               <div className="text-right">
-                <div className="text-sm font-medium text-gray-900">{user?.fullName || 'User'}</div>
+                <div className="text-sm font-medium text-gray-900 flex items-center gap-1 justify-end">
+                  {user?.fullName || 'User'}
+                  {user?.isPremium && <PremiumBadge />}
+                </div>
                 <div className="text-xs text-gray-500 capitalize">{user?.userType || 'Member'}</div>
               </div>
             </div>

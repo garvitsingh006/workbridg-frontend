@@ -239,10 +239,14 @@ export default function EarningsFreelancer() {
                     <tr key={payment._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div>
-                          <div className="font-medium text-sm text-gray-900">{payment.projectId?.title || 'Unknown Project'}</div>
+                          <div className="font-medium text-sm text-gray-900">{payment.projectId?.title || (payment.isSubscriptionPayment ? 'Premium Subscription' : 'Unknown Project')}</div>
                           {payment.isAdminManagementFee ? (
                             <div className="text-xs text-orange-600 mt-0.5 font-medium">
                               Admin Management Service Charge
+                            </div>
+                          ) : payment.isSubscriptionPayment ? (
+                            <div className="text-xs text-yellow-600 mt-0.5 font-medium">
+                              Premium Subscription
                             </div>
                           ) : (
                             <div className="text-xs text-gray-500 mt-0.5">
@@ -255,14 +259,18 @@ export default function EarningsFreelancer() {
                         <PaymentStatusBadge status={payment.total.status} size="sm" />
                       </td>
                       <td className="px-6 py-4">
-                        <div className="space-y-1">
-                          <PaymentStatusBadge status={payment.releaseStatus} type="release" size="sm" />
-                          {payment.releaseStatus === 'released' && (
-                            <div className="text-xs text-green-600">
-                              Released: {formatDate(payment.updatedAt)}
-                            </div>
-                          )}
-                        </div>
+                        {payment.isSubscriptionPayment ? (
+                          <span className="text-sm text-gray-400">N/A</span>
+                        ) : (
+                          <div className="space-y-1">
+                            <PaymentStatusBadge status={payment.releaseStatus} type="release" size="sm" />
+                            {payment.releaseStatus === 'released' && (
+                              <div className="text-xs text-green-600">
+                                Released: {formatDate(payment.updatedAt)}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <div className="font-semibold text-sm text-gray-900">
@@ -308,33 +316,7 @@ export default function EarningsFreelancer() {
         </div>
       )}
 
-      {/* Status Overview */}
-      {payments.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center hover:shadow-md transition-all">
-            <div className="text-3xl font-bold text-gray-900">{payments.length}</div>
-            <div className="text-sm text-gray-600 mt-1">Total Projects</div>
-          </div>
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center hover:shadow-md transition-all">
-            <div className="text-3xl font-bold text-yellow-600">
-              {payments.filter(p => p.total.status === 'pending').length}
-            </div>
-            <div className="text-sm text-gray-600 mt-1">In Progress</div>
-          </div>
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center hover:shadow-md transition-all">
-            <div className="text-3xl font-bold text-blue-600">
-              {payments.filter(p => p.total.status === 'paid' && p.releaseStatus === 'not_released').length}
-            </div>
-            <div className="text-sm text-gray-600 mt-1">Awaiting Release</div>
-          </div>
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center hover:shadow-md transition-all">
-            <div className="text-3xl font-bold text-green-600">
-              {payments.filter(p => p.releaseStatus === 'released').length}
-            </div>
-            <div className="text-sm text-gray-600 mt-1">Released</div>
-          </div>
-        </div>
-      )}
+
 
       {/* Payment Modal */}
       {selectedPayment && (

@@ -24,6 +24,7 @@ export default function RefundPolicyPage() {
             <h2 className="text-2xl font-semibold mb-4">1. Project Cancellation</h2>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>Projects may be cancelled by mutual agreement between the client and freelancer.</li>
+              <li>If the parties cannot reach agreement, Workbridg does not intervene in contractual obligations or enforce project completion.</li>
               <li>Workbridg does not enforce or guarantee cancellation terms agreed between users.</li>
               <li>Cancellation rules may differ based on the selected payment model.</li>
             </ul>
@@ -45,6 +46,7 @@ export default function RefundPolicyPage() {
               <li>All payments occur directly between clients and freelancers.</li>
               <li>Workbridg does not hold funds, operate escrow services, or control payment timelines.</li>
               <li>Any delays, failures, or disputes related to payments are outside WorkBridg’s control.</li>
+              <li>Users are responsible for creating clear agreements regarding scope, payment terms, deadlines, and deliverables before starting work.</li>
             </ul>
           </section>
 
@@ -60,7 +62,7 @@ export default function RefundPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">5. Contact</h2>
             <p className="text-gray-700 leading-relaxed">
-              For questions regarding refunds or cancellations, contact:
+              For questions regarding refunds or cancellations, Contact:
               <a href="mailto:workbridg.team@gmail.com" className="text-blue-600 hover:underline ml-1">
                 workbridg.team@gmail.com
               </a>

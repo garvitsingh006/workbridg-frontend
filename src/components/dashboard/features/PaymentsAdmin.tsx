@@ -254,9 +254,11 @@ export default function PaymentsAdmin() {
                     <tr key={payment._id} className="hover:bg-gray-50">
                       <td className="px-3 py-2">
                         <div className="font-medium text-gray-900">
-                          {payment.isAdminManagementFee && payment.moderationId 
-                            ? payment.moderationId 
-                            : (payment.projectId?.title || 'Unknown Project')
+                          {payment.isSubscriptionPayment
+                            ? 'Premium Subscription'
+                            : payment.isAdminManagementFee && payment.moderationId 
+                              ? payment.moderationId 
+                              : (payment.projectId?.title || 'Unknown Project')
                           }
                         </div>
                         <div className="text-xs text-gray-500">{formatDate(payment.createdAt)}</div>

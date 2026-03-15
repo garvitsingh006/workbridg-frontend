@@ -2,6 +2,7 @@ import React from "react";
 import { FolderOpen, Plus, ListFilter as Calendar, RefreshCw, HelpCircle } from "lucide-react";
 import { useProject } from "../../../contexts/ProjectContext";
 import { useUser } from "../../../contexts/UserContext";
+import { useChat } from "../../../contexts/ChatContext";
 import CreateProjectModal from "../../modals/CreateProjectModal";
 import ProjectDetailsModal from "../../modals/ProjectDetailsModal";
 import EditProjectModal from "../../modals/EditProjectModal";
@@ -10,6 +11,7 @@ import StatusUpdateModal from "../../modals/StatusUpdateModal";
 import type { Project } from "../../../contexts/ProjectContext";
 import Joyride, {type CallBackProps, STATUS, type Step, type Placement } from 'react-joyride';
 import { toast } from 'react-toastify';
+import api from '../../../api';
 
 export default function Projects() {
     const [projectName, setProjectName] = React.useState("");
@@ -18,10 +20,44 @@ export default function Projects() {
     const [category, setCategory] = React.useState("");
     const { projects, applyToProject, fetchProjects, deleteProject, requestAdminManagement } = useProject();
     const { user, updateUser } = useUser();
-    
+    const { chats, fetchChats } = useChat();
+
+    const appliedProjectIds = React.useMemo(() => {
+        if (user?.userType !== 'freelancer') return new Set<string>();
+        return new Set(
+            chats
+                .filter(c => c.type === 'group' && c.project?._id)
+                .map(c => String(c.project!._id))
+        );
+    }, [chats, user?.userType]);
+    const [weeklyStats, setWeeklyStats] = React.useState<{ used: number; limit: number; remaining: number } | null>(null);
+
     React.useEffect(() => {
         fetchProjects();
+        if (user?.userType === 'freelancer') {
+            fetchChats();
+            api.get('/users/freelancer/weekly-stats').then((res: any) => {
+                if (res.data.success) setWeeklyStats(res.data.data);
+            }).catch(() => {});
+        }
     }, []);
+
+    const handleApply = async (projectId: string) => {
+        if (weeklyStats && weeklyStats.remaining <= 0) {
+            toast.error(`Weekly application limit reached (${weeklyStats.limit}/week). Upgrade to Premium for 50 applications/week!`);
+            return;
+        }
+        try {
+            await applyToProject(projectId, { proposalSummary: '', estimatedDelivery: '', addOns: '' });
+            toast.success('Discussion started! Check your chats.');
+            // Refresh weekly stats
+            api.get('/users/freelancer/weekly-stats').then((res: any) => {
+                if (res.data.success) setWeeklyStats(res.data.data);
+            }).catch(() => {});
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to start discussion');
+        }
+    };
     
     const [runTour, setRunTour] = React.useState(false);
     
@@ -403,27 +439,25 @@ export default function Projects() {
                                         </div>
                                     </div>
                                 ) : null}
-                                {user?.userType === 'freelancer' && (
-                                    <button
-                                        onClick={async (e) => {
-                                            e.stopPropagation();
-                                            if (!originalProject) return;
-                                            try {
-                                                await applyToProject(originalProject.id, {
-                                                    proposalSummary: '',
-                                                    estimatedDelivery: '',
-                                                    addOns: ''
-                                                });
-                                                toast.success('Discussion started! Check your chats.');
-                                            } catch (error: any) {
-                                                toast.error(error.message || 'Failed to start discussion');
-                                            }
-                                        }}
-                                        className="px-3 py-1.5 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-md hover:from-[#f72585] hover:to-[#f72585] transition-all font-medium text-sm shadow-lg shadow-[#f72585]/30 cursor-pointer"
-                                    >
-                                        Start Discussion
-                                    </button>
-                                )}
+                                {user?.userType === 'freelancer' && (() => {
+                                    const alreadyApplied = originalProject ? appliedProjectIds.has(originalProject.id) : false;
+                                    return alreadyApplied ? (
+                                        <span className="px-3 py-1.5 bg-gray-100 text-gray-500 rounded-md font-medium text-sm border border-gray-200 cursor-not-allowed">
+                                            Already Applied
+                                        </span>
+                                    ) : (
+                                        <button
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                if (!originalProject) return;
+                                                await handleApply(originalProject.id);
+                                            }}
+                                            className="px-3 py-1.5 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-md hover:from-[#f72585] hover:to-[#f72585] transition-all font-medium text-sm shadow-lg shadow-[#f72585]/30 cursor-pointer"
+                                        >
+                                            Start Discussion
+                                        </button>
+                                    );
+                                })()}
                                 {user?.userType !== 'admin' && user?.userType !== "freelancer" && originalProject?.status === 'unassigned' && (
                                     <div 
                                         data-intro={index === 0 ? "edit-delete" : undefined} 
@@ -573,6 +607,7 @@ export default function Projects() {
                     setSelectedProject(null);
                 }}
                 project={selectedProject}
+                alreadyApplied={selectedProject ? appliedProjectIds.has(selectedProject.id) : false}
                 onEdit={(project) => {
                     setDetailsModalOpen(false);
                     setSelectedProject(project);
@@ -580,16 +615,7 @@ export default function Projects() {
                 }}
                 onApply={async (project) => {
                     setDetailsModalOpen(false);
-                    try {
-                        await applyToProject(project.id, {
-                            proposalSummary: '',
-                            estimatedDelivery: '',
-                            addOns: ''
-                        });
-                        toast.success('Discussion started! Check your chats.');
-                    } catch (error: any) {
-                        toast.error(error.message || 'Failed to start discussion');
-                    }
+                    await handleApply(project.id);
                 }}
             />
 

@@ -48,6 +48,7 @@ export interface User {
     phone?: string;
     userType: "freelancer" | "client" | "admin" | "interviewer";
     isVerified?: boolean;
+    isPremium?: boolean;
     freelancerDetails?: FreelancerDetails;
     clientDetails?: ClientDetails;
     hasSeenProjectsOnboarding?: boolean;
@@ -159,6 +160,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
                 fullName: backendData.user.fullName,
                 userType: backendData.user.role, // "freelancer" | "client" | "admin" | "interviewer"
                 isVerified: backendData.user.isVerified ?? true,
+                isPremium: backendData.user.isPremium ?? false,
                 ...(backendData.user.role === "freelancer" && {
                     freelancerDetails: {
                         location: backendData.location || "",

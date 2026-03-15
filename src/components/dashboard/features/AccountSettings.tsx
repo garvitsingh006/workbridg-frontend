@@ -132,7 +132,7 @@ export default function AccountSettings() {
           </h2>
 
           <div className="flex items-start gap-6">
-            <div className="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center shrink-0">
               <span className="text-white font-medium text-2xl">
                 {getInitials()}
               </span>

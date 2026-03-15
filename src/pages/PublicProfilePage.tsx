@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, MapPin, Globe, Mail, Calendar, Award, Briefcase, Building2, User } from 'lucide-react';
 import axios from 'axios';
+import PremiumBadge from '../components/common/PremiumBadge';
 
 export default function PublicProfilePage() {
   const { username } = useParams();
@@ -111,7 +112,10 @@ export default function PublicProfilePage() {
               <div className="flex-1 md:mt-10">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                   <div>
-                    <h1 className="text-xl font-bold text-slate-900 mb-1">{name}</h1>
+                    <h1 className="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+                      {name}
+                      {user.isPremium && <PremiumBadge />}
+                    </h1>
                     <div className="flex items-center space-x-3 text-slate-600 mb-2">
                       <div className="flex items-center space-x-2">
                         {isFreelancer && <Briefcase className="w-4 h-4" />}

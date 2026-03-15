@@ -1,9 +1,12 @@
 import { useProject } from '../../../contexts/ProjectContext';
 import { useUser } from '../../../contexts/UserContext';
 import { usePayment } from '../../../contexts/PaymentContext';
-import { TrendingUp, DollarSign, FolderOpen, CircleCheck as CheckCircle, Users, Search } from 'lucide-react';
+import { TrendingUp, DollarSign, FolderOpen, CircleCheck as CheckCircle, Users, Search, Crown, Zap } from 'lucide-react';
 import ProjectDetailsModal from '../../modals/ProjectDetailsModal';
 import { useState, useEffect } from 'react';
+import api from '../../../api';
+import { toast } from 'react-toastify';
+import { createPortal } from 'react-dom';
 
 type DashboardHomeProps = {
   onViewAllProjects?: () => void;
@@ -11,11 +14,17 @@ type DashboardHomeProps = {
 
 export default function DashboardHome({}: DashboardHomeProps) {
   const { projects, fetchProjects } = useProject();
-  const { user } = useUser();
-  const { payments, fetchUserPayments } = usePayment();
+  const { user, fetchUser } = useUser();
+  const { payments, fetchUserPayments, subscribeFreelancer } = usePayment();
   const [, setIsVisible] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [weeklyStats, setWeeklyStats] = useState<{ used: number; limit: number; remaining: number } | null>(null);
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
+
+  const isFreelancer = user?.userType === 'freelancer';
+  const freelancerDetails = user?.freelancerDetails;
 
   useEffect(() => {
     setIsVisible(true);
@@ -23,15 +32,34 @@ export default function DashboardHome({}: DashboardHomeProps) {
     fetchProjects();
   }, [fetchUserPayments, fetchProjects]);
 
-  const availableProjects = projects.filter(p => p.status !== 'completed').length;
-  const isFreelancer = user?.userType === 'freelancer';
-  const freelancerDetails = user?.freelancerDetails;
-  
+  useEffect(() => {
+    if (isFreelancer) {
+      api.get('/users/freelancer/weekly-stats').then((res: any) => {
+        if (res.data.success) setWeeklyStats(res.data.data);
+      }).catch(() => {});
+    }
+  }, [isFreelancer]);
+
+  const handleSubscribe = async () => {
+    setSubscribing(true);
+    try {
+      await subscribeFreelancer();
+      await fetchUser();
+      const statsRes = await api.get('/users/freelancer/weekly-stats');
+      if (statsRes.data.success) setWeeklyStats(statsRes.data.data);
+      setShowSubscribeModal(false);
+      toast.success('🎉 You are now a Premium member!');
+    } catch (err: any) {
+      toast.error(err.message || 'Subscription failed');
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
   const releasedEarnings = payments.reduce((sum, payment) => {
     return sum + (payment.releaseStatus === 'released' ? payment.releaseAmount : 0);
   }, 0);
   
-  // Calculate previous month data for percentage changes
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
@@ -61,6 +89,8 @@ export default function DashboardHome({}: DashboardHomeProps) {
     const change = ((current - previous) / previous) * 100;
     return change >= 0 ? `+${Math.round(change)}%` : `${Math.round(change)}%`;
   };
+
+  const availableProjects = projects.filter(p => p.status !== 'completed').length;
 
   const stats = [
     {
@@ -121,28 +151,54 @@ export default function DashboardHome({}: DashboardHomeProps) {
              project.status === 'pending' ? 90 : 10,
   }));
 
-
   return (
     <div className="p-6 space-y-6 mt-10">
-      {/* Header with Search */}
-      {/* <div className="flex items-center justify-between">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#f72585] focus:border-transparent outline-none transition-all text-sm"
-            />
+
+      {/* Premium subscription banner - only for non-premium freelancers */}
+      {isFreelancer && !user?.isPremium && (
+        <div className="bg-linear-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-yellow-400 rounded-xl">
+              <Crown className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 text-sm">Upgrade to Premium</p>
+              <p className="text-xs text-gray-600">Get 50 applications/week, a premium badge, and more — for just ₹299/month</p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="p-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors relative">
-            <Bell className="w-5 h-5 text-gray-600" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-[#f72585] rounded-full"></span>
+          <button
+            onClick={() => setShowSubscribeModal(true)}
+            className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold text-sm rounded-xl transition-colors"
+          >
+            <Zap className="w-4 h-4" />
+            Upgrade
           </button>
         </div>
-      </div> */}
+      )}
+
+      {/* Weekly application limit - for all freelancers */}
+      {isFreelancer && weeklyStats && (
+        <div className="bg-white border border-gray-100 rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-2">
+            {user?.isPremium && <Crown className="w-4 h-4 text-yellow-500 fill-yellow-400" />}
+            <span className="text-sm font-medium text-gray-700">Weekly Applications</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${weeklyStats.remaining === 0 ? 'bg-red-400' : user?.isPremium ? 'bg-yellow-400' : 'bg-[#f72585]'}`}
+                  style={{ width: `${(weeklyStats.used / weeklyStats.limit) * 100}%` }}
+                />
+              </div>
+              <span className="text-xs text-gray-500">{weeklyStats.used}/{weeklyStats.limit}</span>
+            </div>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${weeklyStats.remaining === 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'}`}>
+              {weeklyStats.remaining} left
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -191,7 +247,6 @@ export default function DashboardHome({}: DashboardHomeProps) {
               </div>
               <div className="text-sm text-gray-500 mt-1">Total Earnings</div>
             </div>
-            {/* Chart Visualization - Simplified SVG */}
             <div className="relative h-64 flex items-end justify-between gap-2">
               {(() => {
                 const monthlyData = Array(12).fill(0);
@@ -280,17 +335,73 @@ export default function DashboardHome({}: DashboardHomeProps) {
         </div>
       </div>
 
+      {/* Project Details Modal */}
+      <ProjectDetailsModal
+        isOpen={detailsModalOpen}
+        onClose={() => {
+          setDetailsModalOpen(false);
+          setSelectedProject(null);
+        }}
+        project={selectedProject}
+        onEdit={() => {}}
+      />
 
-        {/* Project Details Modal */}
-        <ProjectDetailsModal
-          isOpen={detailsModalOpen}
-          onClose={() => {
-            setDetailsModalOpen(false);
-            setSelectedProject(null);
-          }}
-          project={selectedProject}
-          onEdit={() => {}}
-        />
+      {/* Subscribe Modal */}
+      {showSubscribeModal && createPortal(
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => !subscribing && setShowSubscribeModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 bg-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Crown className="w-7 h-7 text-yellow-500 fill-yellow-400" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Go Premium</h3>
+              <p className="text-gray-500 text-sm mt-1">Unlock the full potential of Workbridg</p>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              {['50 applications per week (vs 5)', 'Premium badge next to your name', 'Stand out to clients'].map(benefit => (
+                <div key={benefit} className="flex items-center gap-2 text-sm text-gray-700">
+                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+                  {benefit}
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-4 mb-6 text-center">
+              <div className="text-3xl font-bold text-gray-900">₹299<span className="text-base font-normal text-gray-500">/month</span></div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSubscribeModal(false)}
+                disabled={subscribing}
+                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubscribe}
+                disabled={subscribing}
+                className="flex-1 px-4 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl transition-colors text-sm font-semibold disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {subscribing ? (
+                  <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Crown className="w-4 h-4" />
+                )}
+                {subscribing ? 'Processing...' : 'Confirm Payment'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

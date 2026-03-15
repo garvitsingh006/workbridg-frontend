@@ -11,6 +11,7 @@ import DateSeparator from './DateSeparator';
 import { isSameDay } from '../../utils/dateUtils';
 import api from '../../api';
 import { toast } from 'react-toastify';
+import PremiumBadge from '../common/PremiumBadge';
 
 // const AdminModerationButton: React.FC<{ projectId: string }> = ({ projectId }) => {
 //   const [isLoading, setIsLoading] = React.useState(false);
@@ -128,9 +129,9 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
     }
     if (chat.type === 'group') {
       if (chat.project?.title && otherParticipants.length > 0) {
-        // Show project name + other participant's name
         const otherParticipant = otherParticipants[0];
-        return `${chat.project.title} - ${otherParticipant.username || 'User'}`;
+        const premiumMark = otherParticipant.isPremium ? ' ★' : '';
+        return `${chat.project.title} - ${otherParticipant.username || 'User'}${premiumMark}`;
       }
       return chat.project?.title || `Group Chat (${chat.participants.length})`;
     }
@@ -306,6 +307,10 @@ const ChatThread: React.FC<ChatThreadProps> = ({ chat, onToggleSidebar, highligh
                         <span className="text-xs font-medium text-gray-600">
                           {m.sender.username?.toLowerCase() === 'admin' ? 'Admin' : m.sender.username}
                         </span>
+                        {(() => {
+                          const senderParticipant = chat.participants.find(p => p._id === m.sender._id);
+                          return senderParticipant?.isPremium ? <PremiumBadge /> : null;
+                        })()}
                       </div>
                     )}
                     <div className={`rounded-2xl px-3 py-2 shadow-sm transition-all duration-500 ${

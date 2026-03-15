@@ -50,6 +50,8 @@ export interface Payment {
     | "released"
     | "refunded";
     isAdminManagementFee?: boolean;
+    isSubscriptionPayment?: boolean;
+    subscriberId?: { _id: string; fullName: string };
     moderationId?: string;
     description?: string;
     createdAt: string;
@@ -104,6 +106,7 @@ interface PaymentContextType {
     ) => Promise<Payment>;
     releasePayment: (paymentId: string) => Promise<Payment>;
     refundPayment: (paymentId: string) => Promise<Payment>;
+    subscribeFreelancer: () => Promise<void>;
 
     // Cashfree integration
     openCashfreeCheckout: (
@@ -414,6 +417,24 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({
         []
     );
 
+    const subscribeFreelancer = useCallback(async (): Promise<void> => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await api.post("/payments/subscribe");
+            if (response.data.success) {
+                const newPayment = response.data.data.payment;
+                setPayments((prev) => [...prev, newPayment]);
+            } else {
+                throw new Error(response.data.message);
+            }
+        } catch (err: any) {
+            handleError(err, "subscribe");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     const openCashfreeCheckout = useCallback(
         (
             orderData: CreateOrderResponse,
@@ -500,6 +521,7 @@ export const PaymentProvider: React.FC<PaymentProviderProps> = ({
         createPaymentRecord,
         releasePayment,
         refundPayment,
+        subscribeFreelancer,
         openCashfreeCheckout,
     };
 

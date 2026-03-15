@@ -7,11 +7,12 @@ interface ProjectDetailsModalProps {
   project: Project | null;
   onEdit: (project: Project) => void;
   onApply?: (project: Project) => void;
+  alreadyApplied?: boolean;
 }
 
 import { useUser } from '../../contexts/UserContext';
 
-export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, onApply }: ProjectDetailsModalProps) {
+export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, onApply, alreadyApplied }: ProjectDetailsModalProps) {
   const { user } = useUser();
 
   if (!isOpen || !project) return null;
@@ -219,16 +220,22 @@ export default function ProjectDetailsModal({ isOpen, onClose, project, onEdit, 
           {/* Footer Actions */}
           {user?.userType === 'freelancer' && (
             <div className="border-t border-gray-100 pt-6">
-              <button
-                onClick={() => {
-                  if (onApply && project) {
-                    onApply(project);
-                  }
-                }}
-                className="px-6 py-3 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-xl hover:from-[#f72585] hover:to-[#f72585] transition-all font-semibold shadow-lg shadow-[#f72585]/30 cursor-pointer"
-              >
-                Start Discussion
-              </button>
+              {alreadyApplied ? (
+                <span className="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-semibold border border-gray-200 cursor-not-allowed inline-block">
+                  Already Applied
+                </span>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (onApply && project) {
+                      onApply(project);
+                    }
+                  }}
+                  className="px-6 py-3 bg-linear-to-r from-[#f72585] to-[#f72585] text-white rounded-xl hover:from-[#f72585] hover:to-[#f72585] transition-all font-semibold shadow-lg shadow-[#f72585]/30 cursor-pointer"
+                >
+                  Start Discussion
+                </button>
+              )}
             </div>
           )}
 
